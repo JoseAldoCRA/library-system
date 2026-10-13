@@ -1,150 +1,109 @@
-.page {
-  --background: #fafafa;
-  --foreground: #fff;
 
-  --text-primary: #000;
-  --text-secondary: #666;
-
-  --button-primary-hover: #383838;
-  --button-secondary-hover: #f2f2f2;
-  --button-secondary-border: #ebebeb;
-
-  display: flex;
-  flex: 1;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  font-family: var(--font-geist-sans);
-  background-color: var(--background);
+.contenedor {
+    min-height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 20px;
+    background-color: #f1f4f8;
 }
 
-.main {
-  display: flex;
-  flex: 1;
-  width: 100%;
-  max-width: 800px;
-  flex-direction: column;
-  align-items: flex-start;
-  justify-content: space-between;
-  background-color: var(--foreground);
-  padding: 120px 60px;
+.tarjeta {
+    width: 100%;
+    max-width: 450px;
+    padding: 40px;
+    background-color: white;
+    border-radius: 12px;
+    box-shadow: 0 4px 18px rgba(0, 0, 0, 0.1);
+    color: #183153;
 }
 
-.intro {
-  display: flex;
-  flex-direction: column;
-  align-items: flex-start;
-  text-align: left;
-  gap: 24px;
+.tarjeta h1 {
+    text-align: center;
+    color: #194875;
+    font-size: 30px;
+    margin-bottom: 15px;
 }
 
-.intro h1 {
-  max-width: 320px;
-  font-size: 40px;
-  font-weight: 600;
-  line-height: 48px;
-  letter-spacing: -2.4px;
-  text-wrap: balance;
-  color: var(--text-primary);
+.tarjeta h2 {
+    text-align: center;
+    font-size: 23px;
+    margin-bottom: 30px;
 }
 
-.intro p {
-  max-width: 440px;
-  font-size: 18px;
-  line-height: 32px;
-  text-wrap: balance;
-  color: var(--text-secondary);
+.formulario {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
 }
 
-.intro a {
-  font-weight: 500;
-  color: var(--text-primary);
+.formulario label {
+    font-weight: bold;
+    font-size: 15px;
 }
 
-.ctas {
-  display: flex;
-  flex-direction: row;
-  width: 100%;
-  max-width: 440px;
-  gap: 16px;
-  font-size: 14px;
+.formulario input {
+    width: 100%;
+    padding: 13px;
+    border: 1px solid #cbd5e1;
+    border-radius: 6px;
+    font-size: 15px;
+    background-color: white;
+    color: #183153;
 }
 
-.ctas a {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  height: 40px;
-  padding: 0 16px;
-  border-radius: 128px;
-  border: 1px solid transparent;
-  transition: 0.2s;
-  cursor: pointer;
-  width: fit-content;
-  font-weight: 500;
+.formulario input:focus {
+    outline: 2px solid #194875;
+    outline-offset: 1px;
 }
 
-a.primary {
-  background: var(--text-primary);
-  color: var(--background);
-  gap: 8px;
+.formulario button {
+    margin-top: 12px;
+    padding: 13px;
+    background-color: #194875;
+    color: white;
+    border: none;
+    border-radius: 6px;
+    font-size: 16px;
 }
 
-a.secondary {
-  border-color: var(--button-secondary-border);
+.formulario button:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
 }
 
-/* Enable hover only on non-touch devices */
-@media (hover: hover) and (pointer: fine) {
-  a.primary:hover {
-    background: var(--button-primary-hover);
-    border-color: transparent;
-  }
-
-  a.secondary:hover {
-    background: var(--button-secondary-hover);
-    border-color: transparent;
-  }
+.formulario button {
+    cursor: pointer;
 }
 
-@media (max-width: 600px) {
-  .main {
-    padding: 48px 24px;
-  }
-
-  .intro {
-    gap: 16px;
-  }
-
-  .intro h1 {
-    font-size: 32px;
-    line-height: 40px;
-    letter-spacing: -1.92px;
-  }
+.formulario button:hover {
+    background-color: #12375a;
 }
 
-@media (prefers-color-scheme: dark) {
-  .logo {
-    filter: invert();
-  }
-
-  .page {
-    --background: #000;
-    --foreground: #000;
-
-    --text-primary: #ededed;
-    --text-secondary: #999;
-
-    --button-primary-hover: #ccc;
-    --button-secondary-hover: #1a1a1a;
-    --button-secondary-border: #1a1a1a;
-  }
+.registro {
+    text-align: center;
+    margin-top: 22px;
+    font-size: 14px;
 }
 
-.code {
-  font-family: var(--font-geist-mono);
-  font-size: 0.9em;
-  background: color-mix(in srgb, currentColor 8%, transparent);
-  padding: 0.1em 0.4em;
-  border-radius: 6px;
+.registro span {
+    color: #194875;
+    font-weight: bold;
+}
+
+.aviso {
+    margin-top: 18px;
+    text-align: center;
+    font-size: 12px;
+    color: #64748b;
+}
+
+@media (max-width: 480px) {
+    .tarjeta {
+        padding: 25px;
+    }
+
+    .tarjeta h1 {
+        font-size: 25px;
+    }
 }
