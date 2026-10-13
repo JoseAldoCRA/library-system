@@ -1,36 +1,30 @@
+
 import { crearClienteSupabaseServidor } from '@/lib/supabaseServer';
 
 export async function GET() {
     try {
         const supabase = await crearClienteSupabaseServidor();
 
-        const { data, error } = await supabase
-            .from('usuarios')
-            .select('id_usuario')
-            .limit(1);
+        const { error } = await supabase.auth.getSession();
 
         if (error) {
-            console.error('Error de Supabase:', error.message);
-
             return Response.json({
                 conexion: false,
-                mensaje: 'No se pudo consultar la tabla usuarios',
+                mensaje: 'Error al consultar Supabase Auth',
                 detalle: error.message
             }, { status: 500 });
         }
 
         return Response.json({
             conexion: true,
-            mensaje: 'Conexión con Supabase correcta',
-            registrosConsultados: data.length
+            mensaje: 'Comunicación con Supabase Auth correcta'
         });
 
     } catch (error) {
-        console.error('Error de conexión:', error.message);
-
         return Response.json({
             conexion: false,
-            mensaje: 'Error al conectar con Supabase'
+            mensaje: 'Error en la configuración de Supabase',
+            detalle: error.message
         }, { status: 500 });
     }
 }

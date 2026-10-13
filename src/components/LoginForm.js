@@ -2,19 +2,39 @@
 
 import { useState } from "react";
 import styles from "@/app/page.module.css";
-import { validarCredenciales } from "@/services/authService";
+import { iniciarSesion } from "@/services/authService";
+import { useRouter } from "next/navigation";
 
 export default function LoginForm() {
   const [correo, setCorreo] = useState("");
   const [contrasena, setContrasena] = useState("");
   const [mensaje, setMensaje] = useState("");
+  const [cargando, setCargando] = useState(false);
+  const router = useRouter();
 
-  function manejarEnvio(evento) {
+  async function manejarEnvio(evento) {
     evento.preventDefault();
 
-    const resultado = validarCredenciales(correo, contrasena);
+    setMensaje("");
+    setCargando(true);
 
-    setMensaje(resultado);
+    try {
+      const resultado = await iniciarSesion(correo, contrasena);
+      if (resultado.exito) {
+        
+        if (resultado.usuario.rol === "bibliotecario") {
+          router.replace("/bibliotecario");
+        } else {
+          setMensaje("Bienvenido, " + resultado.usuario.nombre);
+        }
+      } else {
+        setMensaje(resultado.mensaje);
+      }
+    } catch (error) {
+      setMensaje("Ocurrió un error al iniciar sesión.");
+    } finally {
+      setCargando(false);
+    }
   }
 
   return (
@@ -43,7 +63,9 @@ export default function LoginForm() {
           required
         />
 
-        <button type="submit">Ingresar</button>
+        <button type="submit" disabled={cargando}>
+          {cargando ? "Ingresando..." : "Ingresar"}
+        </button>
       </form>
 
       {mensaje && (

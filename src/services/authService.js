@@ -1,12 +1,37 @@
-export function validarCredenciales(correo, contrasena) {
+import { crearClienteSupabase } from '@/lib/supabaseClient';
 
-    if (!correo.trim() || !contrasena) {
-        return 'Debes ingresar correo y contraseña';
+export async function iniciarSesion(correo, contrasena) {
+    const supabase = crearClienteSupabase();
+
+    const { data, error } = await supabase.auth.signInWithPassword({
+        email: correo,
+        password: contrasena
+    });
+
+    if (error) {
+        return {
+            exito: false,
+            mensaje: 'Correo o contraseña incorrectos'
+        };
     }
 
-    if (!correo.includes('@')) {
-        return 'Debes ingresar un correo válido';
+    const { data: perfil, error: errorPerfil } = await supabase
+        .from('usuarios')
+        .select('id_usuario, nombre, correo, rol, estado')
+        .eq('auth_user_id', data.user.id)
+        .single();
+
+    if (errorPerfil || !perfil || perfil.estado !== 'activo') {
+        await supabase.auth.signOut();
+
+        return {
+            exito: false,
+            mensaje: 'Tu usuario no tiene un perfil activo'
+        };
     }
 
-    return 'Formulario válido. La conexión con Supabase está pendiente.';
+    return {
+        exito: true,
+        usuario: perfil
+    };
 }
