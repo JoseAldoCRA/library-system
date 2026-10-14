@@ -1,4 +1,4 @@
-import { obtenerLibros, obtenerCategorias, insertarLibro, actualizarLibro } from "@/repositories/librosRepository";
+import { obtenerLibros, obtenerCategorias, insertarLibro, actualizarLibro, contarEjemplaresLibro, eliminarLibro } from "@/repositories/librosRepository";
 
 export async function listarLibros() {
   const libros = await obtenerLibros();
@@ -94,6 +94,39 @@ export async function editarLibro(idLibro, libro) {
   } catch (error) {
     if (error.message.includes("libros_isbn_key")) {
       throw new Error("Ya existe otro libro registrado con ese ISBN.");
+    }
+
+    throw error;
+  }
+}
+
+
+export async function eliminarLibroSeguro(idLibro) {
+  const id = Number(idLibro);
+
+  if (!Number.isInteger(id) || id <= 0) {
+    throw new Error("El libro seleccionado no es válido.");
+  }
+
+  const cantidadEjemplares = await contarEjemplaresLibro(id);
+
+  if (cantidadEjemplares === null) {
+    throw new Error("No se pudo comprobar la cantidad de ejemplares.");
+  }
+
+  if (cantidadEjemplares > 0) {
+    throw new Error(
+      "No se puede eliminar el libro porque tiene ejemplares registrados."
+    );
+  }
+
+  try {
+    return await eliminarLibro(id);
+  } catch (error) {
+    if (error.message.includes("foreign key constraint")) {
+      throw new Error(
+        "No se puede eliminar el libro porque tiene registros relacionados."
+      );
     }
 
     throw error;

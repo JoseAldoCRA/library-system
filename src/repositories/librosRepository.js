@@ -73,3 +73,36 @@ export async function actualizarLibro(idLibro, libro) {
 
   return data;
 }
+
+
+export async function contarEjemplaresLibro(idLibro) {
+  const supabase = crearClienteSupabase();
+
+  const { count, error } = await supabase
+    .from("ejemplares")
+    .select("id_ejemplar", { count: "exact", head: true })
+    .eq("id_libro", idLibro);
+
+  if (error) {
+    throw new Error(error.message);
+  }
+
+  return count;
+}
+
+export async function eliminarLibro(idLibro) {
+  const supabase = crearClienteSupabase();
+
+  const { data, error } = await supabase
+    .from("libros")
+    .delete()
+    .eq("id_libro", idLibro)
+    .select("id_libro")
+    .single();
+
+  if (error) {
+    throw new Error(error.message);
+  }
+
+  return data;
+}
