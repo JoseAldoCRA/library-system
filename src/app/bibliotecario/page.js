@@ -6,12 +6,14 @@ import { crearClienteSupabase } from "@/lib/supabaseClient";
 import TablaLibros from "@/components/TablaLibros";
 import FormularioLibro from "@/components/FormularioLibro";
 import FormularioEjemplar from "@/components/FormularioEjemplar";
+import FormularioEditarLibro from "@/components/FormularioEditarLibro";
 
 export default function PanelBibliotecario() {
   const router = useRouter();
   const [nombre, setNombre] = useState("");
   const [cargando, setCargando] = useState(true);
   const [actualizacionLibros, setActualizacionLibros] = useState(0);
+  const [libroEditar, setLibroEditar] = useState(null);
 
   useEffect(() => {
     async function verificarUsuario() {
@@ -97,7 +99,22 @@ export default function PanelBibliotecario() {
           alRegistrar={() => setActualizacionLibros((anterior) => anterior + 1)}
         />
 
-        <TablaLibros actualizacion={actualizacionLibros} />
+        <TablaLibros
+          actualizacion={actualizacionLibros}
+          alEditar={(libro) => setLibroEditar(libro)}
+        />
+
+        {libroEditar && (
+          <FormularioEditarLibro
+            key={libroEditar.id_libro}
+            libro={libroEditar}
+            alGuardar={() => {
+              setLibroEditar(null);
+              setActualizacionLibros((anterior) => anterior + 1);
+            }}
+            alCancelar={() => setLibroEditar(null)}
+          />
+        )}
 
         <button
           onClick={cerrarSesion}

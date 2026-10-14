@@ -10,13 +10,9 @@ export async function obtenerLibros() {
       isbn,
       titulo,
       autor,
-      categorias (
-        nombre
-      ),
-      ejemplares (
-        id_ejemplar,
-        estado
-      )
+      id_categoria,
+      categorias ( nombre ),
+      ejemplares ( id_ejemplar, estado)
     `)
     .order("id_libro", { ascending: true });
 
@@ -50,6 +46,24 @@ export async function insertarLibro(libro) {
   const { data, error } = await supabase
     .from("libros")
     .insert([libro])
+    .select("id_libro, isbn, titulo, autor, id_categoria")
+    .single();
+
+  if (error) {
+    throw new Error(error.message);
+  }
+
+  return data;
+}
+
+
+export async function actualizarLibro(idLibro, libro) {
+  const supabase = crearClienteSupabase();
+
+  const { data, error } = await supabase
+    .from("libros")
+    .update(libro)
+    .eq("id_libro", idLibro)
     .select("id_libro, isbn, titulo, autor, id_categoria")
     .single();
 

@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import { listarLibros } from "@/services/librosService";
 
-export default function TablaLibros({ actualizacion }) {
+export default function TablaLibros({ actualizacion, alEditar }) {
   const [libros, setLibros] = useState([]);
   const [cargando, setCargando] = useState(true);
   const [error, setError] = useState("");
@@ -70,6 +70,7 @@ export default function TablaLibros({ actualizacion }) {
                 <th style={{ padding: "12px" }}>Categoría</th>
                 <th style={{ padding: "12px" }}>Disponibles</th>
                 <th style={{ padding: "12px" }}>Total</th>
+                <th style={{ padding: "12px" }}>Acciones</th>
               </tr>
             </thead>
 
@@ -89,6 +90,23 @@ export default function TablaLibros({ actualizacion }) {
                   <td style={{ padding: "12px" }}>{libro.categoria}</td>
                   <td style={{ padding: "12px" }}>{libro.disponibles}</td>
                   <td style={{ padding: "12px" }}>{libro.total}</td>
+
+                  <td>
+                    <button
+                      type="button"
+                      onClick={() => alEditar(libro)}
+                      style={{
+                        backgroundColor: "#194b78",
+                        color: "white",
+                        padding: "8px 14px",
+                        border: "none",
+                        borderRadius: "6px",
+                        cursor: "pointer",
+                      }}
+                    >
+                      Editar
+                    </button>
+                  </td>
                 </tr>
               ))}
             </tbody>
