@@ -1,20 +1,26 @@
-
 "use client";
 
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { crearClienteSupabase } from "@/lib/supabaseClient";
+import TablaLibros from "@/components/TablaLibros";
+import FormularioLibro from "@/components/FormularioLibro";
+import FormularioEjemplar from "@/components/FormularioEjemplar";
 
 export default function PanelBibliotecario() {
   const router = useRouter();
   const [nombre, setNombre] = useState("");
   const [cargando, setCargando] = useState(true);
+  const [actualizacionLibros, setActualizacionLibros] = useState(0);
 
   useEffect(() => {
     async function verificarUsuario() {
       const supabase = crearClienteSupabase();
 
-      const { data: { user }, error } = await supabase.auth.getUser();
+      const {
+        data: { user },
+        error,
+      } = await supabase.auth.getUser();
 
       if (error || !user) {
         router.replace("/");
@@ -55,14 +61,18 @@ export default function PanelBibliotecario() {
   }
 
   return (
-    <main style={{ padding: "40px", background: "#f1f5f9", minHeight: "100vh" }}>
-      <div style={{
-        background: "white",
-        padding: "30px",
-        borderRadius: "12px",
-        maxWidth: "900px",
-        margin: "auto"
-      }}>
+    <main
+      style={{ padding: "40px", background: "#f1f5f9", minHeight: "100vh" }}
+    >
+      <div
+        style={{
+          background: "white",
+          padding: "30px",
+          borderRadius: "12px",
+          maxWidth: "900px",
+          margin: "auto",
+        }}
+      >
         <h1 style={{ color: "#194b78" }}>Sistema de Biblioteca</h1>
 
         <p style={{ marginTop: "15px", color: "#334155" }}>
@@ -74,9 +84,20 @@ export default function PanelBibliotecario() {
         </h2>
 
         <p style={{ marginTop: "15px", color: "#334155" }}>
-          Desde aquí podrás administrar los libros,
-          ejemplares, préstamos y devoluciones de la biblioteca.
+          Desde aquí podrás administrar los libros, ejemplares, préstamos y
+          devoluciones de la biblioteca.
         </p>
+
+        <FormularioLibro
+          alRegistrar={() => setActualizacionLibros((anterior) => anterior + 1)}
+        />
+
+        <FormularioEjemplar
+          actualizacion={actualizacionLibros}
+          alRegistrar={() => setActualizacionLibros((anterior) => anterior + 1)}
+        />
+
+        <TablaLibros actualizacion={actualizacionLibros} />
 
         <button
           onClick={cerrarSesion}
@@ -87,7 +108,7 @@ export default function PanelBibliotecario() {
             border: "none",
             padding: "12px 20px",
             borderRadius: "6px",
-            cursor: "pointer"
+            cursor: "pointer",
           }}
         >
           Cerrar sesión
