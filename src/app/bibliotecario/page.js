@@ -7,6 +7,7 @@ import TablaLibros from "@/components/TablaLibros";
 import FormularioLibro from "@/components/FormularioLibro";
 import FormularioEjemplar from "@/components/FormularioEjemplar";
 import FormularioEditarLibro from "@/components/FormularioEditarLibro";
+import TablaEjemplares from "@/components/TablaEjemplares";
 
 export default function PanelBibliotecario() {
   const router = useRouter();
@@ -94,11 +95,6 @@ export default function PanelBibliotecario() {
           alRegistrar={() => setActualizacionLibros((anterior) => anterior + 1)}
         />
 
-        <FormularioEjemplar
-          actualizacion={actualizacionLibros}
-          alRegistrar={() => setActualizacionLibros((anterior) => anterior + 1)}
-        />
-
         <TablaLibros
           actualizacion={actualizacionLibros}
           alEditar={(libro) => setLibroEditar(libro)}
@@ -115,6 +111,17 @@ export default function PanelBibliotecario() {
             alCancelar={() => setLibroEditar(null)}
           />
         )}
+
+        <FormularioEjemplar
+          alRegistrar={() => setActualizacionLibros((anterior) => anterior + 1)}
+        />
+
+        <TablaEjemplares
+          actualizacion={actualizacionLibros}
+          alCambiarEstado={() =>
+            setActualizacionLibros((anterior) => anterior + 1)
+          }
+        />
 
         <button
           onClick={cerrarSesion}
