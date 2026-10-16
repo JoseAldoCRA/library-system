@@ -10,6 +10,7 @@ import FormularioEditarLibro from "@/components/FormularioEditarLibro";
 import TablaEjemplares from "@/components/TablaEjemplares";
 import FormularioPrestamo from "@/components/FormularioPrestamo";
 import TablaPrestamos from "@/components/TablaPrestamos";
+import TablaSanciones from "@/components/TablaSanciones";
 
 export default function PanelBibliotecario() {
   const router = useRouter();
@@ -135,6 +136,8 @@ export default function PanelBibliotecario() {
           alDevolver={() => setActualizacionLibros((anterior) => anterior + 1)}
         />
 
+        <TablaSanciones actualizacion={actualizacionLibros} />
+        
         <button
           onClick={cerrarSesion}
           style={{
