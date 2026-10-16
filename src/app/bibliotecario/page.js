@@ -130,7 +130,10 @@ export default function PanelBibliotecario() {
           alRegistrar={() => setActualizacionLibros((anterior) => anterior + 1)}
         />
 
-        <TablaPrestamos actualizacion={actualizacionLibros} />
+        <TablaPrestamos
+          actualizacion={actualizacionLibros}
+          alDevolver={() => setActualizacionLibros((anterior) => anterior + 1)}
+        />
 
         <button
           onClick={cerrarSesion}

@@ -45,3 +45,15 @@ export async function obtenerPrestamosActivos() {
 
   return data;
 }
+
+export async function devolverPrestamo(idPrestamo) {
+  const supabase = crearClienteSupabase();
+
+  const { error } = await supabase.rpc("registrar_devolucion", {
+    p_id_prestamo: idPrestamo,
+  });
+
+  if (error) {
+    throw new Error(error.message);
+  }
+}

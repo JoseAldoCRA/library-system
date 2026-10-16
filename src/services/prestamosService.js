@@ -1,5 +1,4 @@
-import { insertarPrestamo, obtenerPrestamosActivos, } from "@/repositories/prestamosRepository";
-
+import { insertarPrestamo, obtenerPrestamosActivos, devolverPrestamo,} from "@/repositories/prestamosRepository";
 
 export async function registrarNuevoPrestamo(prestamo) {
   const idUsuario = Number(prestamo.id_usuario);
@@ -47,4 +46,14 @@ export async function listarPrestamosActivos() {
       estado: "Activo",
     };
   });
+}
+
+export async function registrarDevolucion(idPrestamo) {
+  const id = Number(idPrestamo);
+
+  if (!Number.isInteger(id) || id <= 0) {
+    throw new Error("Debes seleccionar un préstamo válido.");
+  }
+
+  await devolverPrestamo(id);
 }
