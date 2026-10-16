@@ -49,3 +49,27 @@ export async function actualizarEstadoEjemplar(idEjemplar, nuevoEstado) {
     throw new Error(error.message);
   }
 }
+
+export async function obtenerEjemplaresDisponibles() {
+  const supabase = crearClienteSupabase();
+
+  const { data, error } = await supabase
+    .from("ejemplares")
+    .select(`
+      id_ejemplar,
+      codigo,
+      estado,
+      libros (
+        titulo,
+        isbn
+      )
+    `)
+    .eq("estado", "disponible")
+    .order("codigo", { ascending: true });
+
+  if (error) {
+    throw new Error(error.message);
+  }
+
+  return data;
+}

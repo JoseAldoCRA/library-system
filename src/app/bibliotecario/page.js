@@ -8,6 +8,8 @@ import FormularioLibro from "@/components/FormularioLibro";
 import FormularioEjemplar from "@/components/FormularioEjemplar";
 import FormularioEditarLibro from "@/components/FormularioEditarLibro";
 import TablaEjemplares from "@/components/TablaEjemplares";
+import FormularioPrestamo from "@/components/FormularioPrestamo";
+import TablaPrestamos from "@/components/TablaPrestamos";
 
 export default function PanelBibliotecario() {
   const router = useRouter();
@@ -122,6 +124,13 @@ export default function PanelBibliotecario() {
             setActualizacionLibros((anterior) => anterior + 1)
           }
         />
+
+        <FormularioPrestamo
+          actualizacion={actualizacionLibros}
+          alRegistrar={() => setActualizacionLibros((anterior) => anterior + 1)}
+        />
+
+        <TablaPrestamos actualizacion={actualizacionLibros} />
 
         <button
           onClick={cerrarSesion}

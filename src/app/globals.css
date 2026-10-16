@@ -47,3 +47,65 @@ a {
     color-scheme: dark;
   }
 }
+
+/* Calendario de préstamos */
+
+.calendario-contenedor {
+  display: block !important;
+  width: 100%;
+}
+
+.calendario-prestamo {
+  width: 100%;
+  padding: 14px;
+  border: 1px solid #cbd5e1;
+  border-radius: 8px;
+  background: #ffffff;
+  color: #334155;
+  font-size: 16px;
+  cursor: pointer;
+  box-sizing: border-box;
+}
+
+.calendario-prestamo:focus {
+  outline: none;
+  border-color: #194b78;
+  box-shadow: 0 0 0 3px rgba(25, 75, 120, 0.12);
+}
+
+.react-datepicker {
+  border: 1px solid #cbd5e1;
+  border-radius: 12px;
+  overflow: hidden;
+  font-family: Arial, sans-serif;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
+}
+
+.react-datepicker__header {
+  background: #194b78;
+  border-bottom: none;
+}
+
+.react-datepicker__current-month,
+.react-datepicker__day-name {
+  color: white;
+}
+
+.react-datepicker__navigation-icon::before {
+  border-color: white;
+}
+
+.react-datepicker__day--selected,
+.react-datepicker__day--keyboard-selected {
+  background: #194b78;
+  color: white;
+}
+
+.react-datepicker__day:hover {
+  border-radius: 6px;
+  background: #dbeafe;
+}
+
+.react-datepicker__day--disabled {
+  color: #cbd5e1;
+}
