@@ -196,6 +196,8 @@ DECLARE
     v_rol_usuario text;
     v_estado_ejemplar text;
     v_id_prestamo integer;
+    v_prestamos_activos integer;
+    v_limite_prestamos integer;
 BEGIN
     -- Comprobar que quien realiza la operación es bibliotecario
     IF NOT public.es_bibliotecario() THEN
@@ -208,11 +210,12 @@ BEGIN
         RAISE EXCEPTION 'La fecha de vencimiento no es válida.';
     END IF;
 
-    -- Consultar al usuario
+    -- Consultar y bloquear al usuario durante el préstamo
     SELECT estado, rol
     INTO v_estado_usuario, v_rol_usuario
     FROM public.usuarios
-    WHERE id_usuario = p_id_usuario;
+    WHERE id_usuario = p_id_usuario
+    FOR UPDATE;
 
     IF NOT FOUND THEN
         RAISE EXCEPTION 'El usuario no existe.';
@@ -224,6 +227,27 @@ BEGIN
 
     IF v_rol_usuario NOT IN ('estudiante', 'docente') THEN
         RAISE EXCEPTION 'Este usuario no puede recibir préstamos.';
+    END IF;
+
+    -- Establecer el límite según el rol
+    IF v_rol_usuario = 'estudiante' THEN
+        v_limite_prestamos := 3;
+    ELSE
+        v_limite_prestamos := 5;
+    END IF;
+
+    -- Contar los préstamos que aún no se han devuelto
+    SELECT COUNT(*)
+    INTO v_prestamos_activos
+    FROM public.prestamos
+    WHERE id_usuario = p_id_usuario
+    AND fecha_devolucion IS NULL;
+
+    -- Impedir que se supere el límite
+    IF v_prestamos_activos >= v_limite_prestamos THEN
+        RAISE EXCEPTION
+            'El usuario ha alcanzado el límite de % préstamos activos.',
+            v_limite_prestamos;
     END IF;
 
     -- Consultar y bloquear el ejemplar durante la operación
