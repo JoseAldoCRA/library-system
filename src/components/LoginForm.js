@@ -45,12 +45,12 @@ export default function LoginForm() {
           nombre,
           correo,
           contrasena,
-          rol
+          rol,
         );
 
         if (resultado.requiereConfirmacion) {
           setMensaje(
-            "Registro solicitado. Revisa tu correo para confirmar la cuenta."
+            "Registro solicitado. Revisa tu correo para confirmar la cuenta.",
           );
         } else {
           setMensaje("Cuenta creada correctamente. Ya puedes iniciar sesión.");
@@ -61,7 +61,6 @@ export default function LoginForm() {
         setContrasena("");
         setConfirmarContrasena("");
         setRol("");
-
       } else {
         const resultado = await iniciarSesion(correo, contrasena);
 
@@ -93,13 +92,19 @@ export default function LoginForm() {
   }
 
   return (
-    <div className={styles.tarjeta}>
+    <div
+      className={styles.tarjeta}
+      style={{
+        backgroundColor: "#ffffff",
+        boxShadow: "0 10px 30px rgba(0, 0, 0, 0.20)",
+        borderRadius: "18px",
+      }}
+    >
       <h1>Sistema de Biblioteca</h1>
 
       <h2>{modoRegistro ? "Crear cuenta" : "Iniciar sesión"}</h2>
 
       <form className={styles.formulario} onSubmit={manejarEnvio}>
-
         {modoRegistro && (
           <>
             <label htmlFor="nombre">Nombre completo</label>
@@ -138,17 +143,13 @@ export default function LoginForm() {
 
         {modoRegistro && (
           <>
-            <label htmlFor="confirmarContrasena">
-              Confirmar contraseña
-            </label>
+            <label htmlFor="confirmarContrasena">Confirmar contraseña</label>
             <input
               type="password"
               id="confirmarContrasena"
               placeholder="Vuelve a escribir tu contraseña"
               value={confirmarContrasena}
-              onChange={(evento) =>
-                setConfirmarContrasena(evento.target.value)
-              }
+              onChange={(evento) => setConfirmarContrasena(evento.target.value)}
               required
             />
 
@@ -195,9 +196,7 @@ export default function LoginForm() {
       )}
 
       <p className={styles.registro}>
-        {modoRegistro
-          ? "¿Ya tienes una cuenta? "
-          : "¿No tienes cuenta? "}
+        {modoRegistro ? "¿Ya tienes una cuenta? " : "¿No tienes cuenta? "}
 
         <button
           type="button"

@@ -1,10 +1,10 @@
-import LoginForm from '@/components/LoginForm';
-import styles from './page.module.css';
+import styles from "./page.module.css";
+import LoginForm from "@/components/LoginForm";
 
 export default function Home() {
-    return (
-        <main className={styles.contenedor}>
-            <LoginForm />
-        </main>
-    );
+  return (
+    <main className={styles.fondoLogin}>
+      <LoginForm />
+    </main>
+  );
 }
