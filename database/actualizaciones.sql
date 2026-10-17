@@ -445,3 +445,53 @@ TO authenticated;
 GRANT EXECUTE
 ON FUNCTION public.registrar_pago_sancion(integer)
 TO authenticated;
+
+-- ============================================
+-- 6. SEGURIDAD DE USUARIOS ACTIVOS
+-- ============================================
+
+-- Comprobar que el usuario autenticado
+-- tenga un perfil activo
+
+CREATE OR REPLACE FUNCTION public.es_usuario_activo()
+RETURNS BOOLEAN
+LANGUAGE sql
+STABLE
+SECURITY DEFINER
+SET search_path = ''
+AS $$
+    SELECT EXISTS (
+        SELECT 1
+        FROM public.usuarios
+        WHERE auth_user_id = (SELECT auth.uid())
+        AND estado = 'activo'
+        AND rol IN ('estudiante', 'docente', 'bibliotecario')
+    );
+$$;
+
+-- Permitir ejecutar la función solo a usuarios autenticados
+
+REVOKE ALL ON FUNCTION public.es_usuario_activo()
+FROM PUBLIC, anon;
+
+GRANT EXECUTE ON FUNCTION public.es_usuario_activo()
+TO authenticated;
+
+
+-- Restringir el acceso al catálogo
+-- a usuarios que tengan un perfil activo
+
+ALTER POLICY "catalogo_ver_categorias"
+ON public.categorias
+TO authenticated
+USING ((SELECT public.es_usuario_activo()));
+
+ALTER POLICY "catalogo_ver_libros"
+ON public.libros
+TO authenticated
+USING ((SELECT public.es_usuario_activo()));
+
+ALTER POLICY "catalogo_ver_ejemplares"
+ON public.ejemplares
+TO authenticated
+USING ((SELECT public.es_usuario_activo()));
