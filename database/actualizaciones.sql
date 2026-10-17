@@ -86,6 +86,12 @@ GRANT SELECT
 ON TABLE public.usuarios
 TO authenticated;
 
+-- Permitir al servidor actualizar los datos
+-- administrables de estudiantes y docentes
+GRANT UPDATE (nombre, correo, rol, estado)
+ON TABLE public.usuarios
+TO service_role;
+
 
 -- Permitir consultar usuarios desde operaciones
 -- administrativas del servidor

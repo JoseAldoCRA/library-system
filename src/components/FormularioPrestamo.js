@@ -128,10 +128,10 @@ export default function FormularioPrestamo({ alRegistrar, actualizacion }) {
             style={estiloCampo}
           >
             <option value="">Selecciona un estudiante o docente</option>
-
             {usuarios.map((item) => (
               <option key={item.id_usuario} value={item.id_usuario}>
-                {item.nombre} ({item.rol})
+                {item.nombre} (
+                {item.rol === "estudiante" ? "Estudiante" : "Docente"})
               </option>
             ))}
           </select>

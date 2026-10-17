@@ -18,6 +18,7 @@ export default function LoginForm() {
 
   const [mensaje, setMensaje] = useState("");
   const [cargando, setCargando] = useState(false);
+  const [esError, setEsError] = useState(false);
 
   async function manejarEnvio(evento) {
     evento.preventDefault();
@@ -26,6 +27,7 @@ export default function LoginForm() {
 
     setMensaje("");
     setCargando(true);
+    setEsError(false);
 
     try {
       if (modoRegistro) {
@@ -71,10 +73,12 @@ export default function LoginForm() {
             setMensaje("Bienvenido, " + resultado.usuario.nombre);
           }
         } else {
+          setEsError(true);
           setMensaje(resultado.mensaje);
         }
       }
     } catch (error) {
+      setEsError(true);
       setMensaje("Error: " + error.message);
     } finally {
       setCargando(false);
@@ -84,6 +88,7 @@ export default function LoginForm() {
   function cambiarModo() {
     setModoRegistro(!modoRegistro);
     setMensaje("");
+    setEsError(false);
     setNombre("");
     setCorreo("");
     setContrasena("");
@@ -188,7 +193,7 @@ export default function LoginForm() {
           className={styles.aviso}
           role="status"
           style={{
-            color: mensaje.startsWith("Error") ? "#b91c1c" : "#166534",
+            color: esError ? "#b91c1c" : "#166534",
           }}
         >
           {mensaje}
