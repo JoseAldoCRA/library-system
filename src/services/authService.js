@@ -35,3 +35,30 @@ export async function iniciarSesion(correo, contrasena) {
         usuario: perfil
     };
 }
+
+export async function registrarCuenta(nombre, correo, contrasena, rol) {
+  const supabase = crearClienteSupabase();
+
+  const { data, error } = await supabase.auth.signUp({
+    email: correo.trim().toLowerCase(),
+    password: contrasena,
+    options: {
+      data: {
+        nombre: nombre.trim(),
+        rol: rol,
+      },
+    },
+  });
+
+  if (error) {
+    throw new Error(error.message);
+  }
+
+  if (!data.user) {
+    throw new Error("No se pudo crear la cuenta.");
+  }
+
+  return {
+    requiereConfirmacion: !data.session,
+  };
+}

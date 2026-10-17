@@ -11,6 +11,8 @@ import TablaEjemplares from "@/components/TablaEjemplares";
 import FormularioPrestamo from "@/components/FormularioPrestamo";
 import TablaPrestamos from "@/components/TablaPrestamos";
 import TablaSanciones from "@/components/TablaSanciones";
+import TablaUsuarios from "@/components/TablaUsuarios";
+import FormularioRegistrarUsuario from "@/components/FormularioRegistrarUsuario";
 
 export default function PanelBibliotecario() {
   const router = useRouter();
@@ -137,7 +139,13 @@ export default function PanelBibliotecario() {
         />
 
         <TablaSanciones actualizacion={actualizacionLibros} />
-        
+
+        <FormularioRegistrarUsuario
+          alRegistrar={() => setActualizacionLibros((anterior) => anterior + 1)}
+        />
+
+        <TablaUsuarios actualizacion={actualizacionLibros} />
+
         <button
           onClick={cerrarSesion}
           style={{
