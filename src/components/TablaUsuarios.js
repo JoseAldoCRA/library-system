@@ -2,15 +2,11 @@
 
 import { useEffect, useState } from "react";
 import { listarUsuarios } from "@/services/usuariosService";
-import { crearClienteSupabase } from "@/lib/supabaseClient";
 
 export default function TablaUsuarios({ actualizacion }) {
   const [usuarios, setUsuarios] = useState([]);
   const [cargando, setCargando] = useState(true);
   const [error, setError] = useState("");
-  const [generandoCodigo, setGenerandoCodigo] = useState(null);
-  const [codigoGenerado, setCodigoGenerado] = useState(null);
-  const [mensajeActivacion, setMensajeActivacion] = useState("");
 
   useEffect(() => {
     let activo = true;
@@ -43,54 +39,6 @@ export default function TablaUsuarios({ actualizacion }) {
     };
   }, [actualizacion]);
 
-  async function generarCodigo(usuario) {
-    if (generandoCodigo !== null) return;
-
-    setGenerandoCodigo(usuario.id_usuario);
-    setCodigoGenerado(null);
-    setMensajeActivacion("");
-
-    try {
-      const supabase = crearClienteSupabase();
-
-      const {
-        data: { session },
-        error: errorSesion,
-      } = await supabase.auth.getSession();
-
-      if (errorSesion || !session) {
-        throw new Error("Debes iniciar sesión como bibliotecario.");
-      }
-
-      const respuesta = await fetch("/api/bibliotecario/activaciones", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${session.access_token}`,
-        },
-        body: JSON.stringify({
-          id_usuario: usuario.id_usuario,
-        }),
-      });
-
-      const datos = await respuesta.json();
-
-      if (!respuesta.ok) {
-        throw new Error(datos.error || "No se pudo generar el código.");
-      }
-
-      setCodigoGenerado({
-        nombre: datos.usuario,
-        codigo: datos.codigo_activacion,
-        vencimiento: datos.vence_en,
-      });
-    } catch (error) {
-      setMensajeActivacion("Error: " + error.message);
-    } finally {
-      setGenerandoCodigo(null);
-    }
-  }
-
   const estiloCelda = {
     padding: "12px",
     borderBottom: "1px solid #ddd",
@@ -104,12 +52,22 @@ export default function TablaUsuarios({ actualizacion }) {
         Gestión de usuarios
       </h2>
 
-      {cargando && <p>Cargando usuarios...</p>}
+      {cargando && (
+        <p style={{ color: "#334155" }}>
+          Cargando usuarios...
+        </p>
+      )}
 
-      {error && <p style={{ color: "#b91c1c" }}>Error: {error}</p>}
+      {error && (
+        <p style={{ color: "#b91c1c" }}>
+          Error: {error}
+        </p>
+      )}
 
       {!cargando && !error && usuarios.length === 0 && (
-        <p>No hay usuarios registrados.</p>
+        <p style={{ color: "#334155" }}>
+          No hay usuarios registrados.
+        </p>
       )}
 
       {!cargando && !error && usuarios.length > 0 && (
@@ -121,11 +79,27 @@ export default function TablaUsuarios({ actualizacion }) {
             }}
           >
             <thead>
-              <tr style={{ backgroundColor: "#194b78", color: "white" }}>
-                <th style={{ padding: "12px", textAlign: "left" }}>Nombre</th>
-                <th style={{ padding: "12px", textAlign: "left" }}>Correo</th>
-                <th style={{ padding: "12px", textAlign: "left" }}>Rol</th>
-                <th style={{ padding: "12px", textAlign: "left" }}>Estado</th>
+              <tr
+                style={{
+                  backgroundColor: "#194b78",
+                  color: "white",
+                }}
+              >
+                <th style={{ padding: "12px", textAlign: "left" }}>
+                  Nombre
+                </th>
+
+                <th style={{ padding: "12px", textAlign: "left" }}>
+                  Correo
+                </th>
+
+                <th style={{ padding: "12px", textAlign: "left" }}>
+                  Rol
+                </th>
+
+                <th style={{ padding: "12px", textAlign: "left" }}>
+                  Estado
+                </th>
               </tr>
             </thead>
 
