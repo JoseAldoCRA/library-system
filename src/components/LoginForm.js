@@ -69,8 +69,13 @@ export default function LoginForm() {
         if (resultado.exito) {
           if (resultado.usuario.rol === "bibliotecario") {
             router.replace("/bibliotecario");
+          } else if (resultado.usuario.rol === "estudiante") {
+            router.replace("/estudiante");
+          } else if (resultado.usuario.rol === "docente") {
+            router.replace("/docente");
           } else {
-            setMensaje("Bienvenido, " + resultado.usuario.nombre);
+            setEsError(true);
+            setMensaje("No tienes un rol válido para ingresar.");
           }
         } else {
           setEsError(true);
