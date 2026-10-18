@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { crearClienteSupabase } from "@/lib/supabaseClient";
+import TablaMisPrestamos from "@/components/TablaMisPrestamos";
 
 export default function PanelDocente(){
   const router = useRouter();
@@ -113,6 +114,8 @@ export default function PanelDocente(){
            Como docente puedes tener un máximo de 5 préstamos activos
           </p>
         </div>
+
+        <TablaMisPrestamos/>
 
         <button
           onClick={cerrarSesion}

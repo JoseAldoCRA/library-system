@@ -57,3 +57,57 @@ export async function devolverPrestamo(idPrestamo) {
     throw new Error(error.message);
   }
 }
+
+export async function obtenerMisPrestamos() {
+  const supabase = crearClienteSupabase();
+
+  // Obtener el usuario que inició sesión
+  const {
+    data: { user },
+    error: errorSesion,
+  } = await supabase.auth.getUser();
+
+  if (errorSesion || !user) {
+    throw new Error("Debes iniciar sesión.");
+  }
+
+  // Consultar su perfil
+  const { data: perfil, error: errorPerfil } = await supabase
+    .from("usuarios")
+    .select("id_usuario, rol, estado")
+    .eq("auth_user_id", user.id)
+    .single();
+
+  if (
+    errorPerfil ||
+    !perfil ||
+    perfil.estado !== "activo" ||
+    !["estudiante", "docente"].includes(perfil.rol)
+  ) {
+    throw new Error("No tienes permiso para consultar préstamos.");
+  }
+
+  // Consultar solamente sus préstamos
+  const { data, error } = await supabase
+    .from("prestamos")
+    .select(`
+      id_prestamo,
+      fecha_prestamo,
+      fecha_vencimiento,
+      fecha_devolucion,
+      ejemplares (
+        codigo,
+        libros (
+          titulo
+        )
+      )
+    `)
+    .eq("id_usuario", perfil.id_usuario)
+    .order("fecha_prestamo", { ascending: false });
+
+  if (error) {
+    throw new Error(error.message);
+  }
+
+  return data;
+}

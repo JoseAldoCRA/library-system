@@ -1,4 +1,4 @@
-import { insertarPrestamo, obtenerPrestamosActivos, devolverPrestamo,} from "@/repositories/prestamosRepository";
+import { insertarPrestamo, obtenerPrestamosActivos, devolverPrestamo, obtenerMisPrestamos,} from "@/repositories/prestamosRepository";
 
 export async function registrarNuevoPrestamo(prestamo) {
   const idUsuario = Number(prestamo.id_usuario);
@@ -56,4 +56,22 @@ export async function registrarDevolucion(idPrestamo) {
   }
 
   await devolverPrestamo(id);
+}
+
+export async function listarMisPrestamos() {
+  const prestamos = await obtenerMisPrestamos();
+
+  return prestamos.map((prestamo) => {
+    return {
+      id_prestamo: prestamo.id_prestamo,
+      ejemplar: prestamo.ejemplares?.codigo || "Sin código",
+      libro: prestamo.ejemplares?.libros?.titulo || "Sin título",
+      fecha_prestamo: prestamo.fecha_prestamo,
+      fecha_vencimiento: prestamo.fecha_vencimiento,
+      fecha_devolucion: prestamo.fecha_devolucion,
+      estado: prestamo.fecha_devolucion === null
+        ? "Activo"
+        : "Devuelto",
+    };
+  });
 }

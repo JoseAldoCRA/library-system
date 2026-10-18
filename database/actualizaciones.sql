@@ -519,3 +519,121 @@ ALTER POLICY "catalogo_ver_ejemplares"
 ON public.ejemplares
 TO authenticated
 USING ((SELECT public.es_usuario_activo()));
+
+-- =====================================================
+-- RF2 - CONSULTA DE INFORMACION PERSONAL
+-- Estudiantes y docentes
+-- =====================================================
+
+-- Permitir consultar los prestamos propios
+CREATE POLICY prestamos_ver_propios
+ON public.prestamos
+FOR SELECT
+TO authenticated
+USING (
+    EXISTS (
+        SELECT 1
+        FROM public.usuarios u
+        WHERE u.id_usuario = prestamos.id_usuario
+          AND u.auth_user_id = (SELECT auth.uid())
+          AND u.estado = 'activo'
+          AND u.rol IN ('estudiante', 'docente')
+    )
+);
+
+-- Permitir consultar las sanciones propias
+CREATE POLICY sanciones_ver_propias
+ON public.sanciones
+FOR SELECT
+TO authenticated
+USING (
+    EXISTS (
+        SELECT 1
+        FROM public.prestamos p
+        JOIN public.usuarios u
+            ON u.id_usuario = p.id_usuario
+        WHERE p.id_prestamo = sanciones.id_prestamo
+          AND u.auth_user_id = (SELECT auth.uid())
+          AND u.estado = 'activo'
+          AND u.rol IN ('estudiante', 'docente')
+    )
+);
+
+-- =====================================================
+-- RF2 - ACTIVACION DE USUARIOS EXISTENTES
+-- =====================================================
+-- Actualizacion de crear_perfil_usuario_auth()
+-- Permite vincular un perfil existente desde una
+-- operacion administrativa autorizada.
+-- Conserva el id_usuario y sus prestamos.
+
+CREATE OR REPLACE FUNCTION public.crear_perfil_usuario_auth()
+RETURNS trigger
+LANGUAGE plpgsql
+SECURITY DEFINER
+SET search_path TO ''
+AS $function$
+DECLARE
+    v_nombre text;
+    v_rol text;
+BEGIN
+    v_nombre := NEW.raw_user_meta_data ->> 'nombre';
+    v_rol := NEW.raw_user_meta_data ->> 'rol';
+
+    IF v_nombre IS NULL OR trim(v_nombre) = '' THEN
+        RAISE EXCEPTION 'Debes ingresar un nombre.';
+    END IF;
+
+    IF v_rol IS NULL OR v_rol NOT IN ('estudiante', 'docente') THEN
+        RAISE EXCEPTION 'El rol seleccionado no está permitido.';
+    END IF;
+
+    -- Comprobar si el perfil ya existe
+    IF EXISTS (
+        SELECT 1
+        FROM public.usuarios
+        WHERE lower(correo) = lower(NEW.email)
+    ) THEN
+
+        -- Solamente permitir una activación administrativa
+        IF NEW.raw_app_meta_data ->> 'activar_perfil_existente'
+           IS DISTINCT FROM 'true' THEN
+            RAISE EXCEPTION
+                'Este correo ya está registrado. Solicita su activación al bibliotecario.';
+        END IF;
+
+        -- Vincular Auth sin crear otro perfil
+        UPDATE public.usuarios
+        SET auth_user_id = NEW.id
+        WHERE lower(correo) = lower(NEW.email)
+          AND auth_user_id IS NULL
+          AND rol = v_rol
+          AND estado = 'activo';
+
+        IF NOT FOUND THEN
+            RAISE EXCEPTION
+                'No se puede activar este perfil existente.';
+        END IF;
+
+        RETURN NEW;
+    END IF;
+
+    -- Comportamiento normal: crear un usuario nuevo
+    INSERT INTO public.usuarios (
+        nombre,
+        correo,
+        rol,
+        estado,
+        auth_user_id
+    )
+    VALUES (
+        trim(v_nombre),
+        lower(NEW.email),
+        v_rol,
+        'activo',
+        NEW.id
+    );
+
+    RETURN NEW;
+END;
+$function$;
