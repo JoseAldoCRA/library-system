@@ -180,6 +180,77 @@ export default function TablaUsuarios({ actualizacion }) {
         Gestión de usuarios
       </h2>
 
+      {mensaje && (
+        <p
+          style={{
+            color: mensaje.startsWith("Error") ? "#b91c1c" : "#166534",
+            marginBottom: "15px",
+          }}
+        >
+          {mensaje}
+        </p>
+      )}
+
+      {cargando && <p>Cargando usuarios...</p>}
+
+      {error && <p style={{ color: "#b91c1c" }}>Error: {error}</p>}
+
+      {!cargando && !error && usuarios.length === 0 && (
+        <p>No hay usuarios registrados.</p>
+      )}
+
+      {!cargando && !error && usuarios.length > 0 && (
+        <div style={{ overflowX: "auto" }}>
+          <table
+            style={{
+              width: "100%",
+              borderCollapse: "collapse",
+            }}
+          >
+            <thead>
+              <tr style={{ backgroundColor: "#194b78", color: "white" }}>
+                <th style={{ padding: "12px", textAlign: "left" }}>Nombre</th>
+                <th style={{ padding: "12px", textAlign: "left" }}>Correo</th>
+                <th style={{ padding: "12px", textAlign: "left" }}>Rol</th>
+                <th style={{ padding: "12px", textAlign: "left" }}>Estado</th>
+                <th style={{ padding: "12px", textAlign: "left" }}>Acciones</th>
+              </tr>
+            </thead>
+
+            <tbody>
+              {usuarios
+                .filter((usuario) => usuario.rol !== "bibliotecario")
+                .map((usuario) => (
+                  <tr key={usuario.id_usuario}>
+                    <td style={estiloCelda}>{usuario.nombre}</td>
+
+                    <td style={estiloCelda}>{usuario.correo}</td>
+
+                    <td style={estiloCelda}>
+                      {usuario.rol === "estudiante" ? "Estudiante" : "Docente"}
+                    </td>
+
+                    <td style={estiloCelda}>
+                      {usuario.estado === "activo" ? "Activo" : "Inactivo"}
+                    </td>
+
+                    <td style={estiloCelda}>
+                      <button
+                        type="button"
+                        onClick={() => editarUsuario(usuario)}
+                        disabled={guardando}
+                        style={estiloBoton}
+                      >
+                        Editar Usuario
+                      </button>
+                    </td>
+                  </tr>
+                ))}
+            </tbody>
+          </table>
+        </div>
+      )}
+
       {usuarioEditando !== null && (
         <div
           style={{
@@ -187,7 +258,7 @@ export default function TablaUsuarios({ actualizacion }) {
             border: "1px solid #dbe3ed",
             borderRadius: "12px",
             padding: "25px",
-            marginBottom: "25px",
+            marginTop: "25px",
             boxShadow: "0 4px 15px rgba(0, 0, 0, 0.06)",
           }}
         >
@@ -313,77 +384,6 @@ export default function TablaUsuarios({ actualizacion }) {
               Cancelar
             </button>
           </div>
-        </div>
-      )}
-
-      {mensaje && (
-        <p
-          style={{
-            color: mensaje.startsWith("Error") ? "#b91c1c" : "#166534",
-            marginBottom: "15px",
-          }}
-        >
-          {mensaje}
-        </p>
-      )}
-
-      {cargando && <p>Cargando usuarios...</p>}
-
-      {error && <p style={{ color: "#b91c1c" }}>Error: {error}</p>}
-
-      {!cargando && !error && usuarios.length === 0 && (
-        <p>No hay usuarios registrados.</p>
-      )}
-
-      {!cargando && !error && usuarios.length > 0 && (
-        <div style={{ overflowX: "auto" }}>
-          <table
-            style={{
-              width: "100%",
-              borderCollapse: "collapse",
-            }}
-          >
-            <thead>
-              <tr style={{ backgroundColor: "#194b78", color: "white" }}>
-                <th style={{ padding: "12px", textAlign: "left" }}>Nombre</th>
-                <th style={{ padding: "12px", textAlign: "left" }}>Correo</th>
-                <th style={{ padding: "12px", textAlign: "left" }}>Rol</th>
-                <th style={{ padding: "12px", textAlign: "left" }}>Estado</th>
-                <th style={{ padding: "12px", textAlign: "left" }}>Acciones</th>
-              </tr>
-            </thead>
-
-            <tbody>
-              {usuarios
-                .filter((usuario) => usuario.rol !== "bibliotecario")
-                .map((usuario) => (
-                  <tr key={usuario.id_usuario}>
-                    <td style={estiloCelda}>{usuario.nombre}</td>
-
-                    <td style={estiloCelda}>{usuario.correo}</td>
-
-                    <td style={estiloCelda}>
-                      {usuario.rol === "estudiante" ? "Estudiante" : "Docente"}
-                    </td>
-
-                    <td style={estiloCelda}>
-                      {usuario.estado === "activo" ? "Activo" : "Inactivo"}
-                    </td>
-
-                    <td style={estiloCelda}>
-                      <button
-                        type="button"
-                        onClick={() => editarUsuario(usuario)}
-                        disabled={guardando}
-                        style={estiloBoton}
-                      >
-                        Editar Usuario
-                      </button>
-                    </td>
-                  </tr>
-                ))}
-            </tbody>
-          </table>
         </div>
       )}
     </section>
