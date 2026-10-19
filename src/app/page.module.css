@@ -1,129 +1,334 @@
 
-.contenedor {
-    min-height: 100vh;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    padding: 20px;
-    background-color: var(--color-fondo, #FAF9F6);
-}
-
-.tarjeta {
-    width: 100%;
-    max-width: 450px;
-    padding: 40px;
-    background-color: var(--color-blanco, #FFFFFF);
-    border-radius: 16px;
-    box-shadow: 0 8px 28px rgba(36, 77, 61, 0.15);
-    color: var(--color-texto, #26352D);
-}
-
-.tarjeta h1 {
-    text-align: center;
-    color: var(--color-primario, #244D3D);
-    font-size: 30px;
-    margin-bottom: 15px;
-}
-
-.tarjeta h2 {
-    text-align: center;
-    color: var(--color-texto, #26352D);
-    font-size: 23px;
-    margin-bottom: 30px;
-}
-
-.formulario {
-    display: flex;
-    flex-direction: column;
-    gap: 12px;
-}
-
-.formulario label {
-    font-weight: bold;
-    font-size: 15px;
-    color: var(--color-texto, #26352D);
-}
-
-.formulario input {
-    width: 100%;
-    padding: 13px;
-    border: 1px solid var(--color-borde, #DDE5DC);
-    border-radius: 8px;
-    font-size: 15px;
-    background-color: #FFFFFF;
-    color: var(--color-texto, #26352D);
-}
-
-.formulario input:focus {
-    outline: 2px solid var(--color-secundario, #54806A);
-    outline-offset: 1px;
-}
-
-.formulario button {
-    margin-top: 12px;
-    padding: 13px;
-    background-color: var(--color-primario, #244D3D);
-    color: #FFFFFF;
-    border: none;
-    border-radius: 8px;
-    font-size: 16px;
-    font-weight: 600;
-    cursor: pointer;
-    transition: background-color 0.2s ease;
-}
-
-.formulario button:hover:not(:disabled) {
-    background-color: #19382C;
-}
-
-.formulario button:disabled {
-    opacity: 0.6;
-    cursor: not-allowed;
-}
-
-.registro {
-    text-align: center;
-    margin-top: 22px;
-    font-size: 14px;
-}
-
-.registro span {
-    color: var(--color-primario, #244D3D);
-    font-weight: bold;
-}
-
-.aviso {
-    margin-top: 18px;
-    text-align: center;
-    font-size: 12px;
-    color: #66756B;
-}
+/* FONDO DEL LOGIN */
 
 .fondoLogin {
-    min-height: 100vh;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    padding: 20px;
+  min-height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  position: relative;
 
-    background-image:
-        linear-gradient(
-            rgba(25, 56, 44, 0.35),
-            rgba(25, 56, 44, 0.35)
-        ),
-        url("/fondo-login.jpg");
+  padding: 85px 20px 40px;
 
-    background-size: cover;
-    background-position: center;
-    background-repeat: no-repeat;
+  background-image:
+    linear-gradient(
+      rgba(0, 0, 0, 0.30),
+      rgba(0, 0, 0, 0.30)
+    ),
+    url("/fondo-login.jpg");
+
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+}
+
+/* VOLVER AL CATÁLOGO */
+
+.volverCatalogo {
+  position: absolute;
+  top: 25px;
+  left: 30px;
+
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+
+  padding: 12px 18px;
+
+  background: #FFFFFF;
+  color: #244D3D;
+
+  border-radius: 9px;
+  font-size: 14px;
+  font-weight: 600;
+  text-decoration: none;
+
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.12);
+  transition: background-color 0.2s;
+}
+
+.volverCatalogo:hover {
+  background: #E4EDE5;
+}
+
+/* TARJETA PRINCIPAL */
+
+.tarjetaLogin {
+  width: 100%;
+  max-width: 460px;
+  padding: 38px;
+
+  background: #FFFFFF;
+  color: #26352D;
+
+  border: 1px solid #E2E7E0;
+  border-radius: 18px;
+
+  box-shadow: 0 15px 45px rgba(0, 0, 0, 0.20);
+}
+
+/* ENCABEZADO */
+
+.encabezadoLogin {
+  text-align: center;
+  margin-bottom: 30px;
+}
+
+.logoLogin {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  width: 68px;
+  height: 68px;
+
+  margin: 0 auto 20px;
+
+  background: #E4EDE5;
+  color: #244D3D;
+
+  border-radius: 17px;
+}
+
+.encabezadoLogin h1 {
+  color: #244D3D;
+  font-size: 28px;
+  font-weight: 700;
+  margin-bottom: 10px;
+}
+
+.encabezadoLogin p {
+  color: #66756B;
+  font-size: 14px;
+  line-height: 1.6;
+}
+
+/* FORMULARIO */
+
+.formularioLogin {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.grupoCampo {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.grupoCampo label {
+  font-size: 14px;
+  font-weight: 600;
+  color: #26352D;
+}
+
+/* CAMPOS CON ICONOS */
+
+.campoIcono {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+
+  padding: 0 14px;
+
+  background: #FFFFFF;
+  border: 1px solid #DDE5DC;
+  border-radius: 9px;
+
+  color: #54806A;
+
+  transition:
+    border-color 0.2s,
+    box-shadow 0.2s;
+}
+
+.campoIcono:focus-within {
+  border-color: #54806A;
+  box-shadow: 0 0 0 3px rgba(84, 128, 106, 0.12);
+}
+
+.campoIcono svg {
+  flex-shrink: 0;
+}
+
+.campoIcono input,
+.campoIcono select {
+  flex: 1;
+  width: 100%;
+  min-width: 0;
+
+  padding: 14px 0;
+
+  background: transparent;
+  color: #26352D;
+
+  border: none;
+  outline: none;
+
+  font-size: 14px;
+  font-family: inherit;
+}
+
+.campoIcono input::placeholder {
+  color: #89958D;
+}
+
+/* MOSTRAR CONTRASEÑA */
+
+.botonMostrar {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+
+  padding: 5px;
+
+  border: none;
+  background: transparent;
+  color: #66756B;
+
+  cursor: pointer;
+}
+
+.botonMostrar:hover {
+  color: #244D3D;
+}
+
+/* BOTÓN PRINCIPAL */
+
+.botonIngresar {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+
+  width: 100%;
+  padding: 15px;
+  margin-top: 5px;
+
+  background: #244D3D;
+  color: #FFFFFF;
+
+  border: none;
+  border-radius: 9px;
+
+  font-size: 15px;
+  font-weight: 600;
+
+  cursor: pointer;
+
+  transition: background-color 0.2s;
+}
+
+.botonIngresar:hover:not(:disabled) {
+  background: #19382C;
+}
+
+.botonIngresar:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+/* MENSAJES */
+
+.mensajeLogin {
+  margin-top: 20px;
+  padding: 13px;
+
+  border-radius: 8px;
+
+  font-size: 13px;
+  line-height: 1.5;
+  text-align: center;
+}
+
+.mensajeError {
+  background: #FEECEB;
+  color: #B42318;
+}
+
+.mensajeExito {
+  background: #E4EDE5;
+  color: #244D3D;
+}
+
+/* CAMBIAR ENTRE LOGIN Y REGISTRO */
+
+.pieLogin {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-wrap: wrap;
+
+  gap: 6px;
+  margin-top: 28px;
+
+  font-size: 13px;
+  color: #66756B;
+}
+
+.botonCambiarModo {
+  background: transparent;
+  color: #244D3D;
+
+  border: none;
+
+  font-size: 13px;
+  font-weight: 700;
+  text-decoration: underline;
+
+  cursor: pointer;
+}
+
+.botonCambiarModo:hover {
+  color: #54806A;
+}
+
+/* ACCESIBILIDAD */
+
+.botonIngresar:focus-visible,
+.botonMostrar:focus-visible,
+.botonCambiarModo:focus-visible,
+.volverCatalogo:focus-visible {
+  outline: 3px solid #54806A;
+  outline-offset: 3px;
+}
+
+/* DISEÑO RESPONSIVE */
+
+@media (max-width: 600px) {
+  .fondoLogin {
+    padding: 90px 16px 30px;
+  }
+
+  .volverCatalogo {
+    top: 20px;
+    left: 20px;
+
+    padding: 10px 14px;
+    font-size: 13px;
+  }
+
+  .tarjetaLogin {
+    padding: 30px 24px;
+  }
 }
 
 @media (max-width: 480px) {
-    .tarjeta {
-        padding: 25px;
-    }
+  .encabezadoLogin h1 {
+    font-size: 24px;
+  }
 
-    .tarjeta h1 {
-        font-size: 25px;
-    }
+  .logoLogin {
+    width: 60px;
+    height: 60px;
+  }
+
+  .formularioLogin {
+    gap: 16px;
+  }
+
+  .tarjetaLogin {
+    padding: 27px 20px;
+  }
 }

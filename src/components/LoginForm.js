@@ -5,10 +5,22 @@ import styles from "@/app/page.module.css";
 import { iniciarSesion, registrarCuenta } from "@/services/authService";
 import { useRouter } from "next/navigation";
 
+import {
+  LibraryBig,
+  Mail,
+  LockKeyhole,
+  Eye,
+  EyeOff,
+  UserRound,
+  GraduationCap,
+  LogIn
+} from "lucide-react";
+
 export default function LoginForm() {
   const router = useRouter();
 
   const [modoRegistro, setModoRegistro] = useState(false);
+  const [mostrarContrasena, setMostrarContrasena] = useState(false);
 
   const [nombre, setNombre] = useState("");
   const [correo, setCorreo] = useState("");
@@ -92,6 +104,7 @@ export default function LoginForm() {
 
   function cambiarModo() {
     setModoRegistro(!modoRegistro);
+    setMostrarContrasena(false);
     setMensaje("");
     setEsError(false);
     setNombre("");
@@ -101,128 +114,194 @@ export default function LoginForm() {
     setRol("");
   }
 
+ 
   return (
-    <div
-      className={styles.tarjeta}
-      style={{
-        backgroundColor: "#ffffff",
-        boxShadow: "0 10px 30px rgba(0, 0, 0, 0.20)",
-        borderRadius: "18px",
-      }}
-    >
-      <h1>Sistema de Biblioteca</h1>
+    <div className={styles.tarjetaLogin}>
 
-      <h2>{modoRegistro ? "Crear cuenta" : "Iniciar sesión"}</h2>
+      <div className={styles.encabezadoLogin}>
+        <div className={styles.logoLogin}>
+          <LibraryBig size={32} strokeWidth={1.6} />
+        </div>
 
-      <form className={styles.formulario} onSubmit={manejarEnvio}>
+        <h1>
+          {modoRegistro ? "Crea tu cuenta" : "Bienvenido de nuevo"}
+        </h1>
+
+        <p>
+          {modoRegistro
+            ? "Regístrate para acceder a los servicios de nuestra biblioteca."
+            : "Ingresa a tu cuenta para consultar tus préstamos y servicios."}
+        </p>
+      </div>
+
+      <form
+        className={styles.formularioLogin}
+        onSubmit={manejarEnvio}
+      >
+
         {modoRegistro && (
-          <>
+          <div className={styles.grupoCampo}>
             <label htmlFor="nombre">Nombre completo</label>
-            <input
-              type="text"
-              id="nombre"
-              placeholder="Ingresa tu nombre completo"
-              value={nombre}
-              onChange={(evento) => setNombre(evento.target.value)}
-              required
-              maxLength={100}
-            />
-          </>
+
+            <div className={styles.campoIcono}>
+              <UserRound size={19} />
+
+              <input
+                type="text"
+                id="nombre"
+                placeholder="Ingresa tu nombre completo"
+                value={nombre}
+                onChange={(e) => setNombre(e.target.value)}
+                required
+                maxLength={100}
+              />
+            </div>
+          </div>
         )}
 
-        <label htmlFor="correo">Correo electrónico</label>
-        <input
-          type="email"
-          id="correo"
-          placeholder="usuario@biblio.com"
-          value={correo}
-          onChange={(evento) => setCorreo(evento.target.value)}
-          required
-        />
+        <div className={styles.grupoCampo}>
+          <label htmlFor="correo">Correo electrónico</label>
 
-        <label htmlFor="contrasena">Contraseña</label>
-        <input
-          type="password"
-          id="contrasena"
-          placeholder="Ingresa tu contraseña"
-          value={contrasena}
-          onChange={(evento) => setContrasena(evento.target.value)}
-          required
-          minLength={modoRegistro ? 6 : undefined}
-        />
+          <div className={styles.campoIcono}>
+            <Mail size={19} />
+
+            <input
+              type="email"
+              id="correo"
+              placeholder="usuario@biblio.com"
+              value={correo}
+              onChange={(e) => setCorreo(e.target.value)}
+              required
+            />
+          </div>
+        </div>
+
+        <div className={styles.grupoCampo}>
+          <label htmlFor="contrasena">Contraseña</label>
+
+          <div className={styles.campoIcono}>
+            <LockKeyhole size={19} />
+
+            <input
+              type={mostrarContrasena ? "text" : "password"}
+              id="contrasena"
+              placeholder="Ingresa tu contraseña"
+              value={contrasena}
+              onChange={(e) => setContrasena(e.target.value)}
+              required
+              minLength={modoRegistro ? 6 : undefined}
+            />
+
+            <button
+              type="button"
+              className={styles.botonMostrar}
+              onClick={() => setMostrarContrasena(!mostrarContrasena)}
+              aria-label={
+                mostrarContrasena
+                  ? "Ocultar contraseña"
+                  : "Mostrar contraseña"
+              }
+            >
+              {mostrarContrasena ? (
+                <EyeOff size={19} />
+              ) : (
+                <Eye size={19} />
+              )}
+            </button>
+          </div>
+        </div>
 
         {modoRegistro && (
           <>
-            <label htmlFor="confirmarContrasena">Confirmar contraseña</label>
-            <input
-              type="password"
-              id="confirmarContrasena"
-              placeholder="Vuelve a escribir tu contraseña"
-              value={confirmarContrasena}
-              onChange={(evento) => setConfirmarContrasena(evento.target.value)}
-              required
-            />
+            <div className={styles.grupoCampo}>
+              <label htmlFor="confirmarContrasena">
+                Confirmar contraseña
+              </label>
 
-            <label htmlFor="rol">Rol</label>
-            <select
-              id="rol"
-              value={rol}
-              onChange={(evento) => setRol(evento.target.value)}
-              required
-              style={{
-                padding: "12px",
-                border: "1px solid #cbd5e1",
-                borderRadius: "6px",
-                backgroundColor: "white",
-                color: "#334155",
-              }}
-            >
-              <option value="">Selecciona un rol</option>
-              <option value="estudiante">Estudiante</option>
-              <option value="docente">Docente</option>
-            </select>
+              <div className={styles.campoIcono}>
+                <LockKeyhole size={19} />
+
+                <input
+                  type="password"
+                  id="confirmarContrasena"
+                  placeholder="Confirma tu contraseña"
+                  value={confirmarContrasena}
+                  onChange={(e) =>
+                    setConfirmarContrasena(e.target.value)
+                  }
+                  required
+                />
+              </div>
+            </div>
+
+            <div className={styles.grupoCampo}>
+              <label htmlFor="rol">Tipo de usuario</label>
+
+              <div className={styles.campoIcono}>
+                <GraduationCap size={19} />
+
+                <select
+                  id="rol"
+                  value={rol}
+                  onChange={(e) => setRol(e.target.value)}
+                  required
+                >
+                  <option value="">Selecciona un rol</option>
+                  <option value="estudiante">Estudiante</option>
+                  <option value="docente">Docente</option>
+                </select>
+              </div>
+            </div>
           </>
         )}
 
-        <button type="submit" disabled={cargando}>
+        <button
+          type="submit"
+          className={styles.botonIngresar}
+          disabled={cargando}
+        >
+          <LogIn size={19} />
+
           {cargando
             ? "Procesando..."
             : modoRegistro
               ? "Crear cuenta"
-              : "Ingresar"}
+              : "Iniciar sesión"}
         </button>
       </form>
 
       {mensaje && (
         <p
-          className={styles.aviso}
+          className={`${styles.mensajeLogin} ${
+            esError
+              ? styles.mensajeError
+              : styles.mensajeExito
+          }`}
           role="status"
-          style={{
-            color: esError ? "#b91c1c" : "#166534",
-          }}
         >
           {mensaje}
         </p>
       )}
 
-      <p className={styles.registro}>
-        {modoRegistro ? "¿Ya tienes una cuenta? " : "¿No tienes cuenta? "}
+      <div className={styles.pieLogin}>
+        <p>
+          {modoRegistro
+            ? "¿Ya tienes una cuenta?"
+            : "¿Todavía no tienes cuenta?"}
+        </p>
 
         <button
           type="button"
           onClick={cambiarModo}
-          style={{
-            border: "none",
-            background: "none",
-            color: "#244D3D",
-            fontWeight: "bold",
-            cursor: "pointer",
-            textDecoration: "underline",
-          }}
+          className={styles.botonCambiarModo}
         >
-          {modoRegistro ? "Inicia sesión aquí" : "Regístrate aquí"}
+          {modoRegistro
+            ? "Inicia sesión aquí"
+            : "Regístrate aquí"}
         </button>
-      </p>
+      </div>
+
     </div>
   );
 }
+
