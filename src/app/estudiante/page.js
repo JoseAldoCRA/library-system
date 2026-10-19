@@ -5,6 +5,7 @@ import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { crearClienteSupabase } from "@/lib/supabaseClient";
 import TablaMisPrestamos from "@/components/TablaMisPrestamos";
+import TablaMisSanciones from "@/components/TablaMisSanciones";
 
 export default function PanelEstudiante() {
   const router = useRouter();
@@ -118,6 +119,8 @@ export default function PanelEstudiante() {
         </div>
 
         <TablaMisPrestamos />
+
+        <TablaMisSanciones />
 
         <button
           onClick={cerrarSesion}

@@ -1,4 +1,4 @@
-import { obtenerSanciones,   registrarPagoSancion, } from "@/repositories/sancionesRepository";
+import { obtenerSanciones, obtenerMisSanciones, registrarPagoSancion, } from "@/repositories/sancionesRepository";
 
 export async function listarSanciones() {
   const sanciones = await obtenerSanciones();
@@ -28,4 +28,22 @@ export async function registrarNuevoPago(idSancion) {
   }
 
   await registrarPagoSancion(id);
+}
+
+export async function listarMisSanciones() {
+  const sanciones = await obtenerMisSanciones();
+
+  return sanciones.map((sancion) => {
+    return {
+      id_sancion: sancion.id_sancion,
+      id_prestamo: sancion.id_prestamo,
+      libro: sancion.prestamos?.ejemplares?.libros?.titulo || "Sin título",
+      ejemplar: sancion.prestamos?.ejemplares?.codigo || "Sin código",
+      fecha_vencimiento: sancion.prestamos?.fecha_vencimiento,
+      fecha_devolucion: sancion.prestamos?.fecha_devolucion,
+      dias_retraso: sancion.dias_retraso,
+      monto: Number(sancion.monto),
+      estado_pago: sancion.estado_pago,
+    };
+  });
 }
