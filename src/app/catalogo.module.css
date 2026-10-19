@@ -1,4 +1,3 @@
-
 .pagina {
   min-height: 100vh;
   background: #FAF9F6;
@@ -33,23 +32,55 @@
 }
 
 .botonLogin {
-  background: white;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: #FFFFFF;
   color: #244D3D;
-  padding: 11px 20px;
-  border-radius: 8px;
-  font-weight: bold;
-  transition: 0.2s;
+  padding: 11px 22px;
+  border: 1px solid transparent;
+  border-radius: 10px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
 }
 
 .botonLogin:hover {
   background: #E4EDE5;
 }
 
-.bienvenida {
+.botonLogin:disabled {
+  opacity: 0.65;
+  cursor: wait;
+}
+
+.botonLogin:hover {
   background: #E4EDE5;
+}
+
+
+.bienvenida {
+  min-height: 360px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+
+  background-image:
+    linear-gradient(
+      rgba(0, 0, 0, 0.30),
+      rgba(0, 0, 0, 0.30)
+    ),
+    url("/fondoprincipal.jpg");
+
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+
   padding: 75px 20px;
   text-align: center;
 }
+
 
 .bienvenidaContenido {
   max-width: 750px;
@@ -58,13 +89,13 @@
 
 .bienvenida h1 {
   font-size: 40px;
-  color: #244D3D;
+  color: #FFFFFF;
   margin-bottom: 16px;
 }
 
 .bienvenida p {
   font-size: 17px;
-  color: #426151;
+ color: #E4EDE5;
   margin-bottom: 30px;
   line-height: 1.6;
 }
@@ -266,3 +297,118 @@
     padding: 50px 20px;
   }
 }
+
+
+/* Tarjetas seleccionables */
+
+.tarjetaLibro {
+  cursor: pointer;
+}
+
+/* Ventana emergente del libro */
+
+.fondoModal {
+  position: fixed;
+  inset: 0;
+  background: rgba(20, 39, 30, 0.65);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 20px;
+  z-index: 1000;
+}
+
+.modalLibro {
+  position: relative;
+  background: #FFFFFF;
+  border-radius: 18px;
+  padding: 35px;
+  width: 100%;
+  max-width: 480px;
+  max-height: 90vh;
+  overflow-y: auto;
+  text-align: center;
+  box-shadow: 0 15px 45px rgba(0, 0, 0, 0.2);
+}
+
+.cerrarModal {
+  position: absolute;
+  top: 12px;
+  right: 18px;
+  background: transparent;
+  border: none;
+  font-size: 30px;
+  color: #66756B;
+  cursor: pointer;
+}
+
+.iconoLibroModal {
+  font-size: 65px;
+  margin-bottom: 15px;
+}
+
+.modalLibro h2 {
+  color: #244D3D;
+  font-size: 25px;
+  margin-bottom: 10px;
+}
+
+.autorModal {
+  color: #66756B;
+  margin-bottom: 25px;
+}
+
+.opcionesModal {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.solicitarPrestamo,
+.verResumen {
+  display: block;
+  width: 100%;
+  padding: 14px;
+  border-radius: 8px;
+  font-size: 15px;
+  font-weight: bold;
+  cursor: pointer;
+  text-align: center;
+}
+
+.solicitarPrestamo {
+  background: #244D3D;
+  color: #FFFFFF;
+  border: 1px solid #244D3D;
+}
+
+.solicitarPrestamo:hover {
+  background: #19382C;
+}
+
+.verResumen {
+  background: #FFFFFF;
+  color: #244D3D;
+  border: 1px solid #54806A;
+}
+
+.verResumen:hover {
+  background: #E4EDE5;
+}
+
+.contenidoResumen {
+  text-align: left;
+}
+
+.contenidoResumen h3 {
+  color: #244D3D;
+  margin-bottom: 12px;
+}
+
+.contenidoResumen p {
+  color: #526357;
+  line-height: 1.7;
+  margin-bottom: 24px;
+  white-space: pre-line;
+}
+

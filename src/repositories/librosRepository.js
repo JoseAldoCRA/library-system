@@ -6,13 +6,14 @@ export async function obtenerLibros() {
   const { data, error } = await supabase
     .from("libros")
     .select(`
-      id_libro,
-      isbn,
-      titulo,
-      autor,
-      id_categoria,
-      categorias ( nombre ),
-      ejemplares ( id_ejemplar, estado)
+    id_libro,
+    isbn,
+    titulo,
+    autor,
+    resumen,
+    id_categoria,
+    categorias ( nombre ),
+    ejemplares ( id_ejemplar, estado)
     `)
     .order("id_libro", { ascending: true });
 

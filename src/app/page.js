@@ -1,10 +1,11 @@
-
 "use client";
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import { obtenerLibros, obtenerCategorias } from "@/repositories/librosRepository";
 import styles from "./catalogo.module.css";
+import { useRouter } from "next/navigation";
+import { obtenerUsuarioActual } from "@/services/authService";
 
 export default function Home() {
   const [libros, setLibros] = useState([]);
@@ -13,6 +14,43 @@ export default function Home() {
   const [categoriaSeleccionada, setCategoriaSeleccionada] = useState("");
   const [cargando, setCargando] = useState(true);
   const [error, setError] = useState("");
+  const [libroSeleccionado, setLibroSeleccionado] = useState(null);
+  const [mostrarResumen, setMostrarResumen] = useState(false);
+
+
+  const router = useRouter();
+
+  const [consultandoCuenta, setConsultandoCuenta] = useState(false);
+
+  async function irAMiCuenta() {
+    if (consultandoCuenta) return;
+
+    setConsultandoCuenta(true);
+
+    try {
+      const usuario = await obtenerUsuarioActual();
+
+      if (!usuario) {
+        router.push("/login");
+        return;
+      }
+
+      if (usuario.rol === "bibliotecario") {
+        router.push("/bibliotecario");
+      } else if (usuario.rol === "estudiante") {
+        router.push("/estudiante");
+      } else if (usuario.rol === "docente") {
+        router.push("/docente");
+      } else {
+        router.push("/login");
+      }
+    } catch (error) {
+      console.error("Error al consultar la cuenta:", error);
+      router.push("/login");
+    } finally {
+      setConsultandoCuenta(false);
+    }
+  }
 
   useEffect(() => {
     async function cargarCatalogo() {
@@ -58,10 +96,14 @@ export default function Home() {
             <span className={styles.iconoMarca}>📚</span>
             <span>Sistema de Biblioteca</span>
           </Link>
-
-          <Link href="/login" className={styles.botonLogin}>
-            Iniciar sesión
-          </Link>
+          <button
+            type="button"
+            className={styles.botonLogin}
+            onClick={irAMiCuenta}
+            disabled={consultandoCuenta}
+          >
+            {consultandoCuenta ? "Cargando..." : "Mi cuenta"}
+          </button>
         </div>
       </header>
 
@@ -140,6 +182,10 @@ export default function Home() {
                     <article
                       key={libro.id_libro}
                       className={styles.tarjetaLibro}
+                      onClick={() => {
+                        setLibroSeleccionado(libro);
+                        setMostrarResumen(false);
+                      }}
                     >
                       <div className={styles.portada}>
                         <span>📖</span>
@@ -186,6 +232,76 @@ export default function Home() {
           </>
         )}
       </section>
+
+      {libroSeleccionado && (
+        <div
+          className={styles.fondoModal}
+          onClick={() => setLibroSeleccionado(null)}
+        >
+          <div
+            className={styles.modalLibro}
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="tituloLibroSeleccionado"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <button
+              type="button"
+              className={styles.cerrarModal}
+              aria-label="Cerrar ventana"
+              onClick={() => setLibroSeleccionado(null)}
+            >
+              ×
+            </button>
+
+            <div className={styles.iconoLibroModal}>📖</div>
+
+            <h2 id="tituloLibroSeleccionado">
+              {libroSeleccionado.titulo}
+            </h2>
+
+            <p className={styles.autorModal}>
+              {libroSeleccionado.autor}
+            </p>
+
+            {!mostrarResumen ? (
+              <div className={styles.opcionesModal}>
+                <Link
+                  href={`/login?libro=${libroSeleccionado.id_libro}`}
+                  className={styles.solicitarPrestamo}
+                >
+                  Solicitar préstamo
+                </Link>
+
+                <button
+                  type="button"
+                  className={styles.verResumen}
+                  onClick={() => setMostrarResumen(true)}
+                >
+                  Ver resumen
+                </button>
+              </div>
+            ) : (
+              <div className={styles.contenidoResumen}>
+                <h3>Resumen del libro</h3>
+
+                <p>
+                  {libroSeleccionado.resumen?.trim() ||
+                    "Este libro todavía no tiene un resumen registrado."}
+                </p>
+
+                <button
+                  type="button"
+                  className={styles.verResumen}
+                  onClick={() => setMostrarResumen(false)}
+                >
+                  Volver
+                </button>
+              </div>
+            )}
+          </div>
+        </div>
+      )}
 
       <footer className={styles.piePagina}>
         <p>Sistema de Biblioteca</p>

@@ -214,7 +214,7 @@ export default function LoginForm() {
           style={{
             border: "none",
             background: "none",
-            color: "#194b78",
+            color: "#244D3D",
             fontWeight: "bold",
             cursor: "pointer",
             textDecoration: "underline",

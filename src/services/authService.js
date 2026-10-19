@@ -62,3 +62,26 @@ export async function registrarCuenta(nombre, correo, contrasena, rol) {
     requiereConfirmacion: !data.session,
   };
 }
+
+
+export async function obtenerUsuarioActual() {
+  const supabase = crearClienteSupabase();
+
+  const { data, error } = await supabase.auth.getUser();
+
+  if (error || !data.user) {
+    return null;
+  }
+
+  const { data: perfil, error: errorPerfil } = await supabase
+    .from("usuarios")
+    .select("id_usuario, nombre, correo, rol, estado")
+    .eq("auth_user_id", data.user.id)
+    .single();
+
+  if (errorPerfil || !perfil || perfil.estado !== "activo") {
+    return null;
+  }
+
+  return perfil;
+}
