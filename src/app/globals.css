@@ -1,17 +1,22 @@
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
-}
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+:root {
+  /* Colores principales */
+  --color-primario: #244D3D;
+  --color-secundario: #54806A;
+  --color-verde-claro: #E4EDE5;
+  --color-fondo: #FAF9F6;
+  --color-blanco: #FFFFFF;
+  --color-texto: #26352D;
+  --color-borde: #DDE5DC;
+
+  /* Variables generales */
+  --background: #FAF9F6;
+  --foreground: #26352D;
 }
 
 html {
   height: 100%;
+  color-scheme: light;
 }
 
 html,
@@ -42,12 +47,6 @@ a {
   text-decoration: none;
 }
 
-@media (prefers-color-scheme: dark) {
-  html {
-    color-scheme: dark;
-  }
-}
-
 /* Calendario de préstamos */
 
 .calendario-contenedor {
@@ -58,10 +57,10 @@ a {
 .calendario-prestamo {
   width: 100%;
   padding: 14px;
-  border: 1px solid #cbd5e1;
+  border: 1px solid var(--color-borde);
   border-radius: 8px;
-  background: #ffffff;
-  color: #334155;
+  background: var(--color-blanco);
+  color: var(--color-texto);
   font-size: 16px;
   cursor: pointer;
   box-sizing: border-box;
@@ -69,12 +68,12 @@ a {
 
 .calendario-prestamo:focus {
   outline: none;
-  border-color: #194b78;
-  box-shadow: 0 0 0 3px rgba(25, 75, 120, 0.12);
+  border-color: var(--color-primario);
+  box-shadow: 0 0 0 3px rgba(36, 77, 61, 0.15);
 }
 
 .react-datepicker {
-  border: 1px solid #cbd5e1;
+  border: 1px solid var(--color-borde);
   border-radius: 12px;
   overflow: hidden;
   font-family: Arial, sans-serif;
@@ -82,30 +81,30 @@ a {
 }
 
 .react-datepicker__header {
-  background: #194b78;
+  background: var(--color-primario);
   border-bottom: none;
 }
 
 .react-datepicker__current-month,
 .react-datepicker__day-name {
-  color: white;
+  color: var(--color-blanco);
 }
 
 .react-datepicker__navigation-icon::before {
-  border-color: white;
+  border-color: var(--color-blanco);
 }
 
 .react-datepicker__day--selected,
 .react-datepicker__day--keyboard-selected {
-  background: #194b78;
-  color: white;
+  background: var(--color-primario);
+  color: var(--color-blanco);
 }
 
 .react-datepicker__day:hover {
   border-radius: 6px;
-  background: #dbeafe;
+  background: var(--color-verde-claro);
 }
 
 .react-datepicker__day--disabled {
-  color: #cbd5e1;
+  color: #a3ada5;
 }
