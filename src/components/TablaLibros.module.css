@@ -591,3 +591,29 @@
   outline-offset: 3px;
 }
 
+/* HISTORIAL DE DEVOLUCIONES */
+
+.estadoDevuelto {
+  display: inline-flex;
+  align-items: center;
+  padding: 7px 11px;
+  border-radius: 7px;
+  background: #E4F3E8;
+  color: #277044;
+  font-size: 12px;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.estadoConRetraso {
+  display: inline-flex;
+  align-items: center;
+  padding: 7px 11px;
+  border-radius: 7px;
+  background: #FEF0E6;
+  color: #B45309;
+  font-size: 12px;
+  font-weight: 600;
+  white-space: nowrap;
+}
+

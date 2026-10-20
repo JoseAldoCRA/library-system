@@ -4,6 +4,7 @@
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { crearClienteSupabase } from "@/lib/supabaseClient";
+import TablaDevoluciones from "@/components/TablaDevoluciones";
 
 import {
   LibraryBig,
@@ -119,9 +120,9 @@ export default function PanelBibliotecario() {
   }
 
   return (
-     <div className={styles.panel} translate="no">
+    <div className={styles.panel} translate="no">
 
-      {   }
+      { }
 
       <aside className={styles.sidebar}>
         <div className={styles.marca}>
@@ -183,7 +184,7 @@ export default function PanelBibliotecario() {
         </div>
       </aside>
 
-      {/* CONTENIDO PRINCIPAL */}
+      { }
 
       <main className={styles.contenido}>
 
@@ -299,9 +300,8 @@ export default function PanelBibliotecario() {
 
         {seccion === "devoluciones" && (
           <div className={styles.seccion}>
-            <TablaPrestamos
+            <TablaDevoluciones
               actualizacion={actualizacionLibros}
-              alDevolver={actualizarDatos}
             />
           </div>
         )}

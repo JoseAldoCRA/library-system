@@ -111,3 +111,34 @@ export async function obtenerMisPrestamos() {
 
   return data;
 }
+
+
+export async function obtenerHistorialDevoluciones() {
+  const supabase = crearClienteSupabase();
+
+  const { data, error } = await supabase
+    .from("prestamos")
+    .select(`
+      id_prestamo,
+      fecha_prestamo,
+      fecha_vencimiento,
+      fecha_devolucion,
+      usuarios (
+        nombre
+      ),
+      ejemplares (
+        codigo,
+        libros (
+          titulo
+        )
+      )
+    `)
+    .not("fecha_devolucion", "is", null)
+    .order("fecha_devolucion", { ascending: false });
+
+  if (error) {
+    throw new Error(error.message);
+  }
+
+  return data;
+}
