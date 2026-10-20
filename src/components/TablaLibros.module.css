@@ -1056,3 +1056,110 @@
 }
 
 
+/* REPORTES DE LA BIBLIOTECA */
+
+.botonActualizarReporte {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 9px;
+  padding: 11px 15px;
+  background: #244D3D;
+  color: #FFFFFF;
+  border: none;
+  border-radius: 8px;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.botonActualizarReporte:hover {
+  background: #19382C;
+}
+
+.botonActualizarReporte:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.contenidoReportes {
+  display: flex;
+  flex-direction: column;
+  gap: 30px;
+  margin-top: 25px;
+}
+
+.seccionReporte {
+  display: flex;
+  flex-direction: column;
+  gap: 17px;
+}
+
+.tituloSeccionReporte {
+  display: flex;
+  align-items: center;
+  gap: 11px;
+  padding-bottom: 12px;
+  border-bottom: 1px solid #DDE5DC;
+  color: #244D3D;
+}
+
+.tituloSeccionReporte h3 {
+  font-size: 17px;
+  font-weight: 600;
+}
+
+.cuadriculaReportes {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 15px;
+}
+
+.tarjetaReporte {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 12px;
+  min-width: 0;
+  padding: 20px;
+  border: 1px solid #DDE5DC;
+  border-radius: 11px;
+  background: #F7F9F5;
+  color: #54806A;
+}
+
+.tarjetaReporte span {
+  color: #66756B;
+  font-size: 13px;
+  line-height: 1.5;
+}
+
+.tarjetaReporte strong {
+  color: #244D3D;
+  font-size: 30px;
+  font-weight: 700;
+}
+
+/* ADAPTACIÓN A PANTALLAS PEQUEÑAS */
+
+@media (max-width: 1050px) {
+  .cuadriculaReportes {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 600px) {
+  .cuadriculaReportes {
+    grid-template-columns: 1fr;
+  }
+
+  .tarjetaReporte {
+    padding: 17px;
+  }
+
+  .botonActualizarReporte {
+    padding: 10px;
+  }
+}
+
+

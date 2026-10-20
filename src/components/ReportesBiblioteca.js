@@ -4,151 +4,199 @@
 import { useEffect, useState } from "react";
 import { generarReporteBiblioteca } from "@/services/reportesService";
 
+import {
+  ChartNoAxesColumnIncreasing,
+  BookOpen,
+  BookCheck,
+  Clock3,
+  AlertTriangle,
+  ShieldAlert,
+  CircleCheck,
+  LibraryBig,
+  BookCopy,
+  RefreshCw
+} from "lucide-react";
+
+import styles from "./TablaLibros.module.css";
+
 export default function ReportesBiblioteca({ actualizacion }) {
   const [reporte, setReporte] = useState(null);
   const [cargando, setCargando] = useState(true);
   const [error, setError] = useState("");
+  const [recargar, setRecargar] = useState(0);
 
   useEffect(() => {
+    let activo = true;
+
     async function cargarReporte() {
       setCargando(true);
       setError("");
 
       try {
         const datos = await generarReporteBiblioteca();
-        setReporte(datos);
+
+        if (activo) {
+          setReporte(datos);
+        }
       } catch (error) {
-        setError(error.message);
+        if (activo) {
+          setError(error.message);
+        }
       } finally {
-        setCargando(false);
+        if (activo) {
+          setCargando(false);
+        }
       }
     }
 
     cargarReporte();
-  }, [actualizacion]);
 
-  const estiloTitulo = {
-    color: "#194b78",
-    marginBottom: "15px",
-  };
-
-  const estiloTabla = {
-    width: "100%",
-    borderCollapse: "collapse",
-    marginBottom: "25px",
-  };
-
-  const estiloEncabezado = {
-    background: "#194b78",
-    color: "white",
-    padding: "12px",
-    textAlign: "left",
-  };
-
-  const estiloCelda = {
-    padding: "12px",
-    color: "#334155",
-    borderBottom: "1px solid #e2e8f0",
-  };
+    return () => {
+      activo = false;
+    };
+  }, [actualizacion, recargar]);
 
   return (
-    <section style={{ marginTop: "40px" }}>
-      <h2 style={estiloTitulo}>Reportes de la biblioteca</h2>
+    <section className={styles.tarjeta}>
 
-      <p style={{ color: "#334155", marginBottom: "20px" }}>
-        Consulta los indicadores generales de la biblioteca.
-      </p>
+      {/* ENCABEZADO */}
 
-      {cargando && <p>Cargando reportes...</p>}
+      <div className={styles.encabezado}>
+        <div className={styles.titulo}>
+          <div className={styles.icono}>
+            <ChartNoAxesColumnIncreasing size={25} />
+          </div>
+
+          <div>
+            <h2>Reportes de la biblioteca</h2>
+            <p>
+              Consulta las estadísticas generales del sistema.
+            </p>
+          </div>
+        </div>
+
+        <button
+          type="button"
+          className={styles.botonActualizarReporte}
+          onClick={() => setRecargar(recargar + 1)}
+          disabled={cargando}
+        >
+          <RefreshCw size={17} />
+          Actualizar
+        </button>
+      </div>
+
+      {cargando && (
+        <p className={styles.mensaje}>
+          Cargando reportes...
+        </p>
+      )}
 
       {error && (
-        <p style={{ color: "#b91c1c" }}>
+        <p className={styles.mensajeError}>
           Error al cargar los reportes: {error}
         </p>
       )}
 
       {!cargando && !error && reporte && (
-        <>
-          <h3 style={estiloTitulo}>Reporte de préstamos</h3>
+        <div className={styles.contenidoReportes}>
 
-          <table style={estiloTabla}>
-            <thead>
-              <tr>
-                <th style={estiloEncabezado}>Indicador</th>
-                <th style={estiloEncabezado}>Cantidad</th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr>
-                <td style={estiloCelda}>Total de préstamos</td>
-                <td style={estiloCelda}>{reporte.totalPrestamos}</td>
-              </tr>
-              <tr>
-                <td style={estiloCelda}>Préstamos activos</td>
-                <td style={estiloCelda}>{reporte.prestamosActivos}</td>
-              </tr>
-              <tr>
-                <td style={estiloCelda}>Préstamos devueltos</td>
-                <td style={estiloCelda}>{reporte.prestamosDevueltos}</td>
-              </tr>
-              <tr>
-                <td style={estiloCelda}>Préstamos vencidos</td>
-                <td style={estiloCelda}>{reporte.prestamosVencidos}</td>
-              </tr>
-            </tbody>
-          </table>
+          {/* PRÉSTAMOS */}
 
-          <h3 style={estiloTitulo}>Reporte de sanciones</h3>
+          <div className={styles.seccionReporte}>
+            <div className={styles.tituloSeccionReporte}>
+              <BookOpen size={20} />
+              <h3>Reporte de préstamos</h3>
+            </div>
 
-          <table style={estiloTabla}>
-            <thead>
-              <tr>
-                <th style={estiloEncabezado}>Indicador</th>
-                <th style={estiloEncabezado}>Cantidad</th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr>
-                <td style={estiloCelda}>Total de sanciones</td>
-                <td style={estiloCelda}>{reporte.totalSanciones}</td>
-              </tr>
-              <tr>
-                <td style={estiloCelda}>Sanciones pendientes</td>
-                <td style={estiloCelda}>{reporte.sancionesPendientes}</td>
-              </tr>
-              <tr>
-                <td style={estiloCelda}>Sanciones pagadas</td>
-                <td style={estiloCelda}>{reporte.sancionesPagadas}</td>
-              </tr>
-            </tbody>
-          </table>
+            <div className={styles.cuadriculaReportes}>
+              <div className={styles.tarjetaReporte}>
+                <BookOpen size={21} />
+                <span>Total de préstamos</span>
+                <strong>{reporte.totalPrestamos ?? 0}</strong>
+              </div>
 
-          <h3 style={estiloTitulo}>Reporte de inventario</h3>
+              <div className={styles.tarjetaReporte}>
+                <Clock3 size={21} />
+                <span>Préstamos activos</span>
+                <strong>{reporte.prestamosActivos ?? 0}</strong>
+              </div>
 
-          <table style={estiloTabla}>
-            <thead>
-              <tr>
-                <th style={estiloEncabezado}>Indicador</th>
-                <th style={estiloEncabezado}>Cantidad</th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr>
-                <td style={estiloCelda}>Total de ejemplares</td>
-                <td style={estiloCelda}>{reporte.totalEjemplares}</td>
-              </tr>
-              <tr>
-                <td style={estiloCelda}>Ejemplares disponibles</td>
-                <td style={estiloCelda}>{reporte.ejemplaresDisponibles}</td>
-              </tr>
-              <tr>
-                <td style={estiloCelda}>Ejemplares prestados</td>
-                <td style={estiloCelda}>{reporte.ejemplaresPrestados}</td>
-              </tr>
-            </tbody>
-          </table>
-        </>
+              <div className={styles.tarjetaReporte}>
+                <BookCheck size={21} />
+                <span>Préstamos devueltos</span>
+                <strong>{reporte.prestamosDevueltos ?? 0}</strong>
+              </div>
+
+              <div className={styles.tarjetaReporte}>
+                <AlertTriangle size={21} />
+                <span>Préstamos vencidos</span>
+                <strong>{reporte.prestamosVencidos ?? 0}</strong>
+              </div>
+            </div>
+          </div>
+
+          {/* SANCIONES */}
+
+          <div className={styles.seccionReporte}>
+            <div className={styles.tituloSeccionReporte}>
+              <ShieldAlert size={20} />
+              <h3>Reporte de sanciones</h3>
+            </div>
+
+            <div className={styles.cuadriculaReportes}>
+              <div className={styles.tarjetaReporte}>
+                <ShieldAlert size={21} />
+                <span>Total de sanciones</span>
+                <strong>{reporte.totalSanciones ?? 0}</strong>
+              </div>
+
+              <div className={styles.tarjetaReporte}>
+                <Clock3 size={21} />
+                <span>Sanciones pendientes</span>
+                <strong>{reporte.sancionesPendientes ?? 0}</strong>
+              </div>
+
+              <div className={styles.tarjetaReporte}>
+                <CircleCheck size={21} />
+                <span>Sanciones pagadas</span>
+                <strong>{reporte.sancionesPagadas ?? 0}</strong>
+              </div>
+            </div>
+          </div>
+
+          {/* INVENTARIO */}
+
+          <div className={styles.seccionReporte}>
+            <div className={styles.tituloSeccionReporte}>
+              <LibraryBig size={20} />
+              <h3>Reporte de inventario</h3>
+            </div>
+
+            <div className={styles.cuadriculaReportes}>
+              <div className={styles.tarjetaReporte}>
+                <BookCopy size={21} />
+                <span>Total de ejemplares</span>
+                <strong>{reporte.totalEjemplares ?? 0}</strong>
+              </div>
+
+              <div className={styles.tarjetaReporte}>
+                <CircleCheck size={21} />
+                <span>Ejemplares disponibles</span>
+                <strong>{reporte.ejemplaresDisponibles ?? 0}</strong>
+              </div>
+
+              <div className={styles.tarjetaReporte}>
+                <BookOpen size={21} />
+                <span>Ejemplares prestados</span>
+                <strong>{reporte.ejemplaresPrestados ?? 0}</strong>
+              </div>
+            </div>
+          </div>
+
+        </div>
       )}
+
     </section>
   );
 }
