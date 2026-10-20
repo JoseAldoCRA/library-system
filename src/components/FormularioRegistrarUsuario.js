@@ -1,8 +1,9 @@
-
 "use client";
 
 import { useState } from "react";
 import { crearClienteSupabase } from "@/lib/supabaseClient";
+import { UserPlus, Plus, Eye, EyeOff } from "lucide-react";
+import styles from "./FormularioLibro.module.css";
 
 export default function FormularioRegistrarUsuario({ alRegistrar }) {
   const [nombre, setNombre] = useState("");
@@ -12,6 +13,8 @@ export default function FormularioRegistrarUsuario({ alRegistrar }) {
   const [confirmarContrasena, setConfirmarContrasena] = useState("");
   const [mensaje, setMensaje] = useState("");
   const [guardando, setGuardando] = useState(false);
+  const [mostrarContrasena, setMostrarContrasena] = useState(false);
+  const [mostrarConfirmacion, setMostrarConfirmacion] = useState(false);
 
   async function registrarUsuario(evento) {
     evento.preventDefault();
@@ -82,141 +85,180 @@ export default function FormularioRegistrarUsuario({ alRegistrar }) {
     }
   }
 
-  const estiloCampo = {
-    width: "100%",
-    padding: "12px",
-    marginTop: "8px",
-    marginBottom: "18px",
-    border: "1px solid #cbd5e1",
-    borderRadius: "6px",
-    backgroundColor: "#ffffff",
-    color: "#334155",
-  };
-
-  const estiloEtiqueta = {
-    color: "#334155",
-    display: "block",
-    marginBottom: "8px",
-    fontWeight: "500",
-  };
-
+  
   return (
-    <section style={{ marginTop: "35px" }}>
-      <h2 style={{ color: "#194b78", marginBottom: "20px" }}>
-        Registrar usuario
-      </h2>
+    <section className={styles.tarjeta}>
+
+      <div className={styles.encabezado}>
+        <div className={styles.icono}>
+          <UserPlus size={25} />
+        </div>
+
+        <div>
+          <h2>Registrar nuevo usuario</h2>
+          <p>
+            Crea cuentas para estudiantes y docentes de la biblioteca.
+          </p>
+        </div>
+      </div>
 
       <form onSubmit={registrarUsuario}>
-        <label htmlFor="nombreUsuario" style={estiloEtiqueta}>
-          Nombre completo
-        </label>
 
-        <input
-          id="nombreUsuario"
-          type="text"
-          value={nombre}
-          onChange={(evento) => setNombre(evento.target.value)}
-          placeholder="Ingresa el nombre completo"
-          maxLength={100}
-          required
-          style={estiloCampo}
-        />
+        <div className={styles.campos}>
 
-        <label htmlFor="correoUsuario" style={estiloEtiqueta}>
-          Correo electrónico
-        </label>
+          <div className={styles.grupo}>
+            <label htmlFor="nombreUsuario">
+              Nombre completo
+            </label>
 
-        <input
-          id="correoUsuario"
-          type="email"
-          value={correo}
-          onChange={(evento) => setCorreo(evento.target.value)}
-          placeholder="ejemplo@biblio.com"
-          required
-          style={estiloCampo}
-        />
+            <input
+              id="nombreUsuario"
+              type="text"
+              value={nombre}
+              onChange={(evento) => setNombre(evento.target.value)}
+              placeholder="Ingresa el nombre completo"
+              maxLength={100}
+              required
+            />
+          </div>
 
-        <label htmlFor="rolUsuario" style={estiloEtiqueta}>
-          Rol
-        </label>
+          <div className={styles.grupo}>
+            <label htmlFor="correoUsuario">
+              Correo electrónico
+            </label>
 
-        <select
-          id="rolUsuario"
-          value={rol}
-          onChange={(evento) => setRol(evento.target.value)}
-          required
-          style={estiloCampo}
-        >
-          <option value="">Selecciona un rol</option>
-          <option value="estudiante">Estudiante</option>
-          <option value="docente">Docente</option>
-        </select>
+            <input
+              id="correoUsuario"
+              type="email"
+              value={correo}
+              onChange={(evento) => setCorreo(evento.target.value)}
+              placeholder="ejemplo@biblio.com"
+              required
+            />
+          </div>
 
-        <label htmlFor="contrasenaUsuario" style={estiloEtiqueta}>
-          Contraseña inicial
-        </label>
+          <div className={styles.grupo}>
+            <label htmlFor="rolUsuario">
+              Rol
+            </label>
 
-        <input
-          id="contrasenaUsuario"
-          type="password"
-          value={contrasena}
-          onChange={(evento) => setContrasena(evento.target.value)}
-          placeholder="Ingresa una contraseña"
-          minLength={8}
-          maxLength={72}
-          autoComplete="new-password"
-          required
-          style={estiloCampo}
-        />
+            <select
+              id="rolUsuario"
+              value={rol}
+              onChange={(evento) => setRol(evento.target.value)}
+              required
+            >
+              <option value="">Selecciona un rol</option>
+              <option value="estudiante">Estudiante</option>
+              <option value="docente">Docente</option>
+            </select>
+          </div>
 
-        <label htmlFor="confirmarContrasenaUsuario" style={estiloEtiqueta}>
-          Confirmar contraseña
-        </label>
+          <div className={styles.grupo}>
+            <label htmlFor="contrasenaUsuario">
+              Contraseña inicial
+            </label>
 
-        <input
-          id="confirmarContrasenaUsuario"
-          type="password"
-          value={confirmarContrasena}
-          onChange={(evento) =>
-            setConfirmarContrasena(evento.target.value)
-          }
-          placeholder="Vuelve a escribir la contraseña"
-          minLength={8}
-          maxLength={72}
-          autoComplete="new-password"
-          required
-          style={estiloCampo}
-        />
+            <div className={styles.campoContrasena}>
+              <input
+                id="contrasenaUsuario"
+                type={mostrarContrasena ? "text" : "password"}
+                value={contrasena}
+                onChange={(evento) =>
+                  setContrasena(evento.target.value)
+                }
+                placeholder="Mínimo 8 caracteres"
+                minLength={8}
+                maxLength={72}
+                autoComplete="new-password"
+                required
+              />
 
-        <button
-          type="submit"
-          disabled={guardando}
-          style={{
-            width: "100%",
-            padding: "12px",
-            backgroundColor: "#194b78",
-            color: "white",
-            border: "none",
-            borderRadius: "6px",
-            cursor: guardando ? "not-allowed" : "pointer",
-            opacity: guardando ? 0.6 : 1,
-          }}
-        >
-          {guardando ? "Registrando..." : "Registrar usuario"}
-        </button>
+              <button
+                type="button"
+                onClick={() =>
+                  setMostrarContrasena(!mostrarContrasena)
+                }
+                aria-label={
+                  mostrarContrasena
+                    ? "Ocultar contraseña"
+                    : "Mostrar contraseña"
+                }
+              >
+                {mostrarContrasena
+                  ? <EyeOff size={19} />
+                  : <Eye size={19} />}
+              </button>
+            </div>
+          </div>
+
+          <div className={styles.grupo}>
+            <label htmlFor="confirmarContrasenaUsuario">
+              Confirmar contraseña
+            </label>
+
+            <div className={styles.campoContrasena}>
+              <input
+                id="confirmarContrasenaUsuario"
+                type={
+                  mostrarConfirmacion ? "text" : "password"
+                }
+                value={confirmarContrasena}
+                onChange={(evento) =>
+                  setConfirmarContrasena(evento.target.value)
+                }
+                placeholder="Repite la contraseña"
+                minLength={8}
+                maxLength={72}
+                autoComplete="new-password"
+                required
+              />
+
+              <button
+                type="button"
+                onClick={() =>
+                  setMostrarConfirmacion(!mostrarConfirmacion)
+                }
+                aria-label={
+                  mostrarConfirmacion
+                    ? "Ocultar confirmación"
+                    : "Mostrar confirmación"
+                }
+              >
+                {mostrarConfirmacion
+                  ? <EyeOff size={19} />
+                  : <Eye size={19} />}
+              </button>
+            </div>
+          </div>
+
+        </div>
+
+        <div className={styles.acciones}>
+          <button type="submit" disabled={guardando}>
+            <Plus size={18} />
+
+            {guardando
+              ? "Registrando..."
+              : "Registrar usuario"}
+          </button>
+        </div>
+
       </form>
 
       {mensaje && (
         <p
           role="status"
-          style={{
-            marginTop: "15px",
-            color: mensaje.startsWith("Error") ? "#b91c1c" : "#166534",
-          }}
+          className={
+            mensaje.startsWith("Error")
+              ? styles.mensajeError
+              : styles.mensaje
+          }
         >
           {mensaje}
         </p>
       )}
+
     </section>
   );
 }

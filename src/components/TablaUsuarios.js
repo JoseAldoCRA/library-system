@@ -1,15 +1,27 @@
+
 "use client";
 
 import { useEffect, useState } from "react";
 import { listarUsuarios } from "@/services/usuariosService";
 import { crearClienteSupabase } from "@/lib/supabaseClient";
 
+import {
+  Users,
+  Search,
+  Pencil,
+  X,
+  Save,
+  ChevronLeft,
+  ChevronRight
+} from "lucide-react";
+
+import styles from "./TablaLibros.module.css";
+
 export default function TablaUsuarios({ actualizacion }) {
   const [usuarios, setUsuarios] = useState([]);
   const [cargando, setCargando] = useState(true);
   const [error, setError] = useState("");
 
-  // Estados para editar usuarios
   const [usuarioEditando, setUsuarioEditando] = useState(null);
 
   const [nombreEditado, setNombreEditado] = useState("");
@@ -19,6 +31,9 @@ export default function TablaUsuarios({ actualizacion }) {
 
   const [guardando, setGuardando] = useState(false);
   const [mensaje, setMensaje] = useState("");
+
+  const [busqueda, setBusqueda] = useState("");
+  const [pagina, setPagina] = useState(1);
 
   useEffect(() => {
     let activo = true;
@@ -31,7 +46,7 @@ export default function TablaUsuarios({ actualizacion }) {
         const datos = await listarUsuarios();
 
         if (activo) {
-          setUsuarios(datos);
+          setUsuarios(datos || []);
         }
       } catch (error) {
         if (activo) {
@@ -51,7 +66,8 @@ export default function TablaUsuarios({ actualizacion }) {
     };
   }, [actualizacion]);
 
-  // Activar el formulario de edición
+  // Abrir edición
+
   function editarUsuario(usuario) {
     setUsuarioEditando(usuario.id_usuario);
 
@@ -63,24 +79,30 @@ export default function TablaUsuarios({ actualizacion }) {
     setMensaje("");
   }
 
-  // Cancelar la edición
-  function cancelarEdicion() {
-    setUsuarioEditando(null);
+  // Cerrar edición
 
+  function cancelarEdicion() {
+    if (guardando) return;
+
+    setUsuarioEditando(null);
     setNombreEditado("");
     setCorreoEditado("");
     setRolEditado("");
     setEstadoEditado("");
-
     setMensaje("");
   }
 
-  // Guardar el nuevo nombre
+  // Guardar cambios
+
   async function guardarEdicion(idUsuario) {
+    if (guardando) return;
+
     const nombre = nombreEditado.trim();
 
     if (!nombre || nombre.length > 100) {
-      setMensaje("Error: Ingresa un nombre válido de máximo 100 caracteres.");
+      setMensaje(
+        "Error: Ingresa un nombre válido de máximo 100 caracteres."
+      );
       return;
     }
 
@@ -117,21 +139,23 @@ export default function TablaUsuarios({ actualizacion }) {
       const datos = await respuesta.json();
 
       if (!respuesta.ok) {
-        throw new Error(datos.error || "No se pudo actualizar el usuario.");
+        throw new Error(
+          datos.error || "No se pudo actualizar el usuario."
+        );
       }
 
-      // Actualizar la tabla sin recargar la página
       setUsuarios((anteriores) =>
         anteriores.map((usuario) =>
           usuario.id_usuario === idUsuario
             ? { ...usuario, ...datos.usuario }
-            : usuario,
-        ),
+            : usuario
+        )
       );
 
       setUsuarioEditando(null);
       setNombreEditado("");
       setMensaje("Usuario actualizado correctamente.");
+
     } catch (error) {
       setMensaje("Error: " + error.message);
     } finally {
@@ -139,253 +163,364 @@ export default function TablaUsuarios({ actualizacion }) {
     }
   }
 
-  const estiloCelda = {
-    padding: "12px",
-    borderBottom: "1px solid #ddd",
-    backgroundColor: "#ffffff",
-    color: "#334155",
-  };
+  // Filtrar usuarios
 
-  const estiloCampo = {
-    width: "100%",
-    padding: "12px",
-    border: "1px solid #cbd5e1",
-    borderRadius: "8px",
-    backgroundColor: "#ffffff",
-    color: "#1e293b",
-    fontSize: "15px",
-    boxSizing: "border-box",
-  };
+  const usuariosVisibles = usuarios.filter(
+    (usuario) => usuario.rol !== "bibliotecario"
+  );
 
-  const estiloEtiqueta = {
-    display: "block",
-    marginBottom: "8px",
-    fontWeight: "600",
-    color: "#194b78",
-  };
+  const usuariosFiltrados = usuariosVisibles.filter((usuario) => {
+    const texto = busqueda.toLowerCase().trim();
 
-  const estiloBoton = {
-    padding: "8px 12px",
-    backgroundColor: "#194b78",
-    color: "#ffffff",
-    border: "none",
-    borderRadius: "5px",
-    cursor: "pointer",
-  };
+    return (
+      String(usuario.nombre || "").toLowerCase().includes(texto) ||
+      String(usuario.correo || "").toLowerCase().includes(texto) ||
+      String(usuario.rol || "").toLowerCase().includes(texto)
+    );
+  });
+
+  // Paginación
+
+  const totalPaginas = Math.max(
+    1,
+    Math.ceil(usuariosFiltrados.length / 10)
+  );
+
+  const paginaVisible = Math.min(pagina, totalPaginas);
+
+  const usuariosPagina = usuariosFiltrados.slice(
+    (paginaVisible - 1) * 10,
+    paginaVisible * 10
+  );
 
   return (
-    <section style={{ marginTop: "35px" }}>
-      <h2 style={{ color: "#194b78", marginBottom: "20px" }}>
-        {" "}
-        Gestión de usuarios
-      </h2>
+    <section className={styles.tarjeta}>
 
-      {mensaje && (
-        <p
-          style={{
-            color: mensaje.startsWith("Error") ? "#b91c1c" : "#166534",
-            marginBottom: "15px",
+      {/* ENCABEZADO */}
+
+      <div className={styles.encabezado}>
+        <div className={styles.titulo}>
+          <div className={styles.icono}>
+            <Users size={25} />
+          </div>
+
+          <div>
+            <h2>Usuarios registrados</h2>
+            <p>
+              Consulta y administra las cuentas de la biblioteca.
+            </p>
+          </div>
+        </div>
+
+        <span className={styles.total}>
+          {usuariosVisibles.length} usuarios
+        </span>
+      </div>
+
+      {/* BUSCADOR */}
+
+      <div className={styles.buscador}>
+        <Search size={20} />
+
+        <input
+          type="search"
+          aria-label="Buscar usuarios"
+          placeholder="Buscar por nombre, correo o rol..."
+          value={busqueda}
+          onChange={(evento) => {
+            setBusqueda(evento.target.value);
+            setPagina(1);
           }}
+        />
+      </div>
+
+      {mensaje && usuarioEditando === null && (
+        <p
+          role="status"
+          className={
+            mensaje.startsWith("Error")
+              ? styles.mensajeError
+              : styles.mensajeExito
+          }
         >
           {mensaje}
         </p>
       )}
 
-      {cargando && <p>Cargando usuarios...</p>}
-
-      {error && <p style={{ color: "#b91c1c" }}>Error: {error}</p>}
-
-      {!cargando && !error && usuarios.length === 0 && (
-        <p>No hay usuarios registrados.</p>
+      {cargando && (
+        <p className={styles.mensaje}>
+          Cargando usuarios...
+        </p>
       )}
 
-      {!cargando && !error && usuarios.length > 0 && (
-        <div style={{ overflowX: "auto" }}>
-          <table
-            style={{
-              width: "100%",
-              borderCollapse: "collapse",
-            }}
-          >
-            <thead>
-              <tr style={{ backgroundColor: "#194b78", color: "white" }}>
-                <th style={{ padding: "12px", textAlign: "left" }}>Nombre</th>
-                <th style={{ padding: "12px", textAlign: "left" }}>Correo</th>
-                <th style={{ padding: "12px", textAlign: "left" }}>Rol</th>
-                <th style={{ padding: "12px", textAlign: "left" }}>Estado</th>
-                <th style={{ padding: "12px", textAlign: "left" }}>Acciones</th>
-              </tr>
-            </thead>
-
-            <tbody>
-              {usuarios
-                .filter((usuario) => usuario.rol !== "bibliotecario")
-                .map((usuario) => (
-                  <tr key={usuario.id_usuario}>
-                    <td style={estiloCelda}>{usuario.nombre}</td>
-
-                    <td style={estiloCelda}>{usuario.correo}</td>
-
-                    <td style={estiloCelda}>
-                      {usuario.rol === "estudiante" ? "Estudiante" : "Docente"}
-                    </td>
-
-                    <td style={estiloCelda}>
-                      {usuario.estado === "activo" ? "Activo" : "Inactivo"}
-                    </td>
-
-                    <td style={estiloCelda}>
-                      <button
-                        type="button"
-                        onClick={() => editarUsuario(usuario)}
-                        disabled={guardando}
-                        style={estiloBoton}
-                      >
-                        Editar Usuario
-                      </button>
-                    </td>
-                  </tr>
-                ))}
-            </tbody>
-          </table>
-        </div>
+      {error && (
+        <p className={styles.mensajeError}>
+          Error: {error}
+        </p>
       )}
+
+      {!cargando && !error && (
+        <>
+          <p className={styles.contador}>
+            {usuariosFiltrados.length} resultados encontrados
+          </p>
+
+          {usuariosFiltrados.length === 0 ? (
+            <p className={styles.mensaje}>
+              {usuariosVisibles.length === 0
+                ? "No hay usuarios registrados."
+                : "No se encontraron usuarios."}
+            </p>
+          ) : (
+            <>
+              <div className={styles.tablaContenedor}>
+                <table className={styles.tabla}>
+                  <thead>
+                    <tr>
+                      <th>Nombre</th>
+                      <th>Correo</th>
+                      <th>Rol</th>
+                      <th>Estado</th>
+                      <th>Acciones</th>
+                    </tr>
+                  </thead>
+
+                  <tbody>
+                    {usuariosPagina.map((usuario) => (
+                      <tr key={usuario.id_usuario}>
+                        <td className={styles.nombreLibro}>
+                          {usuario.nombre}
+                        </td>
+
+                        <td>{usuario.correo}</td>
+
+                        <td>
+                          <span className={styles.etiquetaRol}>
+                            {usuario.rol === "estudiante"
+                              ? "Estudiante"
+                              : "Docente"}
+                          </span>
+                        </td>
+
+                        <td>
+                          <span
+                            className={
+                              usuario.estado === "activo"
+                                ? styles.estadoDevuelto
+                                : styles.estadoInactivo
+                            }
+                          >
+                            {usuario.estado === "activo"
+                              ? "Activo"
+                              : "Inactivo"}
+                          </span>
+                        </td>
+
+                        <td>
+                          <button
+                            type="button"
+                            className={styles.botonEditarUsuario}
+                            onClick={() => editarUsuario(usuario)}
+                            disabled={guardando}
+                          >
+                            <Pencil size={16} />
+                            Editar usuario
+                          </button>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+
+              {totalPaginas > 1 && (
+                <div className={styles.paginacion}>
+                  <button
+                    type="button"
+                    disabled={paginaVisible === 1}
+                    onClick={() =>
+                      setPagina(paginaVisible - 1)
+                    }
+                  >
+                    <ChevronLeft size={17} />
+                    Anterior
+                  </button>
+
+                  <span>
+                    Página {paginaVisible} de {totalPaginas}
+                  </span>
+
+                  <button
+                    type="button"
+                    disabled={paginaVisible === totalPaginas}
+                    onClick={() =>
+                      setPagina(paginaVisible + 1)
+                    }
+                  >
+                    Siguiente
+                    <ChevronRight size={17} />
+                  </button>
+                </div>
+              )}
+            </>
+          )}
+        </>
+      )}
+
+      {/* VENTANA DE EDICIÓN */}
 
       {usuarioEditando !== null && (
-        <div
-          style={{
-            backgroundColor: "#f8fafc",
-            border: "1px solid #dbe3ed",
-            borderRadius: "12px",
-            padding: "25px",
-            marginTop: "25px",
-            boxShadow: "0 4px 15px rgba(0, 0, 0, 0.06)",
-          }}
-        >
-          <h3
-            style={{
-              color: "#194b78",
-              fontSize: "22px",
-              marginTop: 0,
-              marginBottom: "20px",
-            }}
-          >
-            Editar usuario
-          </h3>
-
-          {/* Nombre */}
-          <div style={{ marginBottom: "18px" }}>
-            <label htmlFor="editar-nombre" style={estiloEtiqueta}>
-              Nombre completo
-            </label>
-
-            <input
-              id="editar-nombre"
-              type="text"
-              value={nombreEditado}
-              onChange={(e) => setNombreEditado(e.target.value)}
-              maxLength={100}
-              disabled={guardando}
-              style={estiloCampo}
-            />
-          </div>
-
-          {/* Correo */}
-          <div style={{ marginBottom: "18px" }}>
-            <label htmlFor="editar-correo" style={estiloEtiqueta}>
-              Correo electrónico
-            </label>
-
-            <input
-              id="editar-correo"
-              type="email"
-              value={correoEditado}
-              onChange={(e) => setCorreoEditado(e.target.value)}
-              disabled={guardando}
-              style={estiloCampo}
-            />
-          </div>
-
-          {/* Rol y estado */}
+        <div className={styles.fondoModal}>
           <div
-            style={{
-              display: "grid",
-              gridTemplateColumns: "repeat(auto-fit, minmax(220px, 1fr))",
-              gap: "18px",
-              marginBottom: "25px",
-            }}
+            className={styles.modalUsuario}
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="tituloEditarUsuario"
           >
-            <div>
-              <label htmlFor="editar-rol" style={estiloEtiqueta}>
-                Rol
-              </label>
+            <div className={styles.encabezadoEditarUsuario}>
+              <div className={styles.icono}>
+                <Pencil size={23} />
+              </div>
 
-              <select
-                id="editar-rol"
-                value={rolEditado}
-                onChange={(e) => setRolEditado(e.target.value)}
+              <div className={styles.tituloEditarUsuario}>
+                <h3 id="tituloEditarUsuario">
+                  Editar usuario
+                </h3>
+                <p>Modifica los datos de la cuenta.</p>
+              </div>
+
+              <button
+                type="button"
+                className={styles.cerrarEditarUsuario}
+                onClick={cancelarEdicion}
                 disabled={guardando}
-                style={estiloCampo}
+                aria-label="Cerrar ventana"
               >
-                <option value="estudiante">Estudiante</option>
-                <option value="docente">Docente</option>
-              </select>
+                <X size={20} />
+              </button>
             </div>
 
-            <div>
-              <label htmlFor="editar-estado" style={estiloEtiqueta}>
-                Estado
-              </label>
-
-              <select
-                id="editar-estado"
-                value={estadoEditado}
-                onChange={(e) => setEstadoEditado(e.target.value)}
-                disabled={guardando}
-                style={estiloCampo}
-              >
-                <option value="activo">Activo</option>
-                <option value="inactivo">Inactivo</option>
-              </select>
-            </div>
-          </div>
-
-          {/* Botones */}
-          <div
-            style={{
-              display: "flex",
-              justifyContent: "flex-end",
-              gap: "10px",
-              flexWrap: "wrap",
-            }}
-          >
-            <button
-              type="button"
-              onClick={() => guardarEdicion(usuarioEditando)}
-              disabled={guardando}
-              style={{
-                ...estiloBoton,
-                padding: "12px 20px",
+            <form
+              onSubmit={(evento) => {
+                evento.preventDefault();
+                guardarEdicion(usuarioEditando);
               }}
             >
-              {guardando ? "Guardando..." : "Guardar cambios"}
-            </button>
+              <div className={styles.camposEditarUsuario}>
 
-            <button
-              type="button"
-              onClick={cancelarEdicion}
-              disabled={guardando}
-              style={{
-                ...estiloBoton,
-                backgroundColor: "#64748b",
-                padding: "12px 20px",
-              }}
-            >
-              Cancelar
-            </button>
+                <div className={styles.grupoEditarUsuario}>
+                  <label htmlFor="editar-nombre">
+                    Nombre completo
+                  </label>
+
+                  <input
+                    id="editar-nombre"
+                    type="text"
+                    value={nombreEditado}
+                    onChange={(evento) =>
+                      setNombreEditado(evento.target.value)
+                    }
+                    maxLength={100}
+                    required
+                    disabled={guardando}
+                  />
+                </div>
+
+                <div className={styles.grupoEditarUsuario}>
+                  <label htmlFor="editar-correo">
+                    Correo electrónico
+                  </label>
+
+                  <input
+                    id="editar-correo"
+                    type="email"
+                    value={correoEditado}
+                    onChange={(evento) =>
+                      setCorreoEditado(evento.target.value)
+                    }
+                    required
+                    disabled={guardando}
+                  />
+                </div>
+
+                <div className={styles.grupoEditarUsuario}>
+                  <label htmlFor="editar-rol">
+                    Rol
+                  </label>
+
+                  <select
+                    id="editar-rol"
+                    value={rolEditado}
+                    onChange={(evento) =>
+                      setRolEditado(evento.target.value)
+                    }
+                    disabled={guardando}
+                  >
+                    <option value="estudiante">Estudiante</option>
+                    <option value="docente">Docente</option>
+                  </select>
+                </div>
+
+                <div className={styles.grupoEditarUsuario}>
+                  <label htmlFor="editar-estado">
+                    Estado
+                  </label>
+
+                  <select
+                    id="editar-estado"
+                    value={estadoEditado}
+                    onChange={(evento) =>
+                      setEstadoEditado(evento.target.value)
+                    }
+                    disabled={guardando}
+                  >
+                    <option value="activo">Activo</option>
+                    <option value="inactivo">Inactivo</option>
+                  </select>
+                </div>
+
+              </div>
+
+              {mensaje && (
+                <p
+                  role="status"
+                  className={
+                    mensaje.startsWith("Error")
+                      ? styles.mensajeError
+                      : styles.mensajeExito
+                  }
+                >
+                  {mensaje}
+                </p>
+              )}
+
+              <div className={styles.accionesEditarUsuario}>
+                <button
+                  type="button"
+                  className={styles.cancelarEditarUsuario}
+                  onClick={cancelarEdicion}
+                  disabled={guardando}
+                >
+                  Cancelar
+                </button>
+
+                <button
+                  type="submit"
+                  className={styles.guardarEditarUsuario}
+                  disabled={guardando}
+                >
+                  <Save size={17} />
+
+                  {guardando
+                    ? "Guardando..."
+                    : "Guardar cambios"}
+                </button>
+              </div>
+            </form>
           </div>
         </div>
       )}
+
     </section>
   );
 }

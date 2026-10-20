@@ -617,3 +617,194 @@
   white-space: nowrap;
 }
 
+
+/* GESTIÓN DE USUARIOS */
+
+.etiquetaRol {
+  display: inline-flex;
+  align-items: center;
+  padding: 7px 11px;
+  border-radius: 7px;
+  background: #E4EDE5;
+  color: #244D3D;
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.estadoInactivo {
+  display: inline-flex;
+  align-items: center;
+  padding: 7px 11px;
+  border-radius: 7px;
+  background: #F1F2F0;
+  color: #737D75;
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.botonEditarUsuario {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 10px 13px;
+  border: none;
+  border-radius: 8px;
+  background: #244D3D;
+  color: #FFFFFF;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+.botonEditarUsuario:hover {
+  background: #19382C;
+}
+
+/* VENTANA PARA EDITAR USUARIOS */
+
+.modalUsuario {
+  width: 100%;
+  max-width: 600px;
+  max-height: 90vh;
+  overflow-y: auto;
+  padding: 25px;
+  background: #FFFFFF;
+  border-radius: 14px;
+  box-shadow: 0 12px 35px rgba(0, 0, 0, 0.16);
+}
+
+.encabezadoEditarUsuario {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 24px;
+}
+
+.tituloEditarUsuario {
+  flex: 1;
+}
+
+.tituloEditarUsuario h3 {
+  color: #244D3D;
+  font-size: 19px;
+  margin: 0 0 5px;
+}
+
+.tituloEditarUsuario p {
+  color: #66756B;
+  font-size: 13px;
+}
+
+.cerrarEditarUsuario {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 8px;
+  background: transparent;
+  border: none;
+  border-radius: 7px;
+  color: #54806A;
+  cursor: pointer;
+}
+
+.cerrarEditarUsuario:hover {
+  background: #E4EDE5;
+}
+
+.camposEditarUsuario {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 18px;
+  margin-bottom: 23px;
+}
+
+.grupoEditarUsuario {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  min-width: 0;
+}
+
+.grupoEditarUsuario label {
+  color: #26352D;
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.grupoEditarUsuario input,
+.grupoEditarUsuario select {
+  width: 100%;
+  padding: 12px;
+  border: 1px solid #DDE5DC;
+  border-radius: 8px;
+  outline: none;
+  background: #FFFFFF;
+  color: #26352D;
+  font-size: 14px;
+}
+
+.grupoEditarUsuario input:focus,
+.grupoEditarUsuario select:focus {
+  border-color: #54806A;
+  box-shadow: 0 0 0 3px rgba(84, 128, 106, 0.12);
+}
+
+.accionesEditarUsuario {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  margin-top: 22px;
+}
+
+.cancelarEditarUsuario,
+.guardarEditarUsuario {
+  display: inline-flex;
+  justify-content: center;
+  align-items: center;
+  gap: 8px;
+  padding: 12px 17px;
+  border: none;
+  border-radius: 8px;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.cancelarEditarUsuario {
+  background: #EDF0EC;
+  color: #44594B;
+}
+
+.guardarEditarUsuario {
+  background: #244D3D;
+  color: #FFFFFF;
+}
+
+.guardarEditarUsuario:hover {
+  background: #19382C;
+}
+
+.cancelarEditarUsuario:disabled,
+.guardarEditarUsuario:disabled,
+.botonEditarUsuario:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+@media (max-width: 600px) {
+  .modalUsuario {
+    padding: 18px;
+  }
+
+  .camposEditarUsuario {
+    grid-template-columns: 1fr;
+  }
+
+  .accionesEditarUsuario {
+    flex-wrap: wrap;
+  }
+}
+
+

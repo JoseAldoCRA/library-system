@@ -194,3 +194,62 @@
   color: #B42318;
   font-size: 14px;
 }
+
+
+/* CAMPOS DE CONTRASEÑA - USUARIOS */
+
+.campoContrasena {
+  display: flex;
+  align-items: center;
+  width: 100%;
+  border: 1px solid #DDE5DC;
+  border-radius: 8px;
+  background: #FFFFFF;
+  overflow: hidden;
+}
+
+.campoContrasena:focus-within {
+  border-color: #54806A;
+  box-shadow: 0 0 0 3px rgba(84, 128, 106, 0.12);
+}
+
+.campoContrasena input {
+  flex: 1;
+  min-width: 0;
+  width: 100%;
+  padding: 12px 13px;
+  border: none;
+  outline: none;
+  box-shadow: none;
+  background: transparent;
+  color: #26352D;
+  font-size: 14px;
+}
+
+.campoContrasena input:focus {
+  border: none;
+  outline: none;
+  box-shadow: none;
+}
+
+.campoContrasena button {
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 11px 13px;
+  border: none;
+  background: transparent;
+  color: #54806A;
+  cursor: pointer;
+}
+
+.campoContrasena button:hover {
+  color: #244D3D;
+  background: #E4EDE5;
+}
+
+.campoContrasena button:focus-visible {
+  outline: 2px solid #54806A;
+  outline-offset: -3px;
+}
