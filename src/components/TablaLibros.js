@@ -2,6 +2,20 @@
 
 import { useEffect, useState } from "react";
 import { listarLibros, eliminarLibroSeguro } from "@/services/librosService";
+import {
+  LibraryBig,
+  Search,
+  Pencil,
+  Trash2,
+  ChevronLeft,
+  ChevronRight,
+  TriangleAlert,
+  X
+} from "lucide-react";
+
+import styles from "./TablaLibros.module.css";
+
+const LIBROS_POR_PAGINA = 10;
 
 export default function TablaLibros({ actualizacion, alEditar }) {
   const [libros, setLibros] = useState([]);
@@ -10,6 +24,9 @@ export default function TablaLibros({ actualizacion, alEditar }) {
   const [eliminando, setEliminando] = useState(null);
   const [mensajeEliminar, setMensajeEliminar] = useState("");
   const [libroPendienteEliminar, setLibroPendienteEliminar] = useState(null);
+
+  const [busqueda, setBusqueda] = useState("");
+  const [paginaActual, setPaginaActual] = useState(1);
 
   useEffect(() => {
     let activo = true;
@@ -22,7 +39,7 @@ export default function TablaLibros({ actualizacion, alEditar }) {
         const datos = await listarLibros();
 
         if (activo) {
-          setLibros(datos);
+          setLibros(datos || []);
         }
       } catch (error) {
         if (activo) {
@@ -58,7 +75,7 @@ export default function TablaLibros({ actualizacion, alEditar }) {
       await eliminarLibroSeguro(libro.id_libro);
 
       const datos = await listarLibros();
-      setLibros(datos);
+      setLibros(datos || []);
 
       setLibroPendienteEliminar(null);
       setMensajeEliminar("Libro eliminado correctamente.");
@@ -72,258 +89,252 @@ export default function TablaLibros({ actualizacion, alEditar }) {
 
   function cancelarEliminacion() {
     if (eliminando !== null) return;
-
     setLibroPendienteEliminar(null);
   }
 
+  const librosFiltrados = libros.filter((libro) => {
+    const texto = busqueda.toLowerCase().trim();
+
+    return (
+      String(libro.isbn || "").toLowerCase().includes(texto) ||
+      String(libro.titulo || "").toLowerCase().includes(texto) ||
+      String(libro.autor || "").toLowerCase().includes(texto) ||
+      String(libro.categoria || "").toLowerCase().includes(texto)
+    );
+  });
+
+  const totalPaginas = Math.max(
+    1,
+    Math.ceil(librosFiltrados.length / LIBROS_POR_PAGINA)
+  );
+
+  const paginaVisible = Math.min(paginaActual, totalPaginas);
+
+  const librosPagina = librosFiltrados.slice(
+    (paginaVisible - 1) * LIBROS_POR_PAGINA,
+    paginaVisible * LIBROS_POR_PAGINA
+  );
+
+  function cambiarBusqueda(valor) {
+    setBusqueda(valor);
+    setPaginaActual(1);
+  }
+
   return (
-    <div style={{ marginTop: "30px" }}>
-      <h2 style={{ color: "#194b78", marginBottom: "15px" }}>
-        Catálogo de libros
-      </h2>
+    <section className={styles.tarjeta}>
+      <div className={styles.encabezado}>
+        <div className={styles.titulo}>
+          <div className={styles.icono}>
+            <LibraryBig size={25} />
+          </div>
 
-      {libroPendienteEliminar && (
-        <div
-          role="presentation"
-          style={{
-            position: "fixed",
-            inset: 0,
-            backgroundColor: "rgba(15, 23, 42, 0.6)",
-            display: "flex",
-            justifyContent: "center",
-            alignItems: "center",
-            zIndex: 1000,
-            padding: "20px",
-          }}
-        >
-          <div
-            role="alertdialog"
-            aria-modal="true"
-            aria-labelledby="tituloEliminarLibro"
-            aria-describedby="descripcionEliminarLibro"
-            style={{
-              backgroundColor: "#ffffff",
-              borderRadius: "12px",
-              width: "100%",
-              maxWidth: "460px",
-              boxShadow: "0 15px 40px rgba(0,0,0,0.25)",
-              overflow: "hidden",
-            }}
-          >
-            <div
-              style={{
-                backgroundColor: "#194b78",
-                padding: "20px 24px",
-              }}
-            >
-              <h3
-                id="tituloEliminarLibro"
-                style={{
-                  color: "#ffffff",
-                  margin: 0,
-                  fontSize: "21px",
-                }}
-              >
-                Confirmar eliminación
-              </h3>
-            </div>
-
-            <div style={{ padding: "24px" }}>
-              <p
-                id="descripcionEliminarLibro"
-                style={{
-                  color: "#334155",
-                  fontSize: "16px",
-                  marginBottom: "14px",
-                }}
-              >
-                ¿Estás seguro de que deseas eliminar este libro?
-              </p>
-
-              <p
-                style={{
-                  color: "#194b78",
-                  fontSize: "17px",
-                  fontWeight: "bold",
-                  marginBottom: "20px",
-                }}
-              >
-                {libroPendienteEliminar.titulo}
-              </p>
-
-              <div
-                style={{
-                  backgroundColor: "#fef2f2",
-                  border: "1px solid #fecaca",
-                  color: "#991b1b",
-                  padding: "12px",
-                  borderRadius: "7px",
-                  marginBottom: "24px",
-                  fontSize: "14px",
-                }}
-              >
-                Esta acción no se puede deshacer.
-              </div>
-
-              <div
-                style={{
-                  display: "flex",
-                  justifyContent: "flex-end",
-                  flexWrap: "wrap",
-                  gap: "12px",
-                }}
-              >
-                <button
-                  type="button"
-                  onClick={cancelarEliminacion}
-                  disabled={eliminando !== null}
-                  style={{
-                    backgroundColor: "#e2e8f0",
-                    color: "#334155",
-                    border: "none",
-                    padding: "11px 18px",
-                    borderRadius: "7px",
-                    cursor: eliminando !== null ? "not-allowed" : "pointer",
-                    opacity: eliminando !== null ? 0.6 : 1,
-                  }}
-                >
-                  Cancelar
-                </button>
-
-                <button
-                  type="button"
-                  onClick={ejecutarEliminacion}
-                  disabled={eliminando !== null}
-                  style={{
-                    backgroundColor: "#b91c1c",
-                    color: "#ffffff",
-                    border: "none",
-                    padding: "11px 18px",
-                    borderRadius: "7px",
-                    cursor: eliminando !== null ? "not-allowed" : "pointer",
-                    opacity: eliminando !== null ? 0.6 : 1,
-                  }}
-                >
-                  {eliminando !== null ? "Eliminando..." : "Sí, eliminar"}
-                </button>
-              </div>
-            </div>
+          <div>
+            <h2>Catálogo de libros</h2>
+            <p>Consulta y administra los libros registrados.</p>
           </div>
         </div>
-      )}
+
+        <span className={styles.total}>
+          {libros.length} libros
+        </span>
+      </div>
+
+      <div className={styles.buscador}>
+        <Search size={20} />
+
+        <input
+          type="search"
+          aria-label="Buscar libros"
+          placeholder="Buscar por ISBN, título, autor o categoría..."
+          value={busqueda}
+          onChange={(e) => cambiarBusqueda(e.target.value)}
+        />
+      </div>
 
       {mensajeEliminar && (
         <p
           role="status"
-          style={{
-            marginTop: "12px",
-            marginBottom: "12px",
-            color: mensajeEliminar.startsWith("Error") ? "#b91c1c" : "#166534",
-          }}
+          className={
+            mensajeEliminar.startsWith("Error")
+              ? styles.mensajeError
+              : styles.mensajeExito
+          }
         >
           {mensajeEliminar}
         </p>
       )}
 
-      {cargando && <p>Cargando libros...</p>}
+      {cargando && <p className={styles.mensaje}>Cargando libros...</p>}
 
-      {error && <p style={{ color: "red" }}>{error}</p>}
+      {error && <p className={styles.mensajeError}>{error}</p>}
 
-      {!cargando && !error && libros.length === 0 && (
-        <p>No hay libros registrados.</p>
+      {!cargando && !error && (
+        <>
+          <p className={styles.contador}>
+            {librosFiltrados.length} resultados encontrados
+          </p>
+
+          {librosFiltrados.length === 0 ? (
+            <p className={styles.mensaje}>
+              No se encontraron libros.
+            </p>
+          ) : (
+            <>
+              <div className={styles.tablaContenedor}>
+                <table className={styles.tabla}>
+                  <thead>
+                    <tr>
+                      <th>ISBN</th>
+                      <th>Título</th>
+                      <th>Autor</th>
+                      <th>Categoría</th>
+                      <th>Disponibles</th>
+                      <th>Total</th>
+                      <th>Acciones</th>
+                    </tr>
+                  </thead>
+
+                  <tbody>
+                    {librosPagina.map((libro) => (
+                      <tr key={libro.id_libro}>
+                        <td>{libro.isbn}</td>
+                        <td className={styles.nombreLibro}>
+                          {libro.titulo}
+                        </td>
+                        <td>{libro.autor}</td>
+                        <td>{libro.categoria}</td>
+                        <td>{libro.disponibles}</td>
+                        <td>{libro.total}</td>
+
+                        <td>
+                          <div className={styles.acciones}>
+                            <button
+                              type="button"
+                              className={styles.editar}
+                              onClick={() => alEditar(libro)}
+                            >
+                              <Pencil size={15} />
+                              Editar
+                            </button>
+
+                            <button
+                              type="button"
+                              className={styles.eliminar}
+                              onClick={() => confirmarEliminacion(libro)}
+                              disabled={eliminando !== null}
+                            >
+                              <Trash2 size={15} />
+                              {eliminando === libro.id_libro
+                                ? "Eliminando..."
+                                : "Eliminar"}
+                            </button>
+                          </div>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+
+              {totalPaginas > 1 && (
+                <nav
+                  className={styles.paginacion}
+                  aria-label="Paginación de libros"
+                >
+                  <button
+                    type="button"
+                    disabled={paginaVisible === 1}
+                    onClick={() => setPaginaActual(paginaVisible - 1)}
+                  >
+                    <ChevronLeft size={17} />
+                    Anterior
+                  </button>
+
+                  <span>
+                    Página {paginaVisible} de {totalPaginas}
+                  </span>
+
+                  <button
+                    type="button"
+                    disabled={paginaVisible === totalPaginas}
+                    onClick={() => setPaginaActual(paginaVisible + 1)}
+                  >
+                    Siguiente
+                    <ChevronRight size={17} />
+                  </button>
+                </nav>
+              )}
+            </>
+          )}
+        </>
       )}
 
-      {!cargando && !error && libros.length > 0 && (
-        <div style={{ overflowX: "auto" }}>
-          <table
-            style={{
-              width: "100%",
-              borderCollapse: "collapse",
-              textAlign: "left",
-            }}
+      {libroPendienteEliminar && (
+        <div className={styles.fondoModal}>
+          <div
+            className={styles.modal}
+            role="alertdialog"
+            aria-modal="true"
+            aria-labelledby="tituloEliminarLibro"
+            aria-describedby="descripcionEliminarLibro"
           >
-            <thead>
-              <tr style={{ background: "#194b78", color: "white" }}>
-                <th style={{ padding: "12px" }}>ISBN</th>
-                <th style={{ padding: "12px" }}>Título</th>
-                <th style={{ padding: "12px" }}>Autor</th>
-                <th style={{ padding: "12px" }}>Categoría</th>
-                <th style={{ padding: "12px" }}>Disponibles</th>
-                <th style={{ padding: "12px" }}>Total</th>
-                <th style={{ padding: "12px" }}>Acciones</th>
-              </tr>
-            </thead>
+            <div className={styles.encabezadoModal}>
+              <div className={styles.iconoAdvertencia}>
+                <TriangleAlert size={27} />
+              </div>
 
-            <tbody>
-              {libros.map((libro) => (
-                <tr
-                  key={libro.id_libro}
-                  style={{
-                    borderBottom: "1px solid #ddd",
-                    color: "#334155",
-                    backgroundColor: "#ffffff",
-                  }}
-                >
-                  <td style={{ padding: "12px" }}>{libro.isbn}</td>
-                  <td style={{ padding: "12px" }}>{libro.titulo}</td>
-                  <td style={{ padding: "12px" }}>{libro.autor}</td>
-                  <td style={{ padding: "12px" }}>{libro.categoria}</td>
-                  <td style={{ padding: "12px" }}>{libro.disponibles}</td>
-                  <td style={{ padding: "12px" }}>{libro.total}</td>
+              <button
+                type="button"
+                className={styles.cerrar}
+                onClick={cancelarEliminacion}
+                disabled={eliminando !== null}
+                aria-label="Cerrar ventana"
+              >
+                <X size={20} />
+              </button>
+            </div>
 
-                  <td style={{ padding: "12px" }}>
-                    <div
-                      style={{
-                        display: "flex",
-                        flexDirection: "column",
-                        alignItems: "center",
-                        gap: "10px",
-                      }}
-                    >
-                      <button
-                        type="button"
-                        onClick={() => alEditar(libro)}
-                        style={{
-                          backgroundColor: "#194b78",
-                          color: "white",
-                          padding: "8px 14px",
-                          border: "none",
-                          borderRadius: "6px",
-                          cursor: "pointer",
-                          width: "100px",
-                        }}
-                      >
-                        Editar
-                      </button>
+            <h3 id="tituloEliminarLibro">
+              Confirmar eliminación
+            </h3>
 
-                      <button
-                        type="button"
-                        onClick={() => confirmarEliminacion(libro)}
-                        disabled={eliminando !== null}
-                        style={{
-                          backgroundColor: "#b91c1c",
-                          color: "white",
-                          padding: "8px 14px",
-                          border: "none",
-                          borderRadius: "6px",
-                          cursor:
-                            eliminando !== null ? "not-allowed" : "pointer",
-                          opacity: eliminando !== null ? 0.6 : 1,
-                          width: "100px",
-                        }}
-                      >
-                        {eliminando === libro.id_libro
-                          ? "Eliminando..."
-                          : "Eliminar"}
-                      </button>
-                    </div>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
+            <p id="descripcionEliminarLibro">
+              ¿Estás seguro de que deseas eliminar este libro?
+            </p>
+
+            <strong className={styles.libroEliminar}>
+              {libroPendienteEliminar.titulo}
+            </strong>
+
+            <p className={styles.advertencia}>
+              Esta acción no se puede deshacer.
+            </p>
+
+            <div className={styles.accionesModal}>
+              <button
+                type="button"
+                className={styles.cancelar}
+                onClick={cancelarEliminacion}
+                disabled={eliminando !== null}
+              >
+                Cancelar
+              </button>
+
+              <button
+                type="button"
+                className={styles.confirmar}
+                onClick={ejecutarEliminacion}
+                disabled={eliminando !== null}
+              >
+                <Trash2 size={16} />
+                {eliminando !== null
+                  ? "Eliminando..."
+                  : "Sí, eliminar"}
+              </button>
+            </div>
+          </div>
         </div>
       )}
-    </div>
+    </section>
   );
 }

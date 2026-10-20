@@ -1,0 +1,308 @@
+
+.panel {
+  display: flex;
+  min-height: 100vh;
+  background: #FAF9F6;
+  color: #26352D;
+}
+
+.cargando {
+  padding: 40px;
+  color: #244D3D;
+}
+
+/* MENÚ LATERAL */
+
+.sidebar {
+  width: 255px;
+  min-width: 255px;
+  min-height: 100vh;
+  padding: 28px 16px;
+  background: #244D3D;
+  color: #FFFFFF;
+
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+.marca {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 5px 10px 22px;
+  border-bottom: 1px solid #54806A;
+}
+
+.marca div {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.marca strong {
+  font-size: 17px;
+  letter-spacing: 1px;
+}
+
+.marca small {
+  font-size: 10px;
+  letter-spacing: 1.5px;
+  color: #D5E4D8;
+}
+
+.etiquetaMenu {
+  padding: 0 12px;
+  color: #B5C9BC;
+  font-size: 11px;
+  letter-spacing: 1.5px;
+}
+
+.menu {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.opcionMenu,
+.opcionActiva {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  gap: 13px;
+
+  padding: 13px 14px;
+  border: none;
+  border-radius: 9px;
+
+  text-align: left;
+  font-size: 14px;
+  font-weight: 500;
+  font-family: inherit;
+  cursor: pointer;
+}
+
+.opcionMenu {
+  background: transparent;
+  color: #E4EDE5;
+}
+
+.opcionMenu:hover {
+  background: #365E4D;
+}
+
+.opcionActiva {
+  background: #54806A;
+  color: #FFFFFF;
+  font-weight: 600;
+}
+
+.menuInferior {
+  margin-top: auto;
+  padding-top: 20px;
+  border-top: 1px solid #54806A;
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+/* CONTENIDO */
+
+.contenido {
+  flex: 1;
+  min-width: 0;
+  padding: 35px;
+}
+
+.encabezado {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 20px;
+  margin-bottom: 30px;
+}
+
+.subtitulo {
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 2px;
+  color: #54806A;
+}
+
+.encabezado h1 {
+  color: #244D3D;
+  font-size: 30px;
+  margin: 8px 0;
+}
+
+.encabezado p {
+  color: #66756B;
+  font-size: 14px;
+}
+
+.usuario {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 12px 16px;
+  border-radius: 10px;
+  background: #FFFFFF;
+  border: 1px solid #DDE5DC;
+  color: #244D3D;
+  font-size: 13px;
+  font-weight: 600;
+}
+
+/* INICIO */
+
+.bienvenida {
+  background: #E4EDE5;
+  border-radius: 15px;
+  padding: 30px;
+  margin-bottom: 30px;
+}
+
+.bienvenida h2 {
+  color: #244D3D;
+  font-size: 24px;
+  margin-bottom: 12px;
+}
+
+.bienvenida p {
+  color: #526357;
+  font-size: 15px;
+  line-height: 1.6;
+}
+
+.tarjetasInicio {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 20px;
+}
+
+.tarjetaAcceso {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 12px;
+
+  padding: 24px;
+  background: #FFFFFF;
+  border: 1px solid #DDE5DC;
+  border-radius: 13px;
+
+  color: #244D3D;
+  text-align: left;
+  font-family: inherit;
+  cursor: pointer;
+
+  transition:
+    transform 0.2s ease,
+    box-shadow 0.2s ease;
+}
+
+.tarjetaAcceso:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 8px 22px rgba(36, 77, 61, 0.10);
+}
+
+.iconoAcceso {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 52px;
+  height: 52px;
+  background: #E4EDE5;
+  border-radius: 12px;
+}
+
+.tarjetaAcceso strong {
+  font-size: 17px;
+}
+
+.tarjetaAcceso span {
+  color: #66756B;
+  font-size: 13px;
+}
+
+.seccion {
+  width: 100%;
+  min-width: 0;
+}
+
+/* ACCESIBILIDAD */
+
+.opcionMenu:focus-visible,
+.opcionActiva:focus-visible,
+.tarjetaAcceso:focus-visible {
+  outline: 3px solid #8FBDA2;
+  outline-offset: 2px;
+}
+
+/* RESPONSIVE */
+
+@media (max-width: 1100px) {
+  .tarjetasInicio {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 850px) {
+  .panel {
+    flex-direction: column;
+  }
+
+  .sidebar {
+    width: 100%;
+    min-width: 0;
+    min-height: auto;
+    padding: 18px;
+  }
+
+  .menu {
+    flex-direction: row;
+    flex-wrap: wrap;
+  }
+
+  .menuInferior {
+    margin-top: 0;
+    flex-direction: row;
+    flex-wrap: wrap;
+  }
+
+  .opcionMenu,
+  .opcionActiva {
+    width: auto;
+  }
+
+  .contenido {
+    padding: 24px;
+  }
+}
+
+@media (max-width: 550px) {
+  .contenido {
+    padding: 18px;
+  }
+
+  .encabezado {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .encabezado h1 {
+    font-size: 25px;
+  }
+
+  .tarjetasInicio {
+    grid-template-columns: 1fr;
+  }
+
+  .bienvenida {
+    padding: 22px;
+  }
+
+  .bienvenida h2 {
+    font-size: 21px;
+  }
+}

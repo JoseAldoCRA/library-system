@@ -2,6 +2,8 @@
 
 import { useEffect, useState } from "react";
 import { listarCategorias, registrarNuevoLibro, } from "@/services/librosService";
+import { BookPlus, Plus } from "lucide-react";
+import styles from "./FormularioLibro.module.css";
 
 export default function FormularioLibro({ alRegistrar }) {
   const [isbn, setIsbn] = useState("");
@@ -58,89 +60,89 @@ export default function FormularioLibro({ alRegistrar }) {
     }
   }
 
-  return (
-    <div style={{ marginTop: "30px", color: "#334155" }}>
-      <h2 style={{ color: "#194b78", marginBottom: "20px" }}>
-        Registrar libro
-      </h2>
+  
+return (
+  <section className={styles.tarjeta}>
+    <div className={styles.encabezado}>
+      <div className={styles.icono}>
+        <BookPlus size={25} />
+      </div>
 
-      <form onSubmit={registrarLibro}>
-        <div style={{ display: "grid", gap: "15px" }}>
-          <div>
-            <label htmlFor="isbn">ISBN</label>
-            <input
-              id="isbn"
-              type="text"
-              value={isbn}
-              onChange={(e) => setIsbn(e.target.value)}
-              required
-              style={estiloInput}
-            />
-          </div>
-
-          <div>
-            <label htmlFor="titulo">Título</label>
-            <input
-              id="titulo"
-              type="text"
-              value={titulo}
-              onChange={(e) => setTitulo(e.target.value)}
-              required
-              style={estiloInput}
-            />
-          </div>
-
-          <div>
-            <label htmlFor="autor">Autor</label>
-            <input
-              id="autor"
-              type="text"
-              value={autor}
-              onChange={(e) => setAutor(e.target.value)}
-              required
-              style={estiloInput}
-            />
-          </div>
-
-          <div>
-            <label htmlFor="categoria">Categoría</label>
-            <select
-              id="categoria"
-              value={categoria}
-              onChange={(e) => setCategoria(e.target.value)}
-              required
-              style={estiloInput}
-            >
-              <option value="">Selecciona una categoría</option>
-              {categorias.map((item) => (
-                <option key={item.id_categoria} value={item.id_categoria}>
-                  {item.nombre}
-                </option>
-              ))}
-            </select>
-          </div>
-
-          <button
-            type="submit"
-            disabled={guardando}
-            style={{
-              backgroundColor: "#194b78",
-              color: "white",
-              padding: "12px",
-              border: "none",
-              borderRadius: "6px",
-              cursor: guardando ? "not-allowed" : "pointer",
-              opacity: guardando ? 0.6 : 1,
-            }}
-          >
-            {guardando ? "Registrando..." : "Registrar libro"}
-          </button>
-        </div>
-      </form>
-
-      {mensaje && <p style={{ marginTop: "15px" }}>{mensaje}</p>}
+      <div>
+        <h2>Registrar nuevo libro</h2>
+        <p>Completa los datos para agregar un libro al catálogo.</p>
+      </div>
     </div>
-  );
+
+    <form onSubmit={registrarLibro}>
+      <div className={styles.campos}>
+        <div className={styles.grupo}>
+          <label htmlFor="isbn">ISBN</label>
+          <input
+            id="isbn"
+            type="text"
+            value={isbn}
+            onChange={(e) => setIsbn(e.target.value)}
+            required
+          />
+        </div>
+
+        <div className={styles.grupo}>
+          <label htmlFor="titulo">Título</label>
+          <input
+            id="titulo"
+            type="text"
+            value={titulo}
+            onChange={(e) => setTitulo(e.target.value)}
+            required
+          />
+        </div>
+
+        <div className={styles.grupo}>
+          <label htmlFor="autor">Autor</label>
+          <input
+            id="autor"
+            type="text"
+            value={autor}
+            onChange={(e) => setAutor(e.target.value)}
+            required
+          />
+        </div>
+
+        <div className={styles.grupo}>
+          <label htmlFor="categoria">Categoría</label>
+          <select
+            id="categoria"
+            value={categoria}
+            onChange={(e) => setCategoria(e.target.value)}
+            required
+          >
+            <option value="">Selecciona una categoría</option>
+
+            {categorias.map((item) => (
+              <option key={item.id_categoria} value={item.id_categoria}>
+                {item.nombre}
+              </option>
+            ))}
+          </select>
+        </div>
+      </div>
+
+      <div className={styles.acciones}>
+        <button type="submit" disabled={guardando}>
+          <Plus size={18} />
+          {guardando ? "Registrando..." : "Registrar libro"}
+        </button>
+      </div>
+    </form>
+
+    {mensaje && (
+      <p className={styles.mensaje} role="status">
+        {mensaje}
+      </p>
+    )}
+  </section>
+);
 }
 
 const estiloInput = {

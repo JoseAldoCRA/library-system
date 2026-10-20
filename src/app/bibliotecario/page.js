@@ -1,8 +1,24 @@
+
 "use client";
 
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { crearClienteSupabase } from "@/lib/supabaseClient";
+
+import {
+  LibraryBig,
+  LayoutDashboard,
+  BookOpen,
+  BookCopy,
+  Handshake,
+  ClipboardCheck,
+  Users,
+  ChartColumn,
+  ShieldAlert,
+  LogOut,
+  ArrowUpRight
+} from "lucide-react";
+
 import TablaLibros from "@/components/TablaLibros";
 import FormularioLibro from "@/components/FormularioLibro";
 import FormularioEjemplar from "@/components/FormularioEjemplar";
@@ -15,10 +31,14 @@ import TablaUsuarios from "@/components/TablaUsuarios";
 import FormularioRegistrarUsuario from "@/components/FormularioRegistrarUsuario";
 import ReportesBiblioteca from "@/components/ReportesBiblioteca";
 
+import styles from "./bibliotecario.module.css";
+
 export default function PanelBibliotecario() {
   const router = useRouter();
+
   const [nombre, setNombre] = useState("");
   const [cargando, setCargando] = useState(true);
+  const [seccion, setSeccion] = useState("inicio");
   const [actualizacionLibros, setActualizacionLibros] = useState(0);
   const [libroEditar, setLibroEditar] = useState(null);
 
@@ -28,7 +48,7 @@ export default function PanelBibliotecario() {
 
       const {
         data: { user },
-        error,
+        error
       } = await supabase.auth.getUser();
 
       if (error || !user) {
@@ -65,105 +85,254 @@ export default function PanelBibliotecario() {
     router.replace("/");
   }
 
+  function actualizarDatos() {
+    setActualizacionLibros((anterior) => anterior + 1);
+  }
+
+  function cambiarSeccion(nuevaSeccion) {
+    setSeccion(nuevaSeccion);
+    setLibroEditar(null);
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  }
+
+  const opciones = [
+    { id: "inicio", nombre: "Inicio", icono: LayoutDashboard },
+    { id: "libros", nombre: "Libros", icono: BookOpen },
+    { id: "ejemplares", nombre: "Ejemplares", icono: BookCopy },
+    { id: "prestamos", nombre: "Préstamos", icono: Handshake },
+    { id: "devoluciones", nombre: "Devoluciones", icono: ClipboardCheck },
+    { id: "usuarios", nombre: "Usuarios", icono: Users },
+    { id: "sanciones", nombre: "Sanciones", icono: ShieldAlert },
+    { id: "reportes", nombre: "Reportes", icono: ChartColumn }
+  ];
+
+  const tituloActual = opciones.find(
+    (opcion) => opcion.id === seccion
+  )?.nombre;
+
   if (cargando) {
-    return <main style={{ padding: "40px" }}>Verificando sesión...</main>;
+    return (
+      <main className={styles.cargando}>
+        Verificando sesión...
+      </main>
+    );
   }
 
   return (
-    <main
-      style={{ padding: "40px", background: "#f1f5f9", minHeight: "100vh" }}
-    >
-      <div
-        style={{
-          background: "white",
-          padding: "30px",
-          borderRadius: "12px",
-          maxWidth: "900px",
-          margin: "auto",
-        }}
-      >
-        <h1 style={{ color: "#194b78" }}>Sistema de Biblioteca</h1>
+     <div className={styles.panel} translate="no">
 
-        <p style={{ marginTop: "15px", color: "#334155" }}>
-          Bienvenido, {nombre}
-        </p>
+      {   }
 
-        <h2 style={{ marginTop: "35px", color: "#194b78" }}>
-          Panel del bibliotecario
-        </h2>
+      <aside className={styles.sidebar}>
+        <div className={styles.marca}>
+          <LibraryBig size={32} strokeWidth={1.6} />
 
-        <p style={{ marginTop: "15px", color: "#334155" }}>
-          Desde aquí podrás administrar los libros, ejemplares, préstamos y
-          devoluciones de la biblioteca.
-        </p>
+          <div>
+            <strong>BIBLIOTECA</strong>
+            <small>ADMINISTRACIÓN</small>
+          </div>
+        </div>
 
-        <FormularioLibro
-          alRegistrar={() => setActualizacionLibros((anterior) => anterior + 1)}
-        />
+        <div className={styles.etiquetaMenu}>
+          MENÚ PRINCIPAL
+        </div>
 
-        <TablaLibros
-          actualizacion={actualizacionLibros}
-          alEditar={(libro) => setLibroEditar(libro)}
-        />
+        <nav className={styles.menu} aria-label="Administración">
+          {opciones.map((opcion) => {
+            const Icono = opcion.icono;
 
-        {libroEditar && (
-          <FormularioEditarLibro
-            key={libroEditar.id_libro}
-            libro={libroEditar}
-            alGuardar={() => {
-              setLibroEditar(null);
-              setActualizacionLibros((anterior) => anterior + 1);
-            }}
-            alCancelar={() => setLibroEditar(null)}
-          />
+            return (
+              <button
+                type="button"
+                key={opcion.id}
+                className={
+                  seccion === opcion.id
+                    ? styles.opcionActiva
+                    : styles.opcionMenu
+                }
+                aria-current={
+                  seccion === opcion.id ? "page" : undefined
+                }
+                onClick={() => cambiarSeccion(opcion.id)}
+              >
+                <Icono size={20} />
+                {opcion.nombre}
+              </button>
+            );
+          })}
+        </nav>
+
+        <div className={styles.menuInferior}>
+          <button
+            type="button"
+            className={styles.opcionMenu}
+            onClick={() => router.push("/")}
+          >
+            <ArrowUpRight size={20} />
+            Explorar catálogo
+          </button>
+
+          <button
+            type="button"
+            className={styles.opcionMenu}
+            onClick={cerrarSesion}
+          >
+            <LogOut size={20} />
+            Cerrar sesión
+          </button>
+        </div>
+      </aside>
+
+      {/* CONTENIDO PRINCIPAL */}
+
+      <main className={styles.contenido}>
+
+        <header className={styles.encabezado}>
+          <div>
+            <span className={styles.subtitulo}>
+              PANEL ADMINISTRATIVO
+            </span>
+            <h1>{seccion === "inicio" ? "Panel de control" : tituloActual}</h1>
+            <p>Bienvenido, {nombre}</p>
+          </div>
+
+          <div className={styles.usuario}>
+            <Users size={21} />
+            <span>Bibliotecario</span>
+          </div>
+        </header>
+
+        {/* INICIO */}
+
+        {seccion === "inicio" && (
+          <>
+            <div className={styles.bienvenida}>
+              <h2>Administración de la biblioteca</h2>
+              <p>
+                Gestiona los libros, préstamos, usuarios y demás
+                servicios desde un solo lugar.
+              </p>
+            </div>
+
+            <div className={styles.tarjetasInicio}>
+              {opciones
+                .filter((opcion) => opcion.id !== "inicio")
+                .map((opcion) => {
+                  const Icono = opcion.icono;
+
+                  return (
+                    <button
+                      type="button"
+                      key={opcion.id}
+                      className={styles.tarjetaAcceso}
+                      onClick={() => cambiarSeccion(opcion.id)}
+                    >
+                      <div className={styles.iconoAcceso}>
+                        <Icono size={26} />
+                      </div>
+
+                      <strong>{opcion.nombre}</strong>
+                      <span>Administrar sección</span>
+                      <ArrowUpRight size={18} />
+                    </button>
+                  );
+                })}
+            </div>
+          </>
         )}
 
-        <FormularioEjemplar
-          alRegistrar={() => setActualizacionLibros((anterior) => anterior + 1)}
-        />
+        {/* LIBROS */}
 
-        <TablaEjemplares
-          actualizacion={actualizacionLibros}
-          alCambiarEstado={() =>
-            setActualizacionLibros((anterior) => anterior + 1)
-          }
-        />
+        {seccion === "libros" && (
+          <div className={styles.seccion}>
+            <FormularioLibro alRegistrar={actualizarDatos} />
 
-        <FormularioPrestamo
-          actualizacion={actualizacionLibros}
-          alRegistrar={() => setActualizacionLibros((anterior) => anterior + 1)}
-        />
+            <TablaLibros
+              actualizacion={actualizacionLibros}
+              alEditar={(libro) => setLibroEditar(libro)}
+            />
 
-        <TablaPrestamos
-          actualizacion={actualizacionLibros}
-          alDevolver={() => setActualizacionLibros((anterior) => anterior + 1)}
-        />
+            {libroEditar && (
+              <FormularioEditarLibro
+                key={libroEditar.id_libro}
+                libro={libroEditar}
+                alGuardar={() => {
+                  setLibroEditar(null);
+                  actualizarDatos();
+                }}
+                alCancelar={() => setLibroEditar(null)}
+              />
+            )}
+          </div>
+        )}
 
-        <TablaSanciones actualizacion={actualizacionLibros} />
+        {/* EJEMPLARES */}
 
-        <FormularioRegistrarUsuario
-          alRegistrar={() => setActualizacionLibros((anterior) => anterior + 1)}
-        />
+        {seccion === "ejemplares" && (
+          <div className={styles.seccion}>
+            <FormularioEjemplar alRegistrar={actualizarDatos} />
 
-        <TablaUsuarios actualizacion={actualizacionLibros} />
+            <TablaEjemplares
+              actualizacion={actualizacionLibros}
+              alCambiarEstado={actualizarDatos}
+            />
+          </div>
+        )}
 
-        <ReportesBiblioteca actualizacion={actualizacionLibros} />
+        {/* PRÉSTAMOS */}
 
-        <button
-          onClick={cerrarSesion}
-          style={{
-            marginTop: "30px",
-            background: "#194b78",
-            color: "white",
-            border: "none",
-            padding: "12px 20px",
-            borderRadius: "6px",
-            cursor: "pointer",
-          }}
-        >
-          Cerrar sesión
-        </button>
-      </div>
-    </main>
+        {seccion === "prestamos" && (
+          <div className={styles.seccion}>
+            <FormularioPrestamo
+              actualizacion={actualizacionLibros}
+              alRegistrar={actualizarDatos}
+            />
+
+            <TablaPrestamos
+              actualizacion={actualizacionLibros}
+              alDevolver={actualizarDatos}
+            />
+          </div>
+        )}
+
+        {/* DEVOLUCIONES */}
+
+        {seccion === "devoluciones" && (
+          <div className={styles.seccion}>
+            <TablaPrestamos
+              actualizacion={actualizacionLibros}
+              alDevolver={actualizarDatos}
+            />
+          </div>
+        )}
+
+        {/* USUARIOS */}
+
+        {seccion === "usuarios" && (
+          <div className={styles.seccion}>
+            <FormularioRegistrarUsuario alRegistrar={actualizarDatos} />
+
+            <TablaUsuarios actualizacion={actualizacionLibros} />
+          </div>
+        )}
+
+        {/* SANCIONES */}
+
+        {seccion === "sanciones" && (
+          <div className={styles.seccion}>
+            <TablaSanciones actualizacion={actualizacionLibros} />
+          </div>
+        )}
+
+        {/* REPORTES */}
+
+        {seccion === "reportes" && (
+          <div className={styles.seccion}>
+            <ReportesBiblioteca actualizacion={actualizacionLibros} />
+          </div>
+        )}
+
+      </main>
+    </div>
   );
 }

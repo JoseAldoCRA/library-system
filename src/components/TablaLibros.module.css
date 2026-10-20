@@ -1,0 +1,371 @@
+
+.tarjeta {
+  width: 100%;
+  min-width: 0;
+  background: #FFFFFF;
+  border: 1px solid #DDE5DC;
+  border-radius: 14px;
+  padding: 26px;
+  margin-top: 25px;
+  margin-bottom: 30px;
+}
+
+.encabezado,
+.titulo {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+.encabezado {
+  justify-content: space-between;
+  margin-bottom: 24px;
+}
+
+.icono {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 50px;
+  height: 50px;
+  flex-shrink: 0;
+  background: #E4EDE5;
+  border-radius: 12px;
+  color: #244D3D;
+}
+
+.titulo h2 {
+  font-size: 21px;
+  color: #244D3D;
+  margin-bottom: 5px;
+}
+
+.titulo p,
+.contador {
+  font-size: 13px;
+  color: #66756B;
+}
+
+.total {
+  background: #E4EDE5;
+  color: #244D3D;
+  border-radius: 20px;
+  padding: 8px 13px;
+  font-size: 12px;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.buscador {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  border: 1px solid #DDE5DC;
+  border-radius: 9px;
+  padding: 0 14px;
+  color: #54806A;
+  margin-bottom: 15px;
+}
+
+.buscador:focus-within {
+  border-color: #54806A;
+  box-shadow: 0 0 0 3px rgba(84, 128, 106, 0.12);
+}
+
+.buscador input {
+  width: 100%;
+  min-width: 0;
+  padding: 14px 0;
+  border: none;
+  outline: none;
+  color: #26352D;
+  background: transparent;
+  font-size: 14px;
+}
+
+.contador {
+  margin-bottom: 14px;
+}
+
+.tablaContenedor {
+  width: 100%;
+  overflow-x: auto;
+  border: 1px solid #E2E7E0;
+  border-radius: 9px;
+}
+
+.tabla {
+  width: 100%;
+  min-width: 850px;
+  border-collapse: collapse;
+  text-align: left;
+  font-size: 13px;
+}
+
+.tabla thead {
+  background: #244D3D;
+  color: #FFFFFF;
+}
+
+.tabla th {
+  padding: 16px 13px;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.tabla td {
+  padding: 14px 13px;
+  border-bottom: 1px solid #E7ECE6;
+  color: #526357;
+  vertical-align: middle;
+}
+
+.tabla tbody tr:hover {
+  background: #F7F9F5;
+}
+
+.tabla tbody tr:last-child td {
+  border-bottom: none;
+}
+
+.nombreLibro {
+  font-weight: 600;
+  color: #244D3D !important;
+}
+
+.acciones {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.editar,
+.eliminar {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding: 9px 12px;
+  border-radius: 7px;
+  border: none;
+  color: #FFFFFF;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.editar {
+  background: #244D3D;
+}
+
+.editar:hover {
+  background: #19382C;
+}
+
+.eliminar {
+  background: #B42318;
+}
+
+.eliminar:hover {
+  background: #8D1A12;
+}
+
+.editar:disabled,
+.eliminar:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.paginacion {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 18px;
+  margin-top: 25px;
+}
+
+.paginacion button {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 10px 13px;
+  border: 1px solid #DDE5DC;
+  border-radius: 8px;
+  background: #FFFFFF;
+  color: #244D3D;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.paginacion button:hover:not(:disabled) {
+  background: #E4EDE5;
+}
+
+.paginacion button:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+.paginacion span {
+  color: #66756B;
+  font-size: 13px;
+}
+
+.mensaje,
+.mensajeExito,
+.mensajeError {
+  padding: 14px;
+  font-size: 14px;
+  margin-bottom: 15px;
+}
+
+.mensajeExito {
+  background: #E4EDE5;
+  color: #244D3D;
+  border-radius: 8px;
+}
+
+.mensajeError {
+  background: #FEECEB;
+  color: #B42318;
+  border-radius: 8px;
+}
+
+/* CONFIRMAR ELIMINACIÓN */
+
+.fondoModal {
+  position: fixed;
+  inset: 0;
+  z-index: 1000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+  background: rgba(15, 32, 24, 0.65);
+}
+
+.modal {
+  position: relative;
+  width: 100%;
+  max-width: 460px;
+  max-height: 90vh;
+  overflow-y: auto;
+  padding: 28px;
+  background: #FFFFFF;
+  border-radius: 16px;
+  box-shadow: 0 15px 45px rgba(0, 0, 0, 0.2);
+}
+
+.encabezadoModal {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 18px;
+}
+
+.iconoAdvertencia {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 55px;
+  height: 55px;
+  border-radius: 12px;
+  background: #FEECEB;
+  color: #B42318;
+}
+
+.cerrar {
+  border: none;
+  background: transparent;
+  color: #66756B;
+  cursor: pointer;
+}
+
+.modal h3 {
+  font-size: 23px;
+  color: #244D3D;
+  margin-bottom: 12px;
+}
+
+.modal p {
+  color: #66756B;
+  line-height: 1.5;
+  margin-bottom: 13px;
+}
+
+.libroEliminar {
+  display: block;
+  color: #244D3D;
+  font-size: 17px;
+  margin-bottom: 18px;
+}
+
+.modal .advertencia {
+  background: #FEECEB;
+  border: 1px solid #FECACA;
+  border-radius: 8px;
+  color: #991B1B;
+  padding: 13px;
+  margin-bottom: 24px;
+}
+
+.accionesModal {
+  display: flex;
+  justify-content: flex-end;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.cancelar,
+.confirmar {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  padding: 12px 17px;
+  border: none;
+  border-radius: 8px;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.cancelar {
+  background: #E4EDE5;
+  color: #244D3D;
+}
+
+.confirmar {
+  background: #B42318;
+  color: #FFFFFF;
+}
+
+.cancelar:disabled,
+.confirmar:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+@media (max-width: 650px) {
+  .tarjeta {
+    padding: 18px;
+  }
+
+  .encabezado {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .acciones {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .paginacion {
+    gap: 8px;
+  }
+
+  .paginacion button {
+    padding: 9px;
+    font-size: 12px;
+  }
+}

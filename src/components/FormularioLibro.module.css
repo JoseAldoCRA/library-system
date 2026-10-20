@@ -1,0 +1,132 @@
+
+.tarjeta {
+  width: 100%;
+  background: #FFFFFF;
+  border: 1px solid #DDE5DC;
+  border-radius: 14px;
+  padding: 28px;
+  margin-bottom: 30px;
+  box-shadow: 0 3px 12px rgba(36, 77, 61, 0.04);
+}
+
+.encabezado {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+  margin-bottom: 28px;
+}
+
+.icono {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 52px;
+  height: 52px;
+  flex-shrink: 0;
+  border-radius: 12px;
+  background: #E4EDE5;
+  color: #244D3D;
+}
+
+.encabezado h2 {
+  color: #244D3D;
+  font-size: 21px;
+  margin-bottom: 6px;
+}
+
+.encabezado p {
+  color: #66756B;
+  font-size: 13px;
+}
+
+.campos {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 20px;
+}
+
+.grupo {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  min-width: 0;
+}
+
+.grupo label {
+  color: #26352D;
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.grupo input,
+.grupo select {
+  width: 100%;
+  padding: 13px 14px;
+  border: 1px solid #DDE5DC;
+  border-radius: 8px;
+  background: #FFFFFF;
+  color: #26352D;
+  font-size: 14px;
+  font-family: inherit;
+}
+
+.grupo input:focus,
+.grupo select:focus {
+  outline: none;
+  border-color: #54806A;
+  box-shadow: 0 0 0 3px rgba(84, 128, 106, 0.12);
+}
+
+.acciones {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: 24px;
+}
+
+.acciones button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 9px;
+  padding: 13px 22px;
+  border: none;
+  border-radius: 9px;
+  background: #244D3D;
+  color: #FFFFFF;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.acciones button:hover:not(:disabled) {
+  background: #19382C;
+}
+
+.acciones button:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.mensaje {
+  margin-top: 18px;
+  font-size: 14px;
+  color: #244D3D;
+}
+
+@media (max-width: 650px) {
+  .tarjeta {
+    padding: 20px;
+  }
+
+  .campos {
+    grid-template-columns: 1fr;
+  }
+
+  .encabezado h2 {
+    font-size: 19px;
+  }
+
+  .acciones button {
+    width: 100%;
+  }
+}
