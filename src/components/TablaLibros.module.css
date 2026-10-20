@@ -808,3 +808,251 @@
 }
 
 
+/* GESTIÓN DE SANCIONES */
+
+.resumenSanciones {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 15px;
+  margin: 20px 0;
+}
+
+.indicadorSancion {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 18px;
+  background: #F7F9F5;
+  border: 1px solid #DDE5DC;
+  border-radius: 10px;
+  color: #54806A;
+}
+
+.indicadorSancion div {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.indicadorSancion span {
+  color: #66756B;
+  font-size: 12px;
+}
+
+.indicadorSancion strong {
+  color: #244D3D;
+  font-size: 24px;
+}
+
+.filtrosSanciones {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin: 15px 0;
+}
+
+.filtrosSanciones label {
+  color: #26352D;
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.filtrosSanciones select {
+  padding: 10px 12px;
+  border: 1px solid #DDE5DC;
+  border-radius: 8px;
+  background: #FFFFFF;
+  color: #26352D;
+  font-size: 13px;
+}
+
+.sancionPendiente,
+.sancionPagada {
+  display: inline-flex;
+  align-items: center;
+  padding: 7px 11px;
+  border-radius: 7px;
+  font-size: 12px;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.sancionPendiente {
+  background: #FFF0DD;
+  color: #A85D13;
+}
+
+.sancionPagada {
+  background: #E4F3E8;
+  color: #277044;
+}
+
+.montoSancion {
+  font-weight: 600;
+  white-space: nowrap;
+  color: #244D3D;
+}
+
+.botonRegistrarPago {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 10px 13px;
+  border: none;
+  border-radius: 8px;
+  background: #244D3D;
+  color: #FFFFFF;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+.botonRegistrarPago:hover {
+  background: #19382C;
+}
+
+.textoPagado {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  color: #277044;
+  font-size: 12px;
+  font-weight: 600;
+}
+
+/* VENTANA DE CONFIRMACIÓN DE PAGO */
+
+.modalSancion {
+  width: 100%;
+  max-width: 550px;
+  max-height: 90vh;
+  overflow-y: auto;
+  padding: 25px;
+  background: #FFFFFF;
+  border-radius: 14px;
+  box-shadow: 0 12px 35px rgba(0, 0, 0, 0.16);
+}
+
+.encabezadoModalSancion {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 22px;
+}
+
+.encabezadoModalSancion > div:nth-child(2) {
+  flex: 1;
+}
+
+.encabezadoModalSancion h3 {
+  color: #244D3D;
+  font-size: 19px;
+  margin-bottom: 5px;
+}
+
+.encabezadoModalSancion p {
+  color: #66756B;
+  font-size: 13px;
+}
+
+.cerrarModalSancion {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 8px;
+  border: none;
+  border-radius: 7px;
+  background: transparent;
+  color: #54806A;
+  cursor: pointer;
+}
+
+.cerrarModalSancion:hover {
+  background: #E4EDE5;
+}
+
+.detallesSancion {
+  padding: 18px;
+  border: 1px solid #DDE5DC;
+  border-radius: 10px;
+  background: #F7F9F5;
+}
+
+.detallesSancion p {
+  margin-bottom: 11px;
+  color: #526357;
+  font-size: 14px;
+}
+
+.detallesSancion p:last-child {
+  margin-bottom: 0;
+}
+
+.detallesSancion strong {
+  color: #244D3D;
+}
+
+.accionesModalSancion {
+  display: flex;
+  justify-content: flex-end;
+  gap: 11px;
+  margin-top: 24px;
+}
+
+.cancelarPago,
+.confirmarPago {
+  display: inline-flex;
+  justify-content: center;
+  align-items: center;
+  gap: 8px;
+  padding: 12px 17px;
+  border: none;
+  border-radius: 8px;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.cancelarPago {
+  background: #EDF0EC;
+  color: #44594B;
+}
+
+.confirmarPago {
+  background: #244D3D;
+  color: #FFFFFF;
+}
+
+.confirmarPago:hover {
+  background: #19382C;
+}
+
+.cancelarPago:disabled,
+.confirmarPago:disabled,
+.botonRegistrarPago:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+@media (max-width: 700px) {
+  .resumenSanciones {
+    grid-template-columns: 1fr;
+  }
+
+  .filtrosSanciones {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .modalSancion {
+    padding: 18px;
+  }
+
+  .accionesModalSancion {
+    flex-wrap: wrap;
+  }
+}
+
+

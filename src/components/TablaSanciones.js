@@ -1,10 +1,25 @@
+
 "use client";
 
 import { useEffect, useState } from "react";
+
 import {
   listarSanciones,
   registrarNuevoPago,
 } from "@/services/sancionesService";
+
+import {
+  ShieldAlert,
+  Search,
+  CheckCircle2,
+  Clock3,
+  Wallet,
+  ChevronLeft,
+  ChevronRight,
+  X,
+} from "lucide-react";
+
+import styles from "./TablaLibros.module.css";
 
 export default function TablaSanciones({ actualizacion }) {
   const [sanciones, setSanciones] = useState([]);
@@ -13,6 +28,10 @@ export default function TablaSanciones({ actualizacion }) {
   const [sancionSeleccionada, setSancionSeleccionada] = useState(null);
   const [guardandoPago, setGuardandoPago] = useState(false);
   const [mensajePago, setMensajePago] = useState("");
+
+  const [busqueda, setBusqueda] = useState("");
+  const [filtroEstado, setFiltroEstado] = useState("todos");
+  const [pagina, setPagina] = useState(1);
 
   useEffect(() => {
     let activo = true;
@@ -25,7 +44,7 @@ export default function TablaSanciones({ actualizacion }) {
         const datos = await listarSanciones();
 
         if (activo) {
-          setSanciones(datos);
+          setSanciones(datos || []);
         }
       } catch (error) {
         if (activo) {
@@ -45,6 +64,26 @@ export default function TablaSanciones({ actualizacion }) {
     };
   }, [actualizacion]);
 
+  function mostrarFecha(fecha) {
+    if (!fecha) return "Sin fecha";
+
+    const partes = fecha.split("T")[0].split("-");
+
+    if (partes.length !== 3) return fecha;
+
+    return `${partes[2]}/${partes[1]}/${partes[0]}`;
+  }
+
+  function mostrarMonto(monto) {
+    return `$${Number(monto).toFixed(2)} MXN`;
+  }
+
+  function cancelarPago() {
+    if (guardandoPago) return;
+
+    setSancionSeleccionada(null);
+  }
+
   async function confirmarPago() {
     if (!sancionSeleccionada || guardandoPago) {
       return;
@@ -56,11 +95,18 @@ export default function TablaSanciones({ actualizacion }) {
     try {
       await registrarNuevoPago(sancionSeleccionada.id_sancion);
 
-      setMensajePago("Pago registrado correctamente.");
       setSancionSeleccionada(null);
+      setMensajePago("Pago registrado correctamente.");
 
-      const datos = await listarSanciones();
-      setSanciones(datos);
+      try {
+        const datos = await listarSanciones();
+        setSanciones(datos || []);
+      } catch (error) {
+        setMensajePago(
+          "Pago registrado, pero no se pudo actualizar la tabla: " +
+          error.message
+        );
+      }
     } catch (error) {
       setMensajePago("Error: " + error.message);
     } finally {
@@ -68,228 +114,388 @@ export default function TablaSanciones({ actualizacion }) {
     }
   }
 
-  function mostrarFecha(fecha) {
-    if (!fecha) return "-";
+  // Indicadores de sanciones
 
-    const partes = fecha.split("-");
+  const totalSanciones = sanciones.length;
 
-    return `${partes[2]}/${partes[1]}/${partes[0]}`;
-  }
+  const totalPendientes = sanciones.filter(
+    (item) => item.estado_pago === "pendiente"
+  ).length;
 
-  const estiloCelda = {
-    padding: "12px",
-    borderBottom: "1px solid #ddd",
-    backgroundColor: "#ffffff",
-    color: "#334155",
-  };
+  const totalPagadas = sanciones.filter(
+    (item) => item.estado_pago === "pagado"
+  ).length;
+
+  // Buscar y filtrar
+
+  const sancionesFiltradas = sanciones.filter((item) => {
+    const texto = busqueda.toLowerCase().trim();
+
+    const coincideBusqueda =
+      String(item.usuario || "").toLowerCase().includes(texto) ||
+      String(item.libro || "").toLowerCase().includes(texto) ||
+      String(item.ejemplar || "").toLowerCase().includes(texto);
+
+    const coincideEstado =
+      filtroEstado === "todos" ||
+      item.estado_pago === filtroEstado;
+
+    return coincideBusqueda && coincideEstado;
+  });
+
+  // Paginación
+
+  const totalPaginas = Math.max(
+    1,
+    Math.ceil(sancionesFiltradas.length / 10)
+  );
+
+  const paginaVisible = Math.min(pagina, totalPaginas);
+
+  const sancionesPagina = sancionesFiltradas.slice(
+    (paginaVisible - 1) * 10,
+    paginaVisible * 10
+  );
 
   return (
-    <section style={{ marginTop: "35px" }}>
-      <h2 style={{ color: "#194b78", marginBottom: "20px" }}>
-        Sanciones y multas
-      </h2>
+    <section className={styles.tarjeta}>
 
-      {cargando && <p>Cargando sanciones...</p>}
+      {/* ENCABEZADO */}
 
-      {error && <p style={{ color: "#b91c1c" }}>Error: {error}</p>}
+      <div className={styles.encabezado}>
+        <div className={styles.titulo}>
+          <div className={styles.icono}>
+            <ShieldAlert size={25} />
+          </div>
 
-      {!cargando && !error && sanciones.length === 0 && (
-        <p>No hay sanciones registradas.</p>
-      )}
-
-      {!cargando && !error && sanciones.length > 0 && (
-        <div style={{ overflowX: "auto" }}>
-          <table
-            style={{
-              width: "100%",
-              borderCollapse: "collapse",
-              color: "#334155",
-            }}
-          >
-            <thead>
-              <tr
-                style={{
-                  backgroundColor: "#194b78",
-                  color: "white",
-                }}
-              >
-                <th style={{ padding: "12px", textAlign: "left" }}>Usuario</th>
-                <th style={{ padding: "12px", textAlign: "left" }}>Libro</th>
-                <th style={{ padding: "12px", textAlign: "left" }}>Ejemplar</th>
-                <th style={{ padding: "12px", textAlign: "left" }}>
-                  Vencimiento
-                </th>
-                <th style={{ padding: "12px", textAlign: "left" }}>
-                  Devolución
-                </th>
-                <th style={{ padding: "12px", textAlign: "left" }}>
-                  Días de retraso
-                </th>
-                <th style={{ padding: "12px", textAlign: "left" }}>Multa</th>
-                <th style={{ padding: "12px", textAlign: "left" }}>Estado</th>
-                <th style={{ padding: "12px", textAlign: "left" }}>Acciones</th>
-              </tr>
-            </thead>
-
-            <tbody>
-              {sanciones.map((sancion) => (
-                <tr key={sancion.id_sancion}>
-                  <td style={estiloCelda}>{sancion.usuario}</td>
-                  <td style={estiloCelda}>{sancion.libro}</td>
-                  <td style={estiloCelda}>{sancion.ejemplar}</td>
-                  <td style={estiloCelda}>
-                    {mostrarFecha(sancion.fecha_vencimiento)}
-                  </td>
-                  <td style={estiloCelda}>
-                    {mostrarFecha(sancion.fecha_devolucion)}
-                  </td>
-                  <td style={estiloCelda}>{sancion.dias_retraso}</td>
-                  <td style={estiloCelda}>${sancion.monto.toFixed(2)} MXN</td>
-                  <td style={estiloCelda}>
-                    {sancion.estado_pago === "pendiente"
-                      ? "Pendiente"
-                      : "Pagado"}
-                  </td>
-
-                  <td style={estiloCelda}>
-                    {sancion.estado_pago === "pendiente" ? (
-                      <button
-                        type="button"
-                        onClick={() => {
-                          setMensajePago("");
-                          setSancionSeleccionada(sancion);
-                        }}
-                        style={{
-                          backgroundColor: "#166534",
-                          color: "white",
-                          padding: "10px 14px",
-                          border: "none",
-                          borderRadius: "6px",
-                          cursor: "pointer",
-                        }}
-                      >
-                        Registrar pago
-                      </button>
-                    ) : (
-                      <span style={{ color: "#166534" }}>Pagado</span>
-                    )}
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
+          <div>
+            <h2>Sanciones y multas</h2>
+            <p>
+              Consulta las multas por retraso y registra los pagos.
+            </p>
+          </div>
         </div>
-      )}
 
-      {sancionSeleccionada && (
-        <div
-          style={{
-            position: "fixed",
-            inset: 0,
-            backgroundColor: "rgba(0, 0, 0, 0.5)",
-            display: "flex",
-            justifyContent: "center",
-            alignItems: "center",
-            padding: "20px",
-            zIndex: 1000,
+        <span className={styles.total}>
+          {totalSanciones} sanciones
+        </span>
+      </div>
+
+      {/* INDICADORES */}
+
+      <div className={styles.resumenSanciones}>
+
+        <div className={styles.indicadorSancion}>
+          <ShieldAlert size={20} />
+          <div>
+            <span>Total de sanciones</span>
+            <strong>{totalSanciones}</strong>
+          </div>
+        </div>
+
+        <div className={styles.indicadorSancion}>
+          <Clock3 size={20} />
+          <div>
+            <span>Pendientes</span>
+            <strong>{totalPendientes}</strong>
+          </div>
+        </div>
+
+        <div className={styles.indicadorSancion}>
+          <CheckCircle2 size={20} />
+          <div>
+            <span>Pagadas</span>
+            <strong>{totalPagadas}</strong>
+          </div>
+        </div>
+
+      </div>
+
+      {/* BÚSQUEDA */}
+
+      <div className={styles.buscador}>
+        <Search size={20} />
+
+        <input
+          type="search"
+          aria-label="Buscar sanciones"
+          placeholder="Buscar por usuario, libro o ejemplar..."
+          value={busqueda}
+          onChange={(evento) => {
+            setBusqueda(evento.target.value);
+            setPagina(1);
+          }}
+        />
+      </div>
+
+      {/* FILTRO */}
+
+      <div className={styles.filtrosSanciones}>
+        <label htmlFor="filtroEstadoSancion">
+          Estado de pago
+        </label>
+
+        <select
+          id="filtroEstadoSancion"
+          value={filtroEstado}
+          onChange={(evento) => {
+            setFiltroEstado(evento.target.value);
+            setPagina(1);
           }}
         >
+          <option value="todos">Todas las sanciones</option>
+          <option value="pendiente">Pendientes</option>
+          <option value="pagado">Pagadas</option>
+        </select>
+      </div>
+
+      {/* MENSAJES */}
+
+      {mensajePago && (
+        <p
+          role="status"
+          className={
+            mensajePago.startsWith("Error")
+              ? styles.mensajeError
+              : styles.mensajeExito
+          }
+        >
+          {mensajePago}
+        </p>
+      )}
+
+      {cargando && (
+        <p className={styles.mensaje}>
+          Cargando sanciones...
+        </p>
+      )}
+
+      {error && (
+        <p className={styles.mensajeError}>
+          Error: {error}
+        </p>
+      )}
+
+      {/* TABLA */}
+
+      {!cargando && !error && (
+        <>
+          <p className={styles.contador}>
+            {sancionesFiltradas.length} resultados encontrados
+          </p>
+
+          {sancionesFiltradas.length === 0 ? (
+            <p className={styles.mensaje}>
+              {sanciones.length === 0
+                ? "No hay sanciones registradas."
+                : "No se encontraron sanciones."}
+            </p>
+          ) : (
+            <>
+              <div className={styles.tablaContenedor}>
+                <table className={styles.tabla}>
+                  <thead>
+                    <tr>
+                      <th>Usuario</th>
+                      <th>Libro</th>
+                      <th>Ejemplar</th>
+                      <th>Vencimiento</th>
+                      <th>Devolución</th>
+                      <th>Días de retraso</th>
+                      <th>Multa</th>
+                      <th>Estado</th>
+                      <th>Acciones</th>
+                    </tr>
+                  </thead>
+
+                  <tbody>
+                    {sancionesPagina.map((sancion) => (
+                      <tr key={sancion.id_sancion}>
+                        <td>{sancion.usuario}</td>
+
+                        <td className={styles.nombreLibro}>
+                          {sancion.libro}
+                        </td>
+
+                        <td>{sancion.ejemplar}</td>
+
+                        <td>
+                          {mostrarFecha(sancion.fecha_vencimiento)}
+                        </td>
+
+                        <td>
+                          {mostrarFecha(sancion.fecha_devolucion)}
+                        </td>
+
+                        <td>{sancion.dias_retraso}</td>
+
+                        <td className={styles.montoSancion}>
+                          {mostrarMonto(sancion.monto)}
+                        </td>
+
+                        <td>
+                          <span
+                            className={
+                              sancion.estado_pago === "pendiente"
+                                ? styles.sancionPendiente
+                                : styles.sancionPagada
+                            }
+                          >
+                            {sancion.estado_pago === "pendiente"
+                              ? "Pendiente"
+                              : "Pagado"}
+                          </span>
+                        </td>
+
+                        <td>
+                          {sancion.estado_pago === "pendiente" ? (
+                            <button
+                              type="button"
+                              className={styles.botonRegistrarPago}
+                              disabled={guardandoPago}
+                              onClick={() => {
+                                setMensajePago("");
+                                setSancionSeleccionada(sancion);
+                              }}
+                            >
+                              <Wallet size={16} />
+                              Registrar pago
+                            </button>
+                          ) : (
+                            <span className={styles.textoPagado}>
+                              <CheckCircle2 size={16} />
+                              Pagado
+                            </span>
+                          )}
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+
+              {/* PAGINACIÓN */}
+
+              {totalPaginas > 1 && (
+                <div className={styles.paginacion}>
+                  <button
+                    type="button"
+                    disabled={paginaVisible === 1}
+                    onClick={() => setPagina(paginaVisible - 1)}
+                  >
+                    <ChevronLeft size={17} />
+                    Anterior
+                  </button>
+
+                  <span>
+                    Página {paginaVisible} de {totalPaginas}
+                  </span>
+
+                  <button
+                    type="button"
+                    disabled={paginaVisible === totalPaginas}
+                    onClick={() => setPagina(paginaVisible + 1)}
+                  >
+                    Siguiente
+                    <ChevronRight size={17} />
+                  </button>
+                </div>
+              )}
+            </>
+          )}
+        </>
+      )}
+
+      {/* CONFIRMACIÓN DEL PAGO */}
+
+      {sancionSeleccionada && (
+        <div className={styles.fondoModal}>
           <div
-            role="dialog"
+            className={styles.modalSancion}
+            role="alertdialog"
             aria-modal="true"
             aria-labelledby="tituloConfirmarPago"
-            style={{
-              backgroundColor: "white",
-              borderRadius: "12px",
-              width: "100%",
-              maxWidth: "550px",
-              padding: "25px",
-              color: "#334155",
-            }}
+            aria-describedby="descripcionConfirmarPago"
           >
-            <h2
-              id="tituloConfirmarPago"
-              style={{ color: "#194b78", marginBottom: "20px" }}
-            >
-              Confirmar pago de multa
-            </h2>
+            <div className={styles.encabezadoModalSancion}>
+              <div className={styles.icono}>
+                <Wallet size={24} />
+              </div>
 
-            <p>¿Deseas registrar el pago de esta sanción?</p>
+              <div>
+                <h3 id="tituloConfirmarPago">
+                  Confirmar pago de multa
+                </h3>
+                <p id="descripcionConfirmarPago">
+                  Verifica los datos antes de continuar.
+                </p>
+              </div>
 
-            <p>
-              <strong>Usuario:</strong> {sancionSeleccionada.usuario}
-            </p>
-            <p>
-              <strong>Libro:</strong> {sancionSeleccionada.libro}
-            </p>
-            <p>
-              <strong>Ejemplar:</strong> {sancionSeleccionada.ejemplar}
-            </p>
-            <p>
-              <strong>Días de retraso:</strong>{" "}
-              {sancionSeleccionada.dias_retraso}
-            </p>
-            <p>
-              <strong>Multa:</strong> ${sancionSeleccionada.monto.toFixed(2)}{" "}
-              MXN
-            </p>
-
-            <div
-              style={{
-                display: "flex",
-                justifyContent: "flex-end",
-                gap: "12px",
-                marginTop: "25px",
-                flexWrap: "wrap",
-              }}
-            >
               <button
                 type="button"
+                className={styles.cerrarModalSancion}
+                onClick={cancelarPago}
                 disabled={guardandoPago}
-                onClick={() => setSancionSeleccionada(null)}
-                style={{
-                  padding: "12px 18px",
-                  border: "none",
-                  borderRadius: "6px",
-                  cursor: "pointer",
-                  backgroundColor: "#e2e8f0",
-                  color: "#334155",
-                }}
+                aria-label="Cerrar ventana"
+              >
+                <X size={20} />
+              </button>
+            </div>
+
+            <div className={styles.detallesSancion}>
+              <p>
+                <strong>Usuario:</strong>{" "}
+                {sancionSeleccionada.usuario}
+              </p>
+
+              <p>
+                <strong>Libro:</strong>{" "}
+                {sancionSeleccionada.libro}
+              </p>
+
+              <p>
+                <strong>Ejemplar:</strong>{" "}
+                {sancionSeleccionada.ejemplar}
+              </p>
+
+              <p>
+                <strong>Días de retraso:</strong>{" "}
+                {sancionSeleccionada.dias_retraso}
+              </p>
+
+              <p>
+                <strong>Multa:</strong>{" "}
+                {mostrarMonto(sancionSeleccionada.monto)}
+              </p>
+            </div>
+
+            <div className={styles.accionesModalSancion}>
+              <button
+                type="button"
+                className={styles.cancelarPago}
+                disabled={guardandoPago}
+                onClick={cancelarPago}
               >
                 Cancelar
               </button>
 
               <button
                 type="button"
+                className={styles.confirmarPago}
                 disabled={guardandoPago}
                 onClick={confirmarPago}
-                style={{
-                  padding: "12px 18px",
-                  border: "none",
-                  borderRadius: "6px",
-                  cursor: guardandoPago ? "not-allowed" : "pointer",
-                  backgroundColor: "#166534",
-                  color: "white",
-                }}
               >
-                {guardandoPago ? "Registrando..." : "Sí, registrar pago"}
+                <CheckCircle2 size={17} />
+
+                {guardandoPago
+                  ? "Registrando..."
+                  : "Sí, registrar pago"}
               </button>
             </div>
           </div>
         </div>
       )}
 
-      {mensajePago && (
-        <p
-          role="status"
-          style={{
-            marginTop: "15px",
-            color: mensajePago.startsWith("Error") ? "#b91c1c" : "#166534",
-          }}
-        >
-          {mensajePago}
-        </p>
-      )}
     </section>
   );
 }
