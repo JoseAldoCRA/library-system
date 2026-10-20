@@ -9,6 +9,8 @@ import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
 import { es } from "date-fns/locale";
 import { registerLocale } from "react-datepicker";
+import { Handshake, Plus, CalendarDays } from "lucide-react";
+import styles from "./FormularioLibro.module.css";
 
 registerLocale("es", es);
 
@@ -87,153 +89,164 @@ export default function FormularioPrestamo({ alRegistrar, actualizacion }) {
     }
   }
 
-  const estiloCampo = {
-    width: "100%",
-    padding: "12px",
-    marginTop: "8px",
-    marginBottom: "18px",
-    border: "1px solid #cbd5e1",
-    borderRadius: "6px",
-    backgroundColor: "#ffffff",
-    color: "#334155",
-  };
-
+  
   return (
-    <section style={{ marginTop: "35px" }}>
-      <h2 style={{ color: "#194b78", marginBottom: "20px" }}>
-        Registrar préstamo
-      </h2>
+    <section className={styles.tarjeta}>
 
-      {cargando && <p>Cargando usuarios y ejemplares...</p>}
+      <div className={styles.encabezado}>
+        <div className={styles.icono}>
+          <Handshake size={25} />
+        </div>
+
+        <div>
+          <h2>Registrar nuevo préstamo</h2>
+          <p>
+            Selecciona el usuario, el ejemplar y la fecha de vencimiento.
+          </p>
+        </div>
+      </div>
+
+      {cargando && (
+        <p className={styles.mensaje}>
+          Cargando usuarios y ejemplares...
+        </p>
+      )}
 
       {!cargando && (
         <form onSubmit={registrarPrestamo}>
-          <label
-            htmlFor="usuarioPrestamo"
-            style={{
-              display: "block",
-              marginBottom: "8px",
-              color: "#334155",
-              fontWeight: "500",
-            }}
-          >
-            Usuario
-          </label>
 
-          <select
-            id="usuarioPrestamo"
-            value={usuario}
-            onChange={(evento) => setUsuario(evento.target.value)}
-            required
-            style={estiloCampo}
-          >
-            <option value="">Selecciona un estudiante o docente</option>
-            {usuarios.map((item) => (
-              <option key={item.id_usuario} value={item.id_usuario}>
-                {item.nombre} (
-                {item.rol === "estudiante" ? "Estudiante" : "Docente"})
-              </option>
-            ))}
-          </select>
+          <div className={styles.campos}>
 
-          <label
-            htmlFor="ejemplarPrestamo"
-            style={{
-              display: "block",
-              marginBottom: "8px",
-              color: "#334155",
-              fontWeight: "500",
-            }}
-          >
-            Ejemplar disponible
-          </label>
+            <div className={styles.grupo}>
+              <label htmlFor="usuarioPrestamo">Usuario</label>
 
-          <select
-            id="ejemplarPrestamo"
-            value={ejemplar}
-            onChange={(evento) => setEjemplar(evento.target.value)}
-            required
-            style={estiloCampo}
-          >
-            <option value="">Selecciona un ejemplar</option>
+              <select
+                id="usuarioPrestamo"
+                value={usuario}
+                onChange={(evento) => setUsuario(evento.target.value)}
+                required
+              >
+                <option value="">
+                  Selecciona un estudiante o docente
+                </option>
 
-            {ejemplares.map((item) => (
-              <option key={item.id_ejemplar} value={item.id_ejemplar}>
-                {item.codigo} - {item.libros?.titulo}
-              </option>
-            ))}
-          </select>
+                {usuarios.map((item) => (
+                  <option
+                    key={item.id_usuario}
+                    value={item.id_usuario}
+                  >
+                    {item.nombre} (
+                    {item.rol === "estudiante"
+                      ? "Estudiante"
+                      : "Docente"})
+                  </option>
+                ))}
+              </select>
+            </div>
 
-          <div style={{ marginBottom: "25px" }}>
-            <label
-              htmlFor="fechaVencimiento"
-              style={{
-                display: "block",
-                marginBottom: "8px",
-                color: "#334155",
-                fontWeight: "500",
-              }}
-            >
-              Fecha de vencimiento
-            </label>
+            <div className={styles.grupo}>
+              <label htmlFor="ejemplarPrestamo">
+                Ejemplar disponible
+              </label>
 
-            <DatePicker
-              selected={fechaSeleccionada}
-              onChange={(fecha) => {
-                setFechaSeleccionada(fecha);
+              <select
+                id="ejemplarPrestamo"
+                value={ejemplar}
+                onChange={(evento) => setEjemplar(evento.target.value)}
+                required
+              >
+                <option value="">
+                  Selecciona un ejemplar
+                </option>
 
-                if (fecha) {
-                  const anio = fecha.getFullYear();
-                  const mes = String(fecha.getMonth() + 1).padStart(2, "0");
-                  const dia = String(fecha.getDate()).padStart(2, "0");
+                {ejemplares.map((item) => (
+                  <option
+                    key={item.id_ejemplar}
+                    value={item.id_ejemplar}
+                  >
+                    {item.codigo} - {item.libros?.titulo}
+                  </option>
+                ))}
+              </select>
+            </div>
 
-                  setFechaVencimiento(`${anio}-${mes}-${dia}`);
-                } else {
-                  setFechaVencimiento("");
-                }
-              }}
-              minDate={new Date()}
-              dateFormat="dd/MM/yyyy"
-              placeholderText="Selecciona la fecha de vencimiento"
-              locale="es"
-              showPopperArrow={false}
-              className="calendario-prestamo"
-              wrapperClassName="calendario-contenedor"
-            />
+            <div className={styles.grupo}>
+              <label htmlFor="fechaVencimiento">
+                Fecha de vencimiento
+              </label>
+
+              <div className={styles.campoCalendario}>
+                <CalendarDays size={19} />
+
+                <DatePicker
+                  id="fechaVencimiento"
+                  selected={fechaSeleccionada}
+                  onChange={(fecha) => {
+                    setFechaSeleccionada(fecha);
+
+                    if (fecha) {
+                      const anio = fecha.getFullYear();
+                      const mes = String(fecha.getMonth() + 1).padStart(2, "0");
+                      const dia = String(fecha.getDate()).padStart(2, "0");
+
+                      setFechaVencimiento(
+                        `${anio}-${mes}-${dia}`
+                      );
+                    } else {
+                      setFechaVencimiento("");
+                    }
+                  }}
+                  minDate={new Date()}
+                  dateFormat="dd/MM/yyyy"
+                  placeholderText="Selecciona la fecha"
+                  locale="es"
+                  showPopperArrow={false}
+                  className="calendario-prestamo"
+                  wrapperClassName="calendario-contenedor"
+                  required
+                />
+              </div>
+            </div>
+
           </div>
 
-          <button
-            type="submit"
-            disabled={
-              guardando || usuarios.length === 0 || ejemplares.length === 0
-            }
-            style={{
-              width: "100%",
-              padding: "12px",
-              backgroundColor: "#194b78",
-              color: "white",
-              border: "none",
-              borderRadius: "6px",
-              cursor: guardando ? "not-allowed" : "pointer",
-              opacity: guardando ? 0.6 : 1,
-            }}
-          >
-            {guardando ? "Registrando..." : "Registrar préstamo"}
-          </button>
+          <div className={styles.acciones}>
+            <button
+              type="submit"
+              disabled={
+                guardando ||
+                !usuario ||
+                !ejemplar ||
+                !fechaVencimiento ||
+                usuarios.length === 0 ||
+                ejemplares.length === 0
+              }
+            >
+              <Plus size={18} />
+
+              {guardando
+                ? "Registrando..."
+                : "Registrar préstamo"}
+            </button>
+          </div>
+
         </form>
       )}
 
       {mensaje && (
         <p
           role="status"
-          style={{
-            marginTop: "15px",
-            color: mensaje.startsWith("Error") ? "#b91c1c" : "#166534",
-          }}
+          className={
+            mensaje.startsWith("Error")
+              ? styles.mensajeError
+              : styles.mensaje
+          }
         >
           {mensaje}
         </p>
       )}
+
     </section>
   );
 }
+

@@ -130,3 +130,67 @@
     width: 100%;
   }
 }
+
+
+/* CALENDARIO DEL FORMULARIO DE PRÉSTAMOS */
+
+.campoCalendario {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  min-height: 46px;
+  padding: 0 13px;
+  background: #FFFFFF;
+  border: 1px solid #DDE5DC;
+  border-radius: 8px;
+  color: #54806A;
+}
+
+.campoCalendario:focus-within {
+  border-color: #54806A;
+  box-shadow: 0 0 0 3px rgba(84, 128, 106, 0.12);
+}
+
+.campoCalendario svg {
+  flex-shrink: 0;
+}
+
+.campoCalendario :global(.calendario-contenedor) {
+  flex: 1;
+  min-width: 0;
+}
+
+.campoCalendario :global(.calendario-prestamo) {
+  width: 100%;
+  padding: 13px 0;
+  border: none;
+  outline: none;
+  box-shadow: none;
+  background: transparent;
+  color: #26352D;
+  font-size: 14px;
+  font-family: inherit;
+}
+
+.campoCalendario :global(.calendario-prestamo:focus) {
+  outline: none;
+  border: none;
+  box-shadow: none;
+}
+
+.campoCalendario :global(.react-datepicker__header) {
+  background: #244D3D;
+}
+
+.campoCalendario :global(.react-datepicker__day--selected) {
+  background: #244D3D;
+}
+
+.mensajeError {
+  margin-top: 18px;
+  padding: 13px;
+  border-radius: 8px;
+  background: #FEECEB;
+  color: #B42318;
+  font-size: 14px;
+}

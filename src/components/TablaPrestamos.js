@@ -1,8 +1,26 @@
+
 "use client";
 
 import { useEffect, useState } from "react";
-import { listarPrestamosActivos } from "@/services/prestamosService";
-import { registrarDevolucion } from "@/services/prestamosService";
+import {
+  listarPrestamosActivos,
+  registrarDevolucion
+} from "@/services/prestamosService";
+
+import {
+  Handshake,
+  Search,
+  CalendarCheck2,
+  ChevronLeft,
+  ChevronRight,
+  CircleCheck,
+  X,
+  RotateCcw
+} from "lucide-react";
+
+import styles from "./TablaLibros.module.css";
+
+const PRESTAMOS_POR_PAGINA = 10;
 
 export default function TablaPrestamos({ actualizacion, alDevolver }) {
   const [prestamos, setPrestamos] = useState([]);
@@ -11,6 +29,9 @@ export default function TablaPrestamos({ actualizacion, alDevolver }) {
   const [prestamoSeleccionado, setPrestamoSeleccionado] = useState(null);
   const [guardandoDevolucion, setGuardandoDevolucion] = useState(false);
   const [mensajeDevolucion, setMensajeDevolucion] = useState("");
+
+  const [busqueda, setBusqueda] = useState("");
+  const [paginaActual, setPaginaActual] = useState(1);
 
   useEffect(() => {
     let activo = true;
@@ -23,7 +44,7 @@ export default function TablaPrestamos({ actualizacion, alDevolver }) {
         const datos = await listarPrestamosActivos();
 
         if (activo) {
-          setPrestamos(datos);
+          setPrestamos(datos || []);
         }
       } catch (error) {
         if (activo) {
@@ -44,11 +65,50 @@ export default function TablaPrestamos({ actualizacion, alDevolver }) {
   }, [actualizacion]);
 
   function mostrarFecha(fecha) {
-    if (!fecha) return "";
+    if (!fecha) return "Sin fecha";
 
-    const partes = fecha.split("-");
+    const partes = fecha.split("T")[0].split("-");
+
+    if (partes.length !== 3) return fecha;
 
     return `${partes[2]}/${partes[1]}/${partes[0]}`;
+  }
+
+  // Buscar préstamos
+
+  const prestamosFiltrados = prestamos.filter((prestamo) => {
+    const texto = busqueda.toLowerCase().trim();
+
+    return (
+      String(prestamo.usuario || "").toLowerCase().includes(texto) ||
+      String(prestamo.ejemplar || "").toLowerCase().includes(texto) ||
+      String(prestamo.libro || "").toLowerCase().includes(texto)
+    );
+  });
+
+  // Paginación
+
+  const totalPaginas = Math.max(
+    1,
+    Math.ceil(prestamosFiltrados.length / PRESTAMOS_POR_PAGINA)
+  );
+
+  const paginaVisible = Math.min(paginaActual, totalPaginas);
+
+  const prestamosPagina = prestamosFiltrados.slice(
+    (paginaVisible - 1) * PRESTAMOS_POR_PAGINA,
+    paginaVisible * PRESTAMOS_POR_PAGINA
+  );
+
+  function cambiarBusqueda(valor) {
+    setBusqueda(valor);
+    setPaginaActual(1);
+  }
+
+  function cancelarDevolucion() {
+    if (guardandoDevolucion) return;
+
+    setPrestamoSeleccionado(null);
   }
 
   async function confirmarDevolucion() {
@@ -68,6 +128,10 @@ export default function TablaPrestamos({ actualizacion, alDevolver }) {
       if (alDevolver) {
         alDevolver();
       }
+
+      const datos = await listarPrestamosActivos();
+      setPrestamos(datos || []);
+
     } catch (error) {
       setMensajeDevolucion("Error: " + error.message);
       setPrestamoSeleccionado(null);
@@ -77,221 +141,264 @@ export default function TablaPrestamos({ actualizacion, alDevolver }) {
   }
 
   return (
-    <section style={{ marginTop: "35px" }}>
-      <h2 style={{ color: "#194b78", marginBottom: "20px" }}>
-        Préstamos activos
-      </h2>
+    <section className={styles.tarjeta}>
 
-      {cargando && <p>Cargando préstamos...</p>}
+      {/* ENCABEZADO */}
 
-      {error && <p style={{ color: "#b91c1c" }}>Error: {error}</p>}
+      <div className={styles.encabezado}>
+        <div className={styles.titulo}>
+          <div className={styles.icono}>
+            <Handshake size={25} />
+          </div>
 
-      {!cargando && !error && prestamos.length === 0 && (
-        <p style={{ color: "#334155" }}>No hay préstamos activos.</p>
-      )}
-
-      {!cargando && !error && prestamos.length > 0 && (
-        <div style={{ overflowX: "auto" }}>
-          <table
-            style={{
-              width: "100%",
-              borderCollapse: "collapse",
-              color: "#334155",
-            }}
-          >
-            <thead>
-              <tr style={{ backgroundColor: "#194b78", color: "white" }}>
-                <th style={{ padding: "12px", textAlign: "left" }}>Usuario</th>
-                <th style={{ padding: "12px", textAlign: "left" }}>Ejemplar</th>
-                <th style={{ padding: "12px", textAlign: "left" }}>Libro</th>
-                <th style={{ padding: "12px", textAlign: "left" }}>Préstamo</th>
-                <th style={{ padding: "12px", textAlign: "left" }}>
-                  Vencimiento
-                </th>
-                <th style={{ padding: "12px", textAlign: "left" }}>Estado</th>
-                <th style={{ padding: "12px", textAlign: "left" }}>Acciones</th>
-              </tr>
-            </thead>
-
-            <tbody>
-              {prestamos.map((prestamo) => (
-                <tr key={prestamo.id_prestamo}>
-                  <td style={estiloCelda}>{prestamo.usuario}</td>
-                  <td style={estiloCelda}>{prestamo.ejemplar}</td>
-                  <td style={estiloCelda}>{prestamo.libro}</td>
-                  <td style={estiloCelda}>
-                    {mostrarFecha(prestamo.fecha_prestamo)}
-                  </td>
-                  <td style={estiloCelda}>
-                    {mostrarFecha(prestamo.fecha_vencimiento)}
-                  </td>
-
-                  <td style={estiloCelda}>{prestamo.estado}</td>
-
-                  <td style={estiloCelda}>
-                    <button
-                      type="button"
-                      onClick={() => setPrestamoSeleccionado(prestamo)}
-                      style={{
-                        backgroundColor: "#194b78",
-                        color: "white",
-                        padding: "10px",
-                        border: "none",
-                        borderRadius: "6px",
-                        cursor: "pointer",
-                      }}
-                    >
-                      Registrar devolución
-                    </button>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
+          <div>
+            <h2>Préstamos activos</h2>
+            <p>
+              Consulta los préstamos y registra las devoluciones.
+            </p>
+          </div>
         </div>
+
+        <span className={styles.total}>
+          {prestamos.length} préstamos
+        </span>
+      </div>
+
+      {/* BUSCADOR */}
+
+      <div className={styles.buscador}>
+        <Search size={20} />
+
+        <input
+          type="search"
+          aria-label="Buscar préstamos"
+          placeholder="Buscar por usuario, ejemplar o libro..."
+          value={busqueda}
+          onChange={(e) => cambiarBusqueda(e.target.value)}
+        />
+      </div>
+
+      {mensajeDevolucion && (
+        <p
+          role="status"
+          className={
+            mensajeDevolucion.startsWith("Error")
+              ? styles.mensajeError
+              : styles.mensajeExito
+          }
+        >
+          {mensajeDevolucion}
+        </p>
       )}
+
+      {cargando && (
+        <p className={styles.mensaje}>Cargando préstamos...</p>
+      )}
+
+      {error && (
+        <p className={styles.mensajeError}>
+          Error: {error}
+        </p>
+      )}
+
+      {!cargando && !error && (
+        <>
+          <p className={styles.contador}>
+            {prestamosFiltrados.length} resultados encontrados
+          </p>
+
+          {prestamosFiltrados.length === 0 ? (
+            <p className={styles.mensaje}>
+              {prestamos.length === 0
+                ? "No hay préstamos activos."
+                : "No se encontraron préstamos con esa búsqueda."}
+            </p>
+          ) : (
+            <>
+              <div className={styles.tablaContenedor}>
+                <table className={styles.tabla}>
+                  <thead>
+                    <tr>
+                      <th>Usuario</th>
+                      <th>Ejemplar</th>
+                      <th>Libro</th>
+                      <th>Préstamo</th>
+                      <th>Vencimiento</th>
+                      <th>Estado</th>
+                      <th>Acciones</th>
+                    </tr>
+                  </thead>
+
+                  <tbody>
+                    {prestamosPagina.map((prestamo) => (
+                      <tr key={prestamo.id_prestamo}>
+                        <td>{prestamo.usuario}</td>
+                        <td>{prestamo.ejemplar}</td>
+
+                        <td className={styles.nombreLibro}>
+                          {prestamo.libro}
+                        </td>
+
+                        <td>
+                          {mostrarFecha(prestamo.fecha_prestamo)}
+                        </td>
+
+                        <td>
+                          {mostrarFecha(prestamo.fecha_vencimiento)}
+                        </td>
+
+                        <td>
+                          <span className={styles.estadoPrestamo}>
+                            <CircleCheck size={15} />
+                            {prestamo.estado}
+                          </span>
+                        </td>
+
+                        <td>
+                          <button
+                            type="button"
+                            className={styles.botonDevolucion}
+                            onClick={() =>
+                              setPrestamoSeleccionado(prestamo)
+                            }
+                          >
+                            <RotateCcw size={16} />
+                            Registrar devolución
+                          </button>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+
+              {totalPaginas > 1 && (
+                <nav
+                  className={styles.paginacion}
+                  aria-label="Paginación de préstamos"
+                >
+                  <button
+                    type="button"
+                    disabled={paginaVisible === 1}
+                    onClick={() =>
+                      setPaginaActual(paginaVisible - 1)
+                    }
+                  >
+                    <ChevronLeft size={17} />
+                    Anterior
+                  </button>
+
+                  <span>
+                    Página {paginaVisible} de {totalPaginas}
+                  </span>
+
+                  <button
+                    type="button"
+                    disabled={paginaVisible === totalPaginas}
+                    onClick={() =>
+                      setPaginaActual(paginaVisible + 1)
+                    }
+                  >
+                    Siguiente
+                    <ChevronRight size={17} />
+                  </button>
+                </nav>
+              )}
+            </>
+          )}
+        </>
+      )}
+
+      {/* CONFIRMAR DEVOLUCIÓN */}
 
       {prestamoSeleccionado && (
-        <div
-          style={{
-            position: "fixed",
-            top: 0,
-            left: 0,
-            width: "100%",
-            height: "100%",
-            backgroundColor: "rgba(0, 0, 0, 0.5)",
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "center",
-            zIndex: 1000,
-            padding: "20px",
-          }}
-        >
+        <div className={styles.fondoModal}>
           <div
-            role="dialog"
+            className={styles.modal}
+            role="alertdialog"
             aria-modal="true"
             aria-labelledby="tituloConfirmarDevolucion"
-            style={{
-              backgroundColor: "white",
-              borderRadius: "12px",
-              width: "100%",
-              maxWidth: "500px",
-              overflow: "hidden",
-            }}
+            aria-describedby="descripcionConfirmarDevolucion"
           >
-            <h2
-              id="tituloConfirmarDevolucion"
-              style={{
-                backgroundColor: "#194b78",
-                color: "white",
-                padding: "20px",
-                margin: 0,
-              }}
-            >
+            <div className={styles.encabezadoModal}>
+              <div className={styles.icono}>
+                <CalendarCheck2 size={27} />
+              </div>
+
+              <button
+                type="button"
+                className={styles.cerrar}
+                onClick={cancelarDevolucion}
+                disabled={guardandoDevolucion}
+                aria-label="Cerrar ventana"
+              >
+                <X size={20} />
+              </button>
+            </div>
+
+            <h3 id="tituloConfirmarDevolucion">
               Confirmar devolución
-            </h2>
+            </h3>
 
-            <div style={{ padding: "25px", color: "#334155" }}>
-              <p>¿Deseas registrar la devolución de este préstamo?</p>
+            <p id="descripcionConfirmarDevolucion">
+              ¿Deseas registrar la devolución de este préstamo?
+            </p>
 
-              <p style={{ marginTop: "15px" }}>
-                <strong>Usuario:</strong> {prestamoSeleccionado.usuario}
+            <div className={styles.detallesDevolucion}>
+              <p>
+                <strong>Usuario:</strong>{" "}
+                {prestamoSeleccionado.usuario}
               </p>
 
-              <p style={{ marginTop: "10px" }}>
-                <strong>Ejemplar:</strong> {prestamoSeleccionado.ejemplar}
+              <p>
+                <strong>Ejemplar:</strong>{" "}
+                {prestamoSeleccionado.ejemplar}
               </p>
 
-              <p style={{ marginTop: "10px" }}>
-                <strong>Libro:</strong> {prestamoSeleccionado.libro}
+              <p>
+                <strong>Libro:</strong>{" "}
+                {prestamoSeleccionado.libro}
               </p>
 
-              <p style={{ marginTop: "10px" }}>
-                <strong>Fecha de vencimiento:</strong>{" "}
+              <p>
+                <strong>Vencimiento:</strong>{" "}
                 {mostrarFecha(prestamoSeleccionado.fecha_vencimiento)}
               </p>
+            </div>
 
-              <p
-                style={{
-                  marginTop: "20px",
-                  padding: "12px",
-                  backgroundColor: "#eff6ff",
-                  border: "1px solid #bfdbfe",
-                  borderRadius: "6px",
-                }}
+            <p className={styles.avisoDevolucion}>
+              El ejemplar volverá a estar disponible. Si existe
+              retraso, el sistema aplicará las sanciones
+              correspondientes según las reglas configuradas.
+            </p>
+
+            <div className={styles.accionesModal}>
+              <button
+                type="button"
+                className={styles.cancelar}
+                disabled={guardandoDevolucion}
+                onClick={cancelarDevolucion}
               >
-                El ejemplar volverá a estar disponible. Si existe retraso, se
-                registrará una multa de $10 MXN por día.
-              </p>
+                Cancelar
+              </button>
 
-              <div
-                style={{
-                  display: "flex",
-                  justifyContent: "flex-end",
-                  gap: "12px",
-                  marginTop: "25px",
-                }}
+              <button
+                type="button"
+                className={styles.confirmarReactivar}
+                disabled={guardandoDevolucion}
+                onClick={confirmarDevolucion}
               >
-                <button
-                  type="button"
-                  disabled={guardandoDevolucion}
-                  onClick={() => setPrestamoSeleccionado(null)}
-                  style={{
-                    padding: "12px 16px",
-                    backgroundColor: "#e2e8f0",
-                    color: "#334155",
-                    border: "none",
-                    borderRadius: "6px",
-                    cursor: "pointer",
-                  }}
-                >
-                  Cancelar
-                </button>
+                <CircleCheck size={17} />
 
-                <button
-                  type="button"
-                  disabled={guardandoDevolucion}
-                  onClick={confirmarDevolucion}
-                  style={{
-                    padding: "12px 16px",
-                    backgroundColor: "#166534",
-                    color: "white",
-                    border: "none",
-                    borderRadius: "6px",
-                    cursor: "pointer",
-                    opacity: guardandoDevolucion ? 0.6 : 1,
-                  }}
-                >
-                  {guardandoDevolucion
-                    ? "Registrando..."
-                    : "Sí, registrar devolución"}
-                </button>
-              </div>
+                {guardandoDevolucion
+                  ? "Registrando..."
+                  : "Sí, registrar devolución"}
+              </button>
             </div>
           </div>
         </div>
       )}
 
-      {mensajeDevolucion && (
-        <p
-          role="status"
-          style={{
-            marginTop: "15px",
-            color: mensajeDevolucion.startsWith("Error")
-              ? "#b91c1c"
-              : "#166534",
-          }}
-        >
-          {mensajeDevolucion}
-        </p>
-      )}
     </section>
   );
 }
-
-const estiloCelda = {
-  padding: "12px",
-  borderBottom: "1px solid #ddd",
-  backgroundColor: "#ffffff",
-  color: "#334155",
-};

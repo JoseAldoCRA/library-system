@@ -517,3 +517,77 @@
   }
 }
 
+
+/* PRÉSTAMOS Y DEVOLUCIONES */
+
+.estadoPrestamo {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  padding: 7px 10px;
+  border-radius: 7px;
+  background: #E4F3E8;
+  color: #277044;
+  font-size: 12px;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.botonDevolucion {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 10px 13px;
+  border: none;
+  border-radius: 8px;
+  background: #244D3D;
+  color: #FFFFFF;
+  font-size: 12px;
+  font-weight: 600;
+  white-space: nowrap;
+  cursor: pointer;
+}
+
+.botonDevolucion:hover {
+  background: #19382C;
+}
+
+.detallesDevolucion {
+  padding: 17px;
+  margin: 18px 0;
+  background: #F7F9F5;
+  border: 1px solid #DDE5DC;
+  border-radius: 9px;
+}
+
+.detallesDevolucion p {
+  margin-bottom: 9px;
+  font-size: 14px;
+  color: #526357;
+}
+
+.detallesDevolucion p:last-child {
+  margin-bottom: 0;
+}
+
+.detallesDevolucion strong {
+  color: #244D3D;
+}
+
+.modal .avisoDevolucion {
+  padding: 14px;
+  margin-bottom: 22px;
+  border: 1px solid #DDE5DC;
+  border-radius: 9px;
+  background: #E4EDE5;
+  color: #244D3D;
+  font-size: 13px;
+  line-height: 1.6;
+}
+
+.botonDevolucion:focus-visible {
+  outline: 3px solid #8FBDA2;
+  outline-offset: 3px;
+}
+
