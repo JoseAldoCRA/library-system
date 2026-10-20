@@ -1,13 +1,42 @@
+
 "use client";
 
 import { useEffect, useState } from "react";
-import { listarEjemplares, cambiarEstadoEjemplar, } from "@/services/ejemplaresService";
+import {
+  listarEjemplares,
+  cambiarEstadoEjemplar
+} from "@/services/ejemplaresService";
 
-export default function TablaEjemplares({ actualizacion, alCambiarEstado }) {
+import {
+  BookCopy,
+  Search,
+  ListFilter,
+  CheckCircle2,
+  Clock3,
+  CircleX,
+  Ban,
+  RotateCcw,
+  ChevronLeft,
+  ChevronRight,
+  TriangleAlert,
+  X
+} from "lucide-react";
+
+import styles from "./TablaLibros.module.css";
+
+const EJEMPLARES_POR_PAGINA = 10;
+
+export default function TablaEjemplares({
+  actualizacion,
+  alCambiarEstado
+}) {
   const [ejemplares, setEjemplares] = useState([]);
   const [cargando, setCargando] = useState(true);
   const [error, setError] = useState("");
+
   const [categoriaSeleccionada, setCategoriaSeleccionada] = useState("");
+  const [busqueda, setBusqueda] = useState("");
+  const [paginaActual, setPaginaActual] = useState(1);
 
   const [ejemplarSeleccionado, setEjemplarSeleccionado] = useState(null);
   const [guardando, setGuardando] = useState(false);
@@ -24,7 +53,7 @@ export default function TablaEjemplares({ actualizacion, alCambiarEstado }) {
         const datos = await listarEjemplares();
 
         if (activo) {
-          setEjemplares(datos);
+          setEjemplares(datos || []);
         }
       } catch (error) {
         if (activo) {
@@ -44,16 +73,58 @@ export default function TablaEjemplares({ actualizacion, alCambiarEstado }) {
     };
   }, [actualizacion]);
 
+  // Obtener categorías
+
   const categorias = [
-    ...new Set(ejemplares.map((ejemplar) => ejemplar.categoria)),
+    ...new Set(
+      ejemplares
+        .map((ejemplar) => ejemplar.categoria)
+        .filter(Boolean)
+    )
   ].sort((a, b) => a.localeCompare(b, "es"));
 
+  // Filtrar ejemplares
+
   const ejemplaresFiltrados = ejemplares.filter((ejemplar) => {
-    return (
+    const texto = busqueda.toLowerCase().trim();
+
+    const coincideBusqueda =
+      String(ejemplar.codigo || "").toLowerCase().includes(texto) ||
+      String(ejemplar.isbn || "").toLowerCase().includes(texto) ||
+      String(ejemplar.titulo || "").toLowerCase().includes(texto);
+
+    const coincideCategoria =
       categoriaSeleccionada === "" ||
-      ejemplar.categoria === categoriaSeleccionada
-    );
+      ejemplar.categoria === categoriaSeleccionada;
+
+    return coincideBusqueda && coincideCategoria;
   });
+
+  // Paginación
+
+  const totalPaginas = Math.max(
+    1,
+    Math.ceil(ejemplaresFiltrados.length / EJEMPLARES_POR_PAGINA)
+  );
+
+  const paginaVisible = Math.min(paginaActual, totalPaginas);
+
+  const ejemplaresPagina = ejemplaresFiltrados.slice(
+    (paginaVisible - 1) * EJEMPLARES_POR_PAGINA,
+    paginaVisible * EJEMPLARES_POR_PAGINA
+  );
+
+  function cambiarBusqueda(valor) {
+    setBusqueda(valor);
+    setPaginaActual(1);
+  }
+
+  function cambiarCategoria(valor) {
+    setCategoriaSeleccionada(valor);
+    setPaginaActual(1);
+  }
+
+  // Cambiar estado
 
   function abrirConfirmacion(ejemplar) {
     setMensaje("");
@@ -70,6 +141,15 @@ export default function TablaEjemplares({ actualizacion, alCambiarEstado }) {
 
     const ejemplar = ejemplarSeleccionado;
 
+    // Solo permitir baja o reactivación
+    if (
+      ejemplar.estado !== "disponible" &&
+      ejemplar.estado !== "baja"
+    ) {
+      setEjemplarSeleccionado(null);
+      return;
+    }
+
     const nuevoEstado =
       ejemplar.estado === "disponible" ? "baja" : "disponible";
 
@@ -77,12 +157,14 @@ export default function TablaEjemplares({ actualizacion, alCambiarEstado }) {
     setMensaje("");
 
     try {
-      await cambiarEstadoEjemplar( ejemplarSeleccionado.id_ejemplar, nuevoEstado);
+      await cambiarEstadoEjemplar(ejemplar.id_ejemplar, nuevoEstado);
 
-      if (alCambiarEstado) { alCambiarEstado(); }
+      if (alCambiarEstado) {
+        alCambiarEstado();
+      }
 
       const datos = await listarEjemplares();
-      setEjemplares(datos);
+      setEjemplares(datos || []);
 
       setEjemplarSeleccionado(null);
 
@@ -100,39 +182,50 @@ export default function TablaEjemplares({ actualizacion, alCambiarEstado }) {
   }
 
   return (
-    <div style={{ marginTop: "35px" }}>
-      <h2 style={{ color: "#194b78", marginBottom: "15px" }}>
-        Gestión de ejemplares
-      </h2>
+    <section className={styles.tarjeta}>
 
-      <div style={{ marginBottom: "20px", maxWidth: "350px" }}>
-        <label
-          htmlFor="filtroCategoriaEjemplares"
-          style={{
-            display: "block",
-            marginBottom: "8px",
-            color: "#334155",
-            fontWeight: "500",
-          }}
-        >
-          Filtrar por categoría
-        </label>
+      {/* ENCABEZADO */}
+
+      <div className={styles.encabezado}>
+        <div className={styles.titulo}>
+          <div className={styles.icono}>
+            <BookCopy size={25} />
+          </div>
+
+          <div>
+            <h2>Gestión de ejemplares</h2>
+            <p>Consulta y administra las copias físicas.</p>
+          </div>
+        </div>
+
+        <span className={styles.total}>
+          {ejemplares.length} ejemplares
+        </span>
+      </div>
+
+      {/* BUSCADOR */}
+
+      <div className={styles.buscador}>
+        <Search size={20} />
+
+        <input
+          type="search"
+          aria-label="Buscar ejemplares"
+          placeholder="Buscar por código, ISBN o título..."
+          value={busqueda}
+          onChange={(e) => cambiarBusqueda(e.target.value)}
+        />
+      </div>
+
+      {/* FILTRO */}
+
+      <div className={styles.filtroEjemplares}>
+        <ListFilter size={19} />
 
         <select
-          id="filtroCategoriaEjemplares"
+          aria-label="Filtrar ejemplares por categoría"
           value={categoriaSeleccionada}
-          onChange={(evento) =>
-            setCategoriaSeleccionada(evento.target.value)
-          }
-          style={{
-            width: "100%",
-            padding: "12px",
-            backgroundColor: "#ffffff",
-            color: "#334155",
-            border: "1px solid #cbd5e1",
-            borderRadius: "6px",
-            cursor: "pointer",
-          }}
+          onChange={(e) => cambiarCategoria(e.target.value)}
         >
           <option value="">Todas las categorías</option>
 
@@ -144,247 +237,251 @@ export default function TablaEjemplares({ actualizacion, alCambiarEstado }) {
         </select>
       </div>
 
+      {/* MENSAJES */}
+
       {mensaje && (
         <p
           role="status"
-          style={{
-            marginBottom: "15px",
-            color: mensaje.startsWith("Error") ? "#b91c1c" : "#166534",
-          }}
+          className={
+            mensaje.startsWith("Error")
+              ? styles.mensajeError
+              : styles.mensajeExito
+          }
         >
           {mensaje}
         </p>
       )}
 
-      {cargando && <p>Cargando ejemplares...</p>}
-
-      {error && <p style={{ color: "#b91c1c" }}>Error: {error}</p>}
-
-      {!cargando && !error && ejemplares.length === 0 && (
-        <p>No hay ejemplares registrados.</p>
+      {cargando && (
+        <p className={styles.mensaje}>Cargando ejemplares...</p>
       )}
 
-      {!cargando &&
-        !error &&
-        ejemplares.length > 0 &&
-        ejemplaresFiltrados.length === 0 && (
-          <p style={{ color: "#334155" }}>
-            No hay ejemplares registrados en esta categoría.
+      {error && (
+        <p className={styles.mensajeError}>
+          Error: {error}
+        </p>
+      )}
+
+      {!cargando && !error && (
+        <>
+          <p className={styles.contador}>
+            {ejemplaresFiltrados.length} resultados encontrados
           </p>
-        )}
 
-      {!cargando && !error && ejemplaresFiltrados.length > 0 && (
-        <div style={{ overflowX: "auto" }}>
-          <table
-            style={{
-              width: "100%",
-              borderCollapse: "collapse",
-              textAlign: "left",
-            }}
-          >
-            <thead>
-              <tr style={{ backgroundColor: "#194b78", color: "white" }}>
-                <th style={{ padding: "12px" }}>Código</th>
-                <th style={{ padding: "12px" }}>ISBN</th>
-                <th style={{ padding: "12px" }}>Libro</th>
-                <th style={{ padding: "12px" }}>Estado</th>
-                <th style={{ padding: "12px" }}>Acciones</th>
-              </tr>
-            </thead>
+          {ejemplaresFiltrados.length === 0 ? (
+            <p className={styles.mensaje}>
+              No se encontraron ejemplares.
+            </p>
+          ) : (
+            <>
+              {/* TABLA */}
 
-            <tbody>
-              {ejemplaresFiltrados.map((ejemplar) => (
-                <tr
-                  key={ejemplar.id_ejemplar}
-                  style={{
-                    borderBottom: "1px solid #ddd",
-                    backgroundColor: "#ffffff",
-                    color: "#334155",
-                  }}
+              <div className={styles.tablaContenedor}>
+                <table className={styles.tabla}>
+                  <thead>
+                    <tr>
+                      <th>Código</th>
+                      <th>ISBN</th>
+                      <th>Libro</th>
+                      <th>Estado</th>
+                      <th>Acciones</th>
+                    </tr>
+                  </thead>
+
+                  <tbody>
+                    {ejemplaresPagina.map((ejemplar) => (
+                      <tr key={ejemplar.id_ejemplar}>
+                        <td>{ejemplar.codigo}</td>
+
+                        <td>{ejemplar.isbn}</td>
+
+                        <td className={styles.nombreLibro}>
+                          {ejemplar.titulo}
+                        </td>
+
+                        <td>
+                          <span
+                            className={
+                              ejemplar.estado === "disponible"
+                                ? styles.estadoDisponible
+                                : ejemplar.estado === "prestado"
+                                  ? styles.estadoPrestado
+                                  : styles.estadoBaja
+                            }
+                          >
+                            {ejemplar.estado === "disponible" ? (
+                              <CheckCircle2 size={16} />
+                            ) : ejemplar.estado === "prestado" ? (
+                              <Clock3 size={16} />
+                            ) : (
+                              <CircleX size={16} />
+                            )}
+
+                            {ejemplar.estado === "disponible"
+                              ? "Disponible"
+                              : ejemplar.estado === "prestado"
+                                ? "Prestado"
+                                : ejemplar.estado === "baja"
+                                  ? "De baja"
+                                  : ejemplar.estado}
+                          </span>
+                        </td>
+
+                        <td>
+                          {ejemplar.estado === "prestado" ? (
+                            <span className={styles.sinAcciones}>
+                              Sin acciones
+                            </span>
+                          ) : (
+                            <button
+                              type="button"
+                              disabled={
+                                guardando ||
+                                (ejemplar.estado !== "disponible" &&
+                                  ejemplar.estado !== "baja")
+                              }
+                              onClick={() => abrirConfirmacion(ejemplar)}
+                              className={
+                                ejemplar.estado === "disponible"
+                                  ? styles.botonBaja
+                                  : styles.botonReactivar
+                              }
+                            >
+                              {ejemplar.estado === "disponible" ? (
+                                <Ban size={16} />
+                              ) : (
+                                <RotateCcw size={16} />
+                              )}
+
+                              {ejemplar.estado === "disponible"
+                                ? "Dar de baja"
+                                : "Reactivar"}
+                            </button>
+                          )}
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+
+              {/* PAGINACIÓN */}
+
+              {totalPaginas > 1 && (
+                <nav
+                  className={styles.paginacion}
+                  aria-label="Paginación de ejemplares"
                 >
-                  <td style={{ padding: "12px" }}>{ejemplar.codigo}</td>
-                  <td style={{ padding: "12px" }}>{ejemplar.isbn}</td>
-                  <td style={{ padding: "12px" }}>{ejemplar.titulo}</td>
+                  <button
+                    type="button"
+                    disabled={paginaVisible === 1}
+                    onClick={() => setPaginaActual(paginaVisible - 1)}
+                  >
+                    <ChevronLeft size={17} />
+                    Anterior
+                  </button>
 
-                  <td style={{ padding: "12px" }}>
-                    {ejemplar.estado === "disponible"
-                      ? "Disponible"
-                      : ejemplar.estado === "prestado"
-                        ? "Prestado"
-                        : ejemplar.estado === "baja"
-                          ? "De baja"
-                          : ejemplar.estado}
-                  </td>
+                  <span>
+                    Página {paginaVisible} de {totalPaginas}
+                  </span>
 
-                  <td style={{ padding: "12px" }}>
-                    {ejemplar.estado === "prestado" ? (
-                      <span style={{ color: "#64748b" }}>
-                        Sin acciones
-                      </span>
-                    ) : (
-                      <button
-                        type="button"
-                        onClick={() => abrirConfirmacion(ejemplar)}
-                        disabled={guardando}
-                        style={{
-                          backgroundColor:
-                            ejemplar.estado === "disponible"
-                              ? "#b91c1c"
-                              : "#166534",
-                          color: "white",
-                          padding: "8px 14px",
-                          border: "none",
-                          borderRadius: "6px",
-                          cursor: guardando ? "not-allowed" : "pointer",
-                          opacity: guardando ? 0.6 : 1,
-                          minWidth: "110px",
-                        }}
-                      >
-                        {ejemplar.estado === "disponible"
-                          ? "Dar de baja"
-                          : "Reactivar"}
-                      </button>
-                    )}
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
+                  <button
+                    type="button"
+                    disabled={paginaVisible === totalPaginas}
+                    onClick={() => setPaginaActual(paginaVisible + 1)}
+                  >
+                    Siguiente
+                    <ChevronRight size={17} />
+                  </button>
+                </nav>
+              )}
+            </>
+          )}
+        </>
       )}
+
+      {/* CONFIRMACIÓN */}
 
       {ejemplarSeleccionado && (
-        <div
-          style={{
-            position: "fixed",
-            top: 0,
-            left: 0,
-            width: "100%",
-            height: "100%",
-            backgroundColor: "rgba(15, 23, 42, 0.65)",
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "center",
-            zIndex: 1000,
-            padding: "20px",
-          }}
-        >
+        <div className={styles.fondoModal}>
           <div
-            role="dialog"
+            className={styles.modal}
+            role="alertdialog"
             aria-modal="true"
             aria-labelledby="tituloConfirmacionEjemplar"
-            style={{
-              backgroundColor: "#ffffff",
-              width: "100%",
-              maxWidth: "500px",
-              borderRadius: "12px",
-              overflow: "hidden",
-              boxShadow: "0 15px 40px rgba(0,0,0,0.25)",
-            }}
+            aria-describedby="descripcionConfirmacionEjemplar"
           >
-            <div
-              style={{
-                backgroundColor: "#194b78",
-                color: "white",
-                padding: "18px 22px",
-                fontSize: "22px",
-                fontWeight: "bold",
-              }}
-              id="tituloConfirmacionEjemplar"
-            >
+            <div className={styles.encabezadoModal}>
+              <div className={styles.iconoAdvertencia}>
+                <TriangleAlert size={27} />
+              </div>
+
+              <button
+                type="button"
+                className={styles.cerrar}
+                onClick={cancelarCambio}
+                disabled={guardando}
+                aria-label="Cerrar ventana"
+              >
+                <X size={20} />
+              </button>
+            </div>
+
+            <h3 id="tituloConfirmacionEjemplar">
               {ejemplarSeleccionado.estado === "disponible"
                 ? "Confirmar baja de ejemplar"
                 : "Confirmar reactivación"}
-            </div>
+            </h3>
 
-            <div style={{ padding: "24px" }}>
-              <p style={{ color: "#334155", marginBottom: "12px" }}>
-                {ejemplarSeleccionado.estado === "disponible"
-                  ? "¿Estás seguro de que deseas dar de baja este ejemplar?"
-                  : "¿Deseas reactivar este ejemplar?"}
-              </p>
+            <p id="descripcionConfirmacionEjemplar">
+              {ejemplarSeleccionado.estado === "disponible"
+                ? "¿Deseas dar de baja este ejemplar?"
+                : "¿Deseas reactivar este ejemplar?"}
+            </p>
 
-              <p
-                style={{
-                  color: "#194b78",
-                  fontWeight: "bold",
-                  marginBottom: "6px",
-                }}
+            <strong className={styles.libroEliminar}>
+              {ejemplarSeleccionado.codigo}
+              {" — "}
+              {ejemplarSeleccionado.titulo}
+            </strong>
+
+            <p className={styles.advertencia}>
+              {ejemplarSeleccionado.estado === "disponible"
+                ? "El ejemplar dejará de estar disponible para préstamos."
+                : "El ejemplar volverá a estar disponible para préstamos."}
+            </p>
+
+            <div className={styles.accionesModal}>
+              <button
+                type="button"
+                className={styles.cancelar}
+                onClick={cancelarCambio}
+                disabled={guardando}
               >
-                {ejemplarSeleccionado.codigo}
-              </p>
+                Cancelar
+              </button>
 
-              <p style={{ color: "#334155", marginBottom: "18px" }}>
-                {ejemplarSeleccionado.titulo}
-              </p>
-
-              <div
-                style={{
-                  backgroundColor: "#fef2f2",
-                  border: "1px solid #fecaca",
-                  color: "#b91c1c",
-                  padding: "12px",
-                  borderRadius: "6px",
-                  marginBottom: "20px",
-                }}
+              <button
+                type="button"
+                className={
+                  ejemplarSeleccionado.estado === "disponible"
+                    ? styles.confirmar
+                    : styles.confirmarReactivar
+                }
+                onClick={confirmarCambio}
+                disabled={guardando}
               >
-                {ejemplarSeleccionado.estado === "disponible"
-                  ? "El ejemplar dejará de estar disponible para préstamos."
-                  : "El ejemplar volverá a estar disponible para préstamos."}
-              </div>
-
-              <div
-                style={{
-                  display: "flex",
-                  justifyContent: "flex-end",
-                  gap: "12px",
-                  flexWrap: "wrap",
-                }}
-              >
-                <button
-                  type="button"
-                  onClick={cancelarCambio}
-                  disabled={guardando}
-                  style={{
-                    backgroundColor: "#e2e8f0",
-                    color: "#334155",
-                    padding: "12px 18px",
-                    border: "none",
-                    borderRadius: "6px",
-                    cursor: guardando ? "not-allowed" : "pointer",
-                  }}
-                >
-                  Cancelar
-                </button>
-
-                <button
-                  type="button"
-                  onClick={confirmarCambio}
-                  disabled={guardando}
-                  style={{
-                    backgroundColor:
-                      ejemplarSeleccionado.estado === "disponible"
-                        ? "#b91c1c"
-                        : "#166534",
-                    color: "white",
-                    padding: "12px 18px",
-                    border: "none",
-                    borderRadius: "6px",
-                    cursor: guardando ? "not-allowed" : "pointer",
-                    opacity: guardando ? 0.6 : 1,
-                  }}
-                >
-                  {guardando
-                    ? "Guardando..."
-                    : ejemplarSeleccionado.estado === "disponible"
-                      ? "Sí, dar de baja"
-                      : "Sí, reactivar"}
-                </button>
-              </div>
+                {guardando
+                  ? "Guardando..."
+                  : ejemplarSeleccionado.estado === "disponible"
+                    ? "Sí, dar de baja"
+                    : "Sí, reactivar"}
+              </button>
             </div>
           </div>
         </div>
       )}
-    </div>
+
+    </section>
   );
 }

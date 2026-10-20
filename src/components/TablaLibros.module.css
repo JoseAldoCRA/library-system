@@ -369,3 +369,151 @@
     font-size: 12px;
   }
 }
+
+
+/* ESTILOS ADICIONALES PARA EJEMPLARES */
+
+.filtroEjemplares {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: fit-content;
+  max-width: 100%;
+  margin-bottom: 20px;
+  padding: 0 14px;
+  border: 1px solid #DDE5DC;
+  border-radius: 9px;
+  background: #FFFFFF;
+  color: #54806A;
+}
+
+.filtroEjemplares select {
+  min-width: 190px;
+  max-width: 100%;
+  padding: 12px 0;
+  border: none;
+  outline: none;
+  background: transparent;
+  color: #26352D;
+  font-size: 14px;
+  cursor: pointer;
+}
+
+/* ESTADOS */
+
+.estadoDisponible,
+.estadoPrestado,
+.estadoBaja {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  padding: 7px 10px;
+  border-radius: 7px;
+  font-size: 12px;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.estadoDisponible {
+  background: #E4F3E8;
+  color: #277044;
+}
+
+.estadoPrestado {
+  background: #FFF1DA;
+  color: #946019;
+}
+
+.estadoBaja {
+  background: #ECEFED;
+  color: #66756B;
+}
+
+/* ACCIONES */
+
+.botonBaja,
+.botonReactivar {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  min-width: 116px;
+  padding: 10px 13px;
+  border: none;
+  border-radius: 8px;
+  color: #FFFFFF;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.botonBaja {
+  background: #B42318;
+}
+
+.botonBaja:hover:not(:disabled) {
+  background: #8D1A12;
+}
+
+.botonReactivar {
+  background: #244D3D;
+}
+
+.botonReactivar:hover:not(:disabled) {
+  background: #19382C;
+}
+
+.botonBaja:disabled,
+.botonReactivar:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.sinAcciones {
+  color: #87948B;
+  font-size: 12px;
+}
+
+.confirmarReactivar {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 12px 17px;
+  border: none;
+  border-radius: 8px;
+  background: #244D3D;
+  color: #FFFFFF;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.confirmarReactivar:hover:not(:disabled) {
+  background: #19382C;
+}
+
+.confirmarReactivar:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+/* CONTROLES DE TECLADO */
+
+.botonBaja:focus-visible,
+.botonReactivar:focus-visible,
+.confirmarReactivar:focus-visible {
+  outline: 3px solid #8FBDA2;
+  outline-offset: 2px;
+}
+
+@media (max-width: 650px) {
+  .filtroEjemplares {
+    width: 100%;
+  }
+
+  .filtroEjemplares select {
+    flex: 1;
+    min-width: 0;
+  }
+}
+

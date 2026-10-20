@@ -3,6 +3,8 @@
 import { useEffect, useState } from "react";
 import { listarLibros } from "@/services/librosService";
 import { registrarNuevoEjemplar } from "@/services/ejemplaresService";
+import { BookCopy, Plus } from "lucide-react";
+import styles from "./FormularioLibro.module.css";
 
 export default function FormularioEjemplar({ alRegistrar, actualizacion }) {
   const [libros, setLibros] = useState([]);
@@ -52,75 +54,89 @@ export default function FormularioEjemplar({ alRegistrar, actualizacion }) {
     }
   }
 
-  const estiloInput = {
-    width: "100%",
-    padding: "12px",
-    marginTop: "8px",
-    border: "1px solid #cbd5e1",
-    borderRadius: "6px",
-    backgroundColor: "white",
-    color: "#334155",
-    boxSizing: "border-box",
-  };
-
+  
   return (
-    <div style={{ marginTop: "30px", color: "#334155" }}>
-      <h2 style={{ color: "#194b78", marginBottom: "20px" }}>
-        Registrar ejemplar
-      </h2>
+    <section className={styles.tarjeta}>
+
+      <div className={styles.encabezado}>
+        <div className={styles.icono}>
+          <BookCopy size={25} />
+        </div>
+
+        <div>
+          <h2>Registrar nuevo ejemplar</h2>
+          <p>Agrega una copia física de un libro existente.</p>
+        </div>
+      </div>
 
       <form onSubmit={registrarEjemplar}>
-        <div style={{ display: "grid", gap: "15px" }}>
-          <div>
-            <label htmlFor="libroEjemplar">Libro</label>
+
+        <div className={styles.campos}>
+
+          <div className={styles.grupo}>
+            <label htmlFor="libroEjemplar">
+              Libro
+            </label>
+
             <select
               id="libroEjemplar"
               value={idLibro}
               onChange={(e) => setIdLibro(e.target.value)}
               required
-              style={estiloInput}
             >
               <option value="">Selecciona un libro</option>
+
               {libros.map((libro) => (
-                <option key={libro.id_libro} value={libro.id_libro}>
+                <option
+                  key={libro.id_libro}
+                  value={libro.id_libro}
+                >
                   {libro.titulo}
                 </option>
               ))}
             </select>
           </div>
 
-          <div>
-            <label htmlFor="codigoEjemplar">Código del ejemplar</label>
+          <div className={styles.grupo}>
+            <label htmlFor="codigoEjemplar">
+              Código del ejemplar
+            </label>
+
             <input
               id="codigoEjemplar"
               type="text"
               value={codigo}
               onChange={(e) => setCodigo(e.target.value)}
               required
-              style={estiloInput}
               placeholder="Ejemplo: EJ-003"
             />
           </div>
 
+        </div>
+
+        <div className={styles.acciones}>
           <button
             type="submit"
             disabled={guardando}
-            style={{
-              backgroundColor: "#194b78",
-              color: "white",
-              padding: "12px",
-              border: "none",
-              borderRadius: "6px",
-              cursor: guardando ? "not-allowed" : "pointer",
-              opacity: guardando ? 0.6 : 1,
-            }}
           >
-            {guardando ? "Registrando..." : "Registrar ejemplar"}
+            <Plus size={18} />
+
+            {guardando
+              ? "Registrando..."
+              : "Registrar ejemplar"}
           </button>
         </div>
+
       </form>
 
-      {mensaje && <p style={{ marginTop: "15px" }}>{mensaje}</p>}
-    </div>
+      {mensaje && (
+        <p className={styles.mensaje} role="status">
+          {mensaje}
+        </p>
+      )}
+
+    </section>
   );
 }
+
+
