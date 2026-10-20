@@ -278,6 +278,7 @@ export default function Home() {
             <SlidersHorizontal size={19} />
 
             <select
+              className={styles.selectorCategorias}
               aria-label="Filtrar por categoría"
               value={categoriaSeleccionada}
               onChange={(e) => cambiarCategoria(e.target.value)}
