@@ -13,6 +13,7 @@ import {
   BookCopy,
   Handshake,
   ClipboardCheck,
+  ClipboardList,
   Users,
   ChartColumn,
   ShieldAlert,
@@ -31,6 +32,7 @@ import TablaSanciones from "@/components/TablaSanciones";
 import TablaUsuarios from "@/components/TablaUsuarios";
 import FormularioRegistrarUsuario from "@/components/FormularioRegistrarUsuario";
 import ReportesBiblioteca from "@/components/ReportesBiblioteca";
+import TablaSolicitudes from "@/components/TablaSolicitudes";
 
 import styles from "./bibliotecario.module.css";
 
@@ -100,6 +102,7 @@ export default function PanelBibliotecario() {
     { id: "inicio", nombre: "Inicio", icono: LayoutDashboard },
     { id: "libros", nombre: "Libros", icono: BookOpen },
     { id: "ejemplares", nombre: "Ejemplares", icono: BookCopy },
+    { id: "solicitudes", nombre: "Solicitudes", icono: ClipboardList },
     { id: "prestamos", nombre: "Préstamos", icono: Handshake },
     { id: "devoluciones", nombre: "Devoluciones", icono: ClipboardCheck },
     { id: "usuarios", nombre: "Usuarios", icono: Users },
@@ -277,6 +280,20 @@ export default function PanelBibliotecario() {
               actualizacion={actualizacionLibros}
               alCambiarEstado={actualizarDatos}
             />
+          </div>
+        )}
+
+        {/* SOLICITUDES */}
+
+        {seccion === "solicitudes" && (
+          <div className={styles.seccion}>
+            <div className={styles.bienvenida}>
+              <h2>Gestión de solicitudes</h2>
+              <p>
+                Consulta las solicitudes de estudiantes y docentes.
+              </p>
+            </div>
+            <TablaSolicitudes />
           </div>
         )}
 

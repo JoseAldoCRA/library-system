@@ -1,6 +1,7 @@
 
 import { crearClienteSupabase } from "@/lib/supabaseClient";
 
+
 export async function crearSolicitudPrestamo(idLibro) {
   const supabase = crearClienteSupabase();
 
@@ -79,3 +80,79 @@ export async function cancelarSolicitudPrestamo(idSolicitud) {
   return data;
 }
 
+
+export async function obtenerTodasSolicitudes() {
+  const supabase = crearClienteSupabase();
+
+  const { data, error } = await supabase
+    .from("solicitudes_prestamo")
+    .select(`
+      id_solicitud,
+      id_usuario,
+      id_libro,
+      fecha_solicitud,
+      estado,
+      usuarios (
+        nombre,
+        rol
+      ),
+      libros (
+        titulo,
+        autor,
+        ejemplares (
+          id_ejemplar,
+          codigo,
+          estado
+        )
+      )
+    `)
+    .order("fecha_solicitud", { ascending: false });
+
+  if (error) {
+    throw new Error(error.message);
+  }
+
+  return data || [];
+}
+
+
+export async function rechazarSolicitudPrestamo(idSolicitud) {
+  const supabase = crearClienteSupabase();
+
+  const { data, error } = await supabase.rpc(
+    "rechazar_solicitud_prestamo",
+    {
+      p_id_solicitud: Number(idSolicitud),
+    }
+  );
+
+  if (error) {
+    throw new Error(error.message);
+  }
+
+  return data;
+}
+
+
+export async function aprobarSolicitudPrestamo(
+  idSolicitud,
+  idEjemplar,
+  fechaVencimiento
+) {
+  const supabase = crearClienteSupabase();
+
+  const { data, error } = await supabase.rpc(
+    "aprobar_solicitud_prestamo",
+    {
+      p_id_solicitud: Number(idSolicitud),
+      p_id_ejemplar: Number(idEjemplar),
+      p_fecha_vencimiento: fechaVencimiento,
+    }
+  );
+
+  if (error) {
+    throw new Error(error.message);
+  }
+
+  return data;
+}

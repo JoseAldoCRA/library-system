@@ -1245,3 +1245,97 @@
   outline: 3px solid #E9AAA4;
   outline-offset: 2px;
 }
+
+
+/* APROBACIÓN DE SOLICITUDES */
+
+.accionesSolicitud {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.botonAprobarSolicitud {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 10px 14px;
+  border: none;
+  border-radius: 8px;
+  background: #244D3D;
+  color: #FFFFFF;
+  font-family: inherit;
+  font-size: 12px;
+  font-weight: 600;
+  white-space: nowrap;
+  cursor: pointer;
+}
+
+.botonAprobarSolicitud:hover:not(:disabled) {
+  background: #19382C;
+}
+
+.botonAprobarSolicitud:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.detallesSolicitudAdmin {
+  padding: 15px;
+  margin: 15px 0 20px;
+  background: #F7F9F5;
+  border: 1px solid #DDE5DC;
+  border-radius: 9px;
+}
+
+.detallesSolicitudAdmin p {
+  margin: 5px 0;
+  font-size: 13px;
+  color: #526357;
+}
+
+.detallesSolicitudAdmin strong {
+  color: #244D3D;
+}
+
+.campoSolicitudAdmin {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-bottom: 18px;
+}
+
+.campoSolicitudAdmin label {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  color: #26352D;
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.campoSolicitudAdmin select,
+.campoSolicitudAdmin input {
+  width: 100%;
+  padding: 12px;
+  border: 1px solid #DDE5DC;
+  border-radius: 8px;
+  background: #FFFFFF;
+  color: #26352D;
+  font-family: inherit;
+  font-size: 14px;
+}
+
+.campoSolicitudAdmin select:focus,
+.campoSolicitudAdmin input:focus {
+  outline: none;
+  border-color: #54806A;
+  box-shadow: 0 0 0 3px rgba(84, 128, 106, 0.12);
+}
+
+@media (max-width: 650px) {
+  .accionesSolicitud {
+    flex-wrap: wrap;
+  }
+}

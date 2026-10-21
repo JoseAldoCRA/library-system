@@ -3,31 +3,48 @@
 
 import { useEffect, useState } from "react";
 import { listarCategorias, editarLibro } from "@/services/librosService";
+import { BookOpen, Save, X } from "lucide-react";
+
+import styles from "./FormularioEditarLibro.module.css";
 
 export default function FormularioEditarLibro({
   libro,
   alGuardar,
-  alCancelar
+  alCancelar,
 }) {
-  const [isbn, setIsbn] = useState(libro.isbn);
-  const [titulo, setTitulo] = useState(libro.titulo);
-  const [autor, setAutor] = useState(libro.autor);
-  const [categoria, setCategoria] = useState(String(libro.id_categoria));
+  const [isbn, setIsbn] = useState(libro.isbn || "");
+  const [titulo, setTitulo] = useState(libro.titulo || "");
+  const [autor, setAutor] = useState(libro.autor || "");
+  const [categoria, setCategoria] = useState(
+    String(libro.id_categoria ?? "")
+  );
+
   const [categorias, setCategorias] = useState([]);
   const [mensaje, setMensaje] = useState("");
   const [guardando, setGuardando] = useState(false);
 
   useEffect(() => {
+    let activo = true;
+
     async function cargarCategorias() {
       try {
         const datos = await listarCategorias();
-        setCategorias(datos);
+
+        if (activo) {
+          setCategorias(datos || []);
+        }
       } catch (error) {
-        setMensaje("Error al cargar categorías: " + error.message);
+        if (activo) {
+          setMensaje("Error al cargar categorías: " + error.message);
+        }
       }
     }
 
     cargarCategorias();
+
+    return () => {
+      activo = false;
+    };
   }, []);
 
   async function guardarCambios(evento) {
@@ -40,16 +57,15 @@ export default function FormularioEditarLibro({
 
     try {
       await editarLibro(libro.id_libro, {
-        isbn,
-        titulo,
-        autor,
-        id_categoria: categoria
+        isbn: isbn.trim(),
+        titulo: titulo.trim(),
+        autor: autor.trim(),
+        id_categoria: categoria,
       });
 
       if (alGuardar) {
         alGuardar();
       }
-
     } catch (error) {
       setMensaje("Error: " + error.message);
     } finally {
@@ -57,74 +73,62 @@ export default function FormularioEditarLibro({
     }
   }
 
-  const estiloInput = {
-    width: "100%",
-    padding: "12px",
-    marginTop: "8px",
-    border: "1px solid #cbd5e1",
-    borderRadius: "6px",
-    backgroundColor: "white",
-    color: "#334155",
-    boxSizing: "border-box"
-  };
-
   return (
-    <div
-      style={{
-        marginTop: "25px",
-        padding: "20px",
-        border: "1px solid #cbd5e1",
-        borderRadius: "8px",
-        color: "#334155"
-      }}
-    >
-      <h2 style={{ color: "#194b78", marginBottom: "20px" }}>
-        Editar libro
-      </h2>
+    <section className={styles.tarjeta}>
+      <div className={styles.encabezado}>
+        <div className={styles.icono}>
+          <BookOpen size={24} />
+        </div>
+
+        <div>
+          <h2>Editar libro</h2>
+          <p>Actualiza la información del libro seleccionado.</p>
+        </div>
+      </div>
 
       <form onSubmit={guardarCambios}>
-        <div style={{ display: "grid", gap: "15px" }}>
-          <div>
-            <label>ISBN</label>
+        <div className={styles.campos}>
+          <div className={styles.grupo}>
+            <label htmlFor="editarIsbn">ISBN</label>
             <input
+              id="editarIsbn"
               type="text"
               value={isbn}
-              onChange={(e) => setIsbn(e.target.value)}
+              onChange={(evento) => setIsbn(evento.target.value)}
               required
               maxLength={30}
-              style={estiloInput}
             />
           </div>
 
-          <div>
-            <label>Título</label>
+          <div className={styles.grupo}>
+            <label htmlFor="editarTitulo">Título</label>
             <input
+              id="editarTitulo"
               type="text"
               value={titulo}
-              onChange={(e) => setTitulo(e.target.value)}
+              onChange={(evento) => setTitulo(evento.target.value)}
               required
-              style={estiloInput}
             />
           </div>
 
-          <div>
-            <label>Autor</label>
+          <div className={styles.grupo}>
+            <label htmlFor="editarAutor">Autor</label>
             <input
+              id="editarAutor"
               type="text"
               value={autor}
-              onChange={(e) => setAutor(e.target.value)}
+              onChange={(evento) => setAutor(evento.target.value)}
               required
-              style={estiloInput}
             />
           </div>
 
-          <div>
-            <label>Categoría</label>
+          <div className={styles.grupo}>
+            <label htmlFor="editarCategoria">Categoría</label>
             <select
+              id="editarCategoria"
               value={categoria}
-              onChange={(e) => setCategoria(e.target.value)}
+              onChange={(evento) => setCategoria(evento.target.value)}
               required
-              style={estiloInput}
             >
               <option value="">Selecciona una categoría</option>
 
@@ -138,48 +142,35 @@ export default function FormularioEditarLibro({
               ))}
             </select>
           </div>
+        </div>
 
-          <div style={{ display: "flex", gap: "10px" }}>
-            <button
-              type="submit"
-              disabled={guardando}
-              style={{
-                backgroundColor: "#194b78",
-                color: "white",
-                padding: "12px 20px",
-                border: "none",
-                borderRadius: "6px",
-                cursor: guardando ? "not-allowed" : "pointer",
-                opacity: guardando ? 0.6 : 1
-              }}
-            >
-              {guardando ? "Guardando..." : "Guardar cambios"}
-            </button>
+        <div className={styles.acciones}>
+          <button
+            type="submit"
+            className={styles.guardar}
+            disabled={guardando}
+          >
+            <Save size={17} />
+            {guardando ? "Guardando..." : "Guardar cambios"}
+          </button>
 
-            <button
-              type="button"
-              onClick={alCancelar}
-              disabled={guardando}
-              style={{
-                backgroundColor: "#e2e8f0",
-                color: "#334155",
-                padding: "12px 20px",
-                border: "none",
-                borderRadius: "6px",
-                cursor: "pointer"
-              }}
-            >
-              Cancelar
-            </button>
-          </div>
+          <button
+            type="button"
+            className={styles.cancelar}
+            onClick={alCancelar}
+            disabled={guardando}
+          >
+            <X size={17} />
+            Cancelar
+          </button>
         </div>
       </form>
 
       {mensaje && (
-        <p style={{ marginTop: "15px", color: "#b91c1c" }}>
+        <p className={styles.mensajeError} role="alert">
           {mensaje}
         </p>
       )}
-    </div>
+    </section>
   );
 }

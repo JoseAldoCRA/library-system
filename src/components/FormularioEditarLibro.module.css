@@ -1,0 +1,161 @@
+
+.tarjeta {
+  width: 100%;
+  min-width: 0;
+  margin-top: 24px;
+  margin-bottom: 24px;
+  padding: 26px;
+  background: #FFFFFF;
+  border: 1px solid #DDE5DC;
+  border-radius: 14px;
+  box-sizing: border-box;
+}
+
+.encabezado {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  margin-bottom: 26px;
+}
+
+.icono {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 50px;
+  height: 50px;
+  flex-shrink: 0;
+  color: #244D3D;
+  background: #E4EDE5;
+  border-radius: 12px;
+}
+
+.encabezado h2 {
+  margin: 0 0 5px;
+  color: #244D3D;
+  font-size: 21px;
+  font-weight: 700;
+}
+
+.encabezado p {
+  margin: 0;
+  color: #66756B;
+  font-size: 13px;
+}
+
+.campos {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 20px;
+}
+
+.grupo {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  min-width: 0;
+}
+
+.grupo label {
+  color: #26352D;
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.grupo input,
+.grupo select {
+  width: 100%;
+  min-width: 0;
+  padding: 12px 13px;
+  border: 1px solid #DDE5DC;
+  border-radius: 9px;
+  outline: none;
+  background: #FFFFFF;
+  color: #26352D;
+  font-family: inherit;
+  font-size: 14px;
+  box-sizing: border-box;
+}
+
+.grupo input:focus,
+.grupo select:focus {
+  border-color: #54806A;
+  box-shadow: 0 0 0 3px rgba(84, 128, 106, 0.12);
+}
+
+.acciones {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 11px;
+  margin-top: 25px;
+}
+
+.guardar,
+.cancelar {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 12px 17px;
+  border: none;
+  border-radius: 8px;
+  font-family: inherit;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.2s ease;
+}
+
+.guardar {
+  background: #244D3D;
+  color: #FFFFFF;
+}
+
+.guardar:hover:not(:disabled) {
+  background: #19382C;
+}
+
+.cancelar {
+  background: #E4EDE5;
+  color: #244D3D;
+}
+
+.cancelar:hover:not(:disabled) {
+  background: #D6E3D8;
+}
+
+.guardar:disabled,
+.cancelar:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+
+.guardar:focus-visible,
+.cancelar:focus-visible {
+  outline: 3px solid #8FBDA2;
+  outline-offset: 3px;
+}
+
+.mensajeError {
+  margin-top: 18px;
+  padding: 13px;
+  border-radius: 8px;
+  background: #FEECEB;
+  color: #B42318;
+  font-size: 13px;
+}
+
+@media (max-width: 700px) {
+  .tarjeta {
+    padding: 18px;
+  }
+
+  .campos {
+    grid-template-columns: 1fr;
+  }
+
+  .encabezado {
+    align-items: flex-start;
+  }
+}
