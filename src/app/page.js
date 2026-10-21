@@ -361,23 +361,28 @@ export default function Home() {
                           aria-label={`Ver detalles de ${libro.titulo}`}
                         >
                           <div className={styles.portada}>
-                            {libro.portada_url ? (
+                            <BookOpen size={60} strokeWidth={1.15} />
+
+                            {libro.portada_url && (
                               <img
                                 src={libro.portada_url}
                                 alt={`Portada de ${libro.titulo}`}
                                 loading="lazy"
+                                onError={(e) => {
+                                  e.currentTarget.style.display = "none";
+                                }}
                                 style={{
+                                  position: "absolute",
+                                  top: "50%",
+                                  left: "50%",
+                                  transform: "translate(-50%, -50%)",
                                   width: "auto",
                                   height: "calc(100% - 16px)",
                                   maxWidth: "100%",
                                   objectFit: "contain",
-                                  display: "block",
-                                  margin: "0 auto",
                                   borderRadius: "6px",
                                 }}
                               />
-                            ) : (
-                              <BookOpen size={60} strokeWidth={1.15} />
                             )}
                           </div>
 
