@@ -42,3 +42,6 @@ next-env.d.ts
 
 # Reportes generados por el buscador de portadas
 /reportes/
+
+# Imágenes locales utilizadas en pruebas
+/portadas-locales/  
