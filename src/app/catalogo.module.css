@@ -285,12 +285,13 @@
 
 .portada {
   width: 100%;
-  height: 155px;
+  height: 240px;
   display: flex;
   align-items: center;
   justify-content: center;
   background: #EFF1EC;
   color: #54806A;
+  overflow: hidden;
 }
 
 .informacionLibro {

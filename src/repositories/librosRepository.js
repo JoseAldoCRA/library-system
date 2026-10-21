@@ -11,9 +11,10 @@ export async function obtenerLibros() {
     titulo,
     autor,
     resumen,
+    portada_url,
     id_categoria,
     categorias ( nombre ),
-    ejemplares ( id_ejemplar, estado)
+    ejemplares ( id_ejemplar, estado )
     `)
     .order("id_libro", { ascending: true });
 
@@ -23,7 +24,6 @@ export async function obtenerLibros() {
 
   return data;
 }
-
 
 export async function obtenerCategorias() {
   const supabase = crearClienteSupabase();
@@ -39,7 +39,6 @@ export async function obtenerCategorias() {
 
   return data;
 }
-
 
 export async function insertarLibro(libro) {
   const supabase = crearClienteSupabase();
@@ -57,7 +56,6 @@ export async function insertarLibro(libro) {
   return data;
 }
 
-
 export async function actualizarLibro(idLibro, libro) {
   const supabase = crearClienteSupabase();
 
@@ -74,7 +72,6 @@ export async function actualizarLibro(idLibro, libro) {
 
   return data;
 }
-
 
 export async function contarEjemplaresLibro(idLibro) {
   const supabase = crearClienteSupabase();

@@ -19,12 +19,12 @@ import {
   FileText,
   ArrowLeft,
   ChevronLeft,
-  ChevronRight
+  ChevronRight,
 } from "lucide-react";
 
 import {
   obtenerLibros,
-  obtenerCategorias
+  obtenerCategorias,
 } from "@/repositories/librosRepository";
 
 import { obtenerUsuarioActual } from "@/services/authService";
@@ -56,7 +56,7 @@ export default function Home() {
       try {
         const [datosLibros, datosCategorias] = await Promise.all([
           obtenerLibros(),
-          obtenerCategorias()
+          obtenerCategorias(),
         ]);
 
         setLibros(datosLibros || []);
@@ -144,12 +144,12 @@ export default function Home() {
 
   const totalPaginas = Math.max(
     1,
-    Math.ceil(librosFiltrados.length / LIBROS_POR_PAGINA)
+    Math.ceil(librosFiltrados.length / LIBROS_POR_PAGINA),
   );
 
   const librosPagina = librosFiltrados.slice(
     (paginaActual - 1) * LIBROS_POR_PAGINA,
-    paginaActual * LIBROS_POR_PAGINA
+    paginaActual * LIBROS_POR_PAGINA,
   );
 
   function cambiarBusqueda(valor) {
@@ -167,7 +167,7 @@ export default function Home() {
 
     document.getElementById("catalogo")?.scrollIntoView({
       behavior: "smooth",
-      block: "start"
+      block: "start",
     });
   }
 
@@ -183,11 +183,9 @@ export default function Home() {
 
   function contarDisponibles(libro) {
     return (libro.ejemplares || []).filter(
-      (ejemplar) =>
-        ejemplar.estado?.toLowerCase() === "disponible"
+      (ejemplar) => ejemplar.estado?.toLowerCase() === "disponible",
     ).length;
   }
-
 
   async function solicitarPrestamo() {
     if (!libroSeleccionado) return;
@@ -227,18 +225,14 @@ export default function Home() {
     } else {
       alert("Los préstamos se administran desde el panel del bibliotecario.");
     }
-
   }
-
 
   return (
     <main className={styles.pagina}>
-
       {/* ENCABEZADO */}
 
       <header className={styles.encabezado}>
         <div className={styles.navegacion}>
-
           <Link href="/" className={styles.marca}>
             <LibraryBig size={32} strokeWidth={1.7} />
 
@@ -263,7 +257,6 @@ export default function Home() {
               {consultandoCuenta ? "Cargando..." : "Mi cuenta"}
             </button>
           </div>
-
         </div>
       </header>
 
@@ -271,7 +264,6 @@ export default function Home() {
 
       <section className={styles.bienvenida}>
         <div className={styles.bienvenidaContenido}>
-
           <span className={styles.etiquetaBienvenida}>
             EXPLORA · DESCUBRE · APRENDE
           </span>
@@ -279,8 +271,8 @@ export default function Home() {
           <h1>Cada libro abre un mundo nuevo.</h1>
 
           <p>
-            Descubre nuevas historias, explora autores y
-            encuentra el conocimiento que buscas.
+            Descubre nuevas historias, explora autores y encuentra el
+            conocimiento que buscas.
           </p>
 
           <div className={styles.buscador}>
@@ -294,28 +286,19 @@ export default function Home() {
               onChange={(e) => cambiarBusqueda(e.target.value)}
             />
           </div>
-
         </div>
       </section>
 
       {/* CATÁLOGO */}
 
-      <section
-        id="catalogo"
-        className={styles.seccionCatalogo}
-      >
-
+      <section id="catalogo" className={styles.seccionCatalogo}>
         <div className={styles.tituloSeccion}>
           <div>
-            <span className={styles.etiquetaSeccion}>
-              NUESTRA COLECCIÓN
-            </span>
+            <span className={styles.etiquetaSeccion}>NUESTRA COLECCIÓN</span>
 
             <h2>Explora el catálogo</h2>
 
-            <p>
-              Encuentra tu próxima lectura entre nuestros libros.
-            </p>
+            <p>Encuentra tu próxima lectura entre nuestros libros.</p>
           </div>
 
           <div className={styles.filtroCategoria}>
@@ -341,13 +324,9 @@ export default function Home() {
           </div>
         </div>
 
-        {cargando && (
-          <p className={styles.mensaje}>Cargando libros...</p>
-        )}
+        {cargando && <p className={styles.mensaje}>Cargando libros...</p>}
 
-        {error && (
-          <p className={styles.mensajeError}>{error}</p>
-        )}
+        {error && <p className={styles.mensajeError}>{error}</p>}
 
         {!cargando && !error && (
           <>
@@ -361,14 +340,11 @@ export default function Home() {
 
                 <h3>No encontramos libros</h3>
 
-                <p>
-                  Prueba con otro título, autor o categoría.
-                </p>
+                <p>Prueba con otro título, autor o categoría.</p>
               </div>
             ) : (
               <>
                 <div className={styles.cuadricula}>
-
                   {librosPagina.map((libro) => {
                     const ejemplares = libro.ejemplares || [];
                     const disponibles = contarDisponibles(libro);
@@ -385,28 +361,36 @@ export default function Home() {
                           aria-label={`Ver detalles de ${libro.titulo}`}
                         >
                           <div className={styles.portada}>
-                            <BookOpen
-                              size={60}
-                              strokeWidth={1.15}
-                            />
+                            {libro.portada_url ? (
+                              <img
+                                src={libro.portada_url}
+                                alt={`Portada de ${libro.titulo}`}
+                                loading="lazy"
+                                style={{
+                                  width: "auto",
+                                  height: "calc(100% - 16px)",
+                                  maxWidth: "100%",
+                                  objectFit: "contain",
+                                  display: "block",
+                                  margin: "0 auto",
+                                  borderRadius: "6px",
+                                }}
+                              />
+                            ) : (
+                              <BookOpen size={60} strokeWidth={1.15} />
+                            )}
                           </div>
 
                           <div className={styles.informacionLibro}>
-
                             <span className={styles.categoria}>
-                              {libro.categorias?.nombre ||
-                                "Sin categoría"}
+                              {libro.categorias?.nombre || "Sin categoría"}
                             </span>
 
                             <h3>{libro.titulo}</h3>
 
-                            <p className={styles.autor}>
-                              {libro.autor}
-                            </p>
+                            <p className={styles.autor}>{libro.autor}</p>
 
-                            <p className={styles.isbn}>
-                              ISBN: {libro.isbn}
-                            </p>
+                            <p className={styles.isbn}>ISBN: {libro.isbn}</p>
 
                             <div className={styles.disponibilidad}>
                               <span
@@ -436,13 +420,11 @@ export default function Home() {
                               <span>Ver detalles</span>
                               <ArrowUpRight size={18} />
                             </div>
-
                           </div>
                         </button>
                       </article>
                     );
                   })}
-
                 </div>
 
                 {/* PAGINACIÓN */}
@@ -455,9 +437,7 @@ export default function Home() {
                     <button
                       type="button"
                       disabled={paginaActual === 1}
-                      onClick={() =>
-                        cambiarPagina(paginaActual - 1)
-                      }
+                      onClick={() => cambiarPagina(paginaActual - 1)}
                     >
                       <ChevronLeft size={18} />
                       Anterior
@@ -470,9 +450,7 @@ export default function Home() {
                     <button
                       type="button"
                       disabled={paginaActual === totalPaginas}
-                      onClick={() =>
-                        cambiarPagina(paginaActual + 1)
-                      }
+                      onClick={() => cambiarPagina(paginaActual + 1)}
                     >
                       Siguiente
                       <ChevronRight size={18} />
@@ -483,16 +461,12 @@ export default function Home() {
             )}
           </>
         )}
-
       </section>
 
       {/* VENTANA DE DETALLES */}
 
       {libroSeleccionado && (
-        <div
-          className={styles.fondoModal}
-          onClick={cerrarLibro}
-        >
+        <div className={styles.fondoModal} onClick={cerrarLibro}>
           <div
             className={styles.modalLibro}
             role="dialog"
@@ -500,7 +474,6 @@ export default function Home() {
             aria-labelledby="tituloLibroSeleccionado"
             onClick={(e) => e.stopPropagation()}
           >
-
             <button
               type="button"
               className={styles.cerrarModal}
@@ -514,17 +487,12 @@ export default function Home() {
               <BookOpen size={55} strokeWidth={1.3} />
             </div>
 
-            <h2 id="tituloLibroSeleccionado">
-              {libroSeleccionado.titulo}
-            </h2>
+            <h2 id="tituloLibroSeleccionado">{libroSeleccionado.titulo}</h2>
 
-            <p className={styles.autorModal}>
-              {libroSeleccionado.autor}
-            </p>
+            <p className={styles.autorModal}>{libroSeleccionado.autor}</p>
 
             {!mostrarResumen ? (
               <div className={styles.opcionesModal}>
-
                 <button
                   type="button"
                   onClick={solicitarPrestamo}
@@ -542,11 +510,9 @@ export default function Home() {
                   <FileText size={19} />
                   Ver resumen
                 </button>
-
               </div>
             ) : (
               <div className={styles.contenidoResumen}>
-
                 <h3>Resumen del libro</h3>
 
                 <p>
@@ -562,10 +528,8 @@ export default function Home() {
                   <ArrowLeft size={18} />
                   Volver a las opciones
                 </button>
-
               </div>
             )}
-
           </div>
         </div>
       )}
@@ -580,7 +544,6 @@ export default function Home() {
 
         <p>Un espacio para descubrir y aprender.</p>
       </footer>
-
     </main>
   );
 }
