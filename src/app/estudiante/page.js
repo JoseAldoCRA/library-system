@@ -407,6 +407,24 @@ export default function PanelEstudiante() {
               <button
                 type="button"
                 className={styles.tarjeta}
+                onClick={() => setSeccion("solicitudes")}
+              >
+                <div className={styles.icono}>
+                  <ClipboardList size={23} />
+                </div>
+
+                <h3>Mis solicitudes</h3>
+
+                <p>
+                  Revisa el estado de tus solicitudes.
+                </p>
+
+                <ArrowUpRight size={17} />
+              </button>
+
+              <button
+                type="button"
+                className={styles.tarjeta}
                 onClick={() => setSeccion("prestamos")}
               >
                 <div className={styles.icono}>
@@ -415,7 +433,7 @@ export default function PanelEstudiante() {
 
                 <h3>Mis préstamos</h3>
                 <p>
-                  Consulta tus libros prestados y fechas de entrega.
+                  Consulta libros y vencimientos.
                 </p>
                 <ArrowUpRight size={17} />
               </button>
@@ -431,7 +449,7 @@ export default function PanelEstudiante() {
 
                 <h3>Mis sanciones</h3>
                 <p>
-                  Consulta las multas relacionadas con tus préstamos.
+                  Consulta multas y restricciones.
                 </p>
                 <ArrowUpRight size={17} />
               </button>
