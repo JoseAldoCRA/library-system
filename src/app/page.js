@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
+import { crearClienteSupabase } from "@/lib/supabaseClient";
 
 import {
   LibraryBig,
@@ -186,6 +187,49 @@ export default function Home() {
         ejemplar.estado?.toLowerCase() === "disponible"
     ).length;
   }
+
+
+  async function solicitarPrestamo() {
+    if (!libroSeleccionado) return;
+
+    const supabase = crearClienteSupabase();
+
+    const {
+      data: { user },
+      error,
+    } = await supabase.auth.getUser();
+
+    const idLibro = libroSeleccionado.id_libro;
+
+    // Si no ha iniciado sesión, enviarlo al login
+    if (error || !user) {
+      router.push(`/login?libro=${idLibro}`);
+      return;
+    }
+
+    // Consultar el perfil del usuario
+    const { data: perfil, error: errorPerfil } = await supabase
+      .from("usuarios")
+      .select("rol, estado")
+      .eq("auth_user_id", user.id)
+      .single();
+
+    if (errorPerfil || !perfil || perfil.estado !== "activo") {
+      alert("Tu cuenta no está activa o no se pudo verificar.");
+      return;
+    }
+
+    // Redirigir según su rol
+    if (perfil.rol === "estudiante") {
+      router.push(`/estudiante?libro=${idLibro}`);
+    } else if (perfil.rol === "docente") {
+      router.push(`/docente?libro=${idLibro}`);
+    } else {
+      alert("Los préstamos se administran desde el panel del bibliotecario.");
+    }
+
+  }
+
 
   return (
     <main className={styles.pagina}>
@@ -481,13 +525,14 @@ export default function Home() {
             {!mostrarResumen ? (
               <div className={styles.opcionesModal}>
 
-                <Link
-                  href={`/login?libro=${libroSeleccionado.id_libro}`}
+                <button
+                  type="button"
+                  onClick={solicitarPrestamo}
                   className={styles.solicitarPrestamo}
                 >
                   <BookPlus size={19} />
                   Solicitar préstamo
-                </Link>
+                </button>
 
                 <button
                   type="button"

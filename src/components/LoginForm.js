@@ -3,7 +3,7 @@
 import { useState } from "react";
 import styles from "@/app/page.module.css";
 import { iniciarSesion, registrarCuenta } from "@/services/authService";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 
 import {
   LibraryBig,
@@ -18,6 +18,8 @@ import {
 
 export default function LoginForm() {
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const libroSeleccionado = searchParams.get("libro");
 
   const [modoRegistro, setModoRegistro] = useState(false);
   const [mostrarContrasena, setMostrarContrasena] = useState(false);
@@ -79,20 +81,36 @@ export default function LoginForm() {
         const resultado = await iniciarSesion(correo, contrasena);
 
         if (resultado.exito) {
+          const idLibro = Number(libroSeleccionado);
+
+          const tieneLibro =
+            libroSeleccionado !== null &&
+            Number.isSafeInteger(idLibro) &&
+            idLibro > 0;
+
           if (resultado.usuario.rol === "bibliotecario") {
             router.replace("/bibliotecario");
+
           } else if (resultado.usuario.rol === "estudiante") {
-            router.replace("/estudiante");
+            if (tieneLibro) {
+              router.replace(`/estudiante?libro=${idLibro}`);
+            } else {
+              router.replace("/estudiante");
+            }
+
           } else if (resultado.usuario.rol === "docente") {
-            router.replace("/docente");
+            if (tieneLibro) {
+              router.replace(`/docente?libro=${idLibro}`);
+            } else {
+              router.replace("/docente");
+            }
+
           } else {
             setEsError(true);
             setMensaje("No tienes un rol válido para ingresar.");
           }
-        } else {
-          setEsError(true);
-          setMensaje(resultado.mensaje);
         }
+
       }
     } catch (error) {
       setEsError(true);
@@ -114,7 +132,7 @@ export default function LoginForm() {
     setRol("");
   }
 
- 
+
   return (
     <div className={styles.tarjetaLogin}>
 
@@ -272,11 +290,10 @@ export default function LoginForm() {
 
       {mensaje && (
         <p
-          className={`${styles.mensajeLogin} ${
-            esError
+          className={`${styles.mensajeLogin} ${esError
               ? styles.mensajeError
               : styles.mensajeExito
-          }`}
+            }`}
           role="status"
         >
           {mensaje}

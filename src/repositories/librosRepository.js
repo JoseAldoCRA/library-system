@@ -107,3 +107,30 @@ export async function eliminarLibro(idLibro) {
 
   return data;
 }
+
+
+export async function obtenerLibroPorId(idLibro) {
+  const supabase = crearClienteSupabase();
+
+  const { data, error } = await supabase
+    .from("libros")
+    .select(`
+      id_libro,
+      isbn,
+      titulo,
+      autor,
+      resumen,
+      id_categoria,
+      categorias ( nombre ),
+      ejemplares ( id_ejemplar, estado )
+    `)
+    .eq("id_libro", idLibro)
+    .maybeSingle();
+
+  if (error) {
+    throw new Error(error.message);
+  }
+
+  return data;
+}
+

@@ -258,3 +258,56 @@
     align-items: flex-start;
   }
 }
+
+
+/* SOLICITUD DE PRÉSTAMO */
+
+.detalleSolicitud {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 15px;
+  padding: 28px;
+  border: 1px solid #DDE5DC;
+  border-radius: 12px;
+  background: #FFFFFF;
+}
+
+.detalleSolicitud h2 {
+  color: #244D3D;
+  font-size: 23px;
+}
+
+.detalleSolicitud p {
+  color: #526357;
+  font-size: 14px;
+  line-height: 1.6;
+}
+
+.detalleSolicitud strong {
+  color: #244D3D;
+}
+
+.botonConfirmarSolicitud {
+  display: inline-flex;
+  justify-content: center;
+  align-items: center;
+  padding: 13px 20px;
+  border: none;
+  border-radius: 8px;
+  background: #244D3D;
+  color: #FFFFFF;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.botonConfirmarSolicitud:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.detalleSolicitud .avisoSolicitud {
+  color: #66756B;
+  font-size: 12px;
+}
