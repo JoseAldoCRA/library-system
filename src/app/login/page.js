@@ -1,17 +1,10 @@
-import Link from "next/link";
-import { ArrowLeft } from "lucide-react";
-import styles from "../page.module.css";
-import LoginForm from "@/components/LoginForm";
+import { Suspense } from "react";
+import LoginContenido from "./LoginContenido";
 
 export default function LoginPage() {
   return (
-    <main className={styles.fondoLogin}>
-      <Link href="/" className={styles.volverCatalogo}>
-        <ArrowLeft size={18} />
-        Volver al catálogo
-      </Link>
-
-      <LoginForm />
-    </main>
+    <Suspense fallback={<p>Cargando inicio de sesión...</p>}>
+      <LoginContenido />
+    </Suspense>
   );
 }
