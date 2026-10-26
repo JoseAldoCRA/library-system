@@ -1,29 +1,43 @@
-
 .panel {
   display: flex;
   min-height: 100vh;
+  padding-left: 245px;
   background: #FAF9F6;
   color: #26352D;
 }
 
 .cargando {
   padding: 40px;
-  color: #244D3D;
+  color: #244d3d;
 }
 
 /* MENÚ LATERAL */
 
 .sidebar {
-  width: 255px;
-  min-width: 255px;
+  width: 245px;
+  min-width: 245px;
+  height: 100vh;
   min-height: 100vh;
-  padding: 28px 16px;
+  padding: 22px 15px;
+
   background: #244D3D;
   color: #FFFFFF;
 
   display: flex;
   flex-direction: column;
-  gap: 24px;
+  gap: 14px;
+
+  position: fixed;
+  top: 0;
+  left: 0;
+  z-index: 100;
+
+  overflow-y: auto;
+  scrollbar-width: none;
+}
+
+.sidebar::-webkit-scrollbar {
+  display: none;
 }
 
 .marca {
@@ -31,7 +45,7 @@
   align-items: center;
   gap: 12px;
   padding: 5px 10px 22px;
-  border-bottom: 1px solid #54806A;
+  border-bottom: 1px solid #54806a;
 }
 
 .marca div {
@@ -48,12 +62,12 @@
 .marca small {
   font-size: 10px;
   letter-spacing: 1.5px;
-  color: #D5E4D8;
+  color: #d5e4d8;
 }
 
 .etiquetaMenu {
   padding: 0 12px;
-  color: #B5C9BC;
+  color: #b5c9bc;
   font-size: 11px;
   letter-spacing: 1.5px;
 }
@@ -84,23 +98,23 @@
 
 .opcionMenu {
   background: transparent;
-  color: #E4EDE5;
+  color: #e4ede5;
 }
 
 .opcionMenu:hover {
-  background: #365E4D;
+  background: #365e4d;
 }
 
 .opcionActiva {
-  background: #54806A;
-  color: #FFFFFF;
+  background: #54806a;
+  color: #ffffff;
   font-weight: 600;
 }
 
 .menuInferior {
   margin-top: auto;
   padding-top: 20px;
-  border-top: 1px solid #54806A;
+  border-top: 1px solid #54806a;
   display: flex;
   flex-direction: column;
   gap: 5px;
@@ -126,17 +140,17 @@
   font-size: 11px;
   font-weight: 700;
   letter-spacing: 2px;
-  color: #54806A;
+  color: #54806a;
 }
 
 .encabezado h1 {
-  color: #244D3D;
+  color: #244d3d;
   font-size: 30px;
   margin: 8px 0;
 }
 
 .encabezado p {
-  color: #66756B;
+  color: #66756b;
   font-size: 14px;
 }
 
@@ -146,9 +160,9 @@
   gap: 10px;
   padding: 12px 16px;
   border-radius: 10px;
-  background: #FFFFFF;
-  border: 1px solid #DDE5DC;
-  color: #244D3D;
+  background: #ffffff;
+  border: 1px solid #dde5dc;
+  color: #244d3d;
   font-size: 13px;
   font-weight: 600;
 }
@@ -156,14 +170,14 @@
 /* INICIO */
 
 .bienvenida {
-  background: #E4EDE5;
+  background: #e4ede5;
   border-radius: 15px;
   padding: 30px;
   margin-bottom: 30px;
 }
 
 .bienvenida h2 {
-  color: #244D3D;
+  color: #244d3d;
   font-size: 24px;
   margin-bottom: 12px;
 }
@@ -187,11 +201,11 @@
   gap: 12px;
 
   padding: 24px;
-  background: #FFFFFF;
-  border: 1px solid #DDE5DC;
+  background: #ffffff;
+  border: 1px solid #dde5dc;
   border-radius: 13px;
 
-  color: #244D3D;
+  color: #244d3d;
   text-align: left;
   font-family: inherit;
   cursor: pointer;
@@ -203,7 +217,7 @@
 
 .tarjetaAcceso:hover {
   transform: translateY(-3px);
-  box-shadow: 0 8px 22px rgba(36, 77, 61, 0.10);
+  box-shadow: 0 8px 22px rgba(36, 77, 61, 0.1);
 }
 
 .iconoAcceso {
@@ -212,7 +226,7 @@
   justify-content: center;
   width: 52px;
   height: 52px;
-  background: #E4EDE5;
+  background: #e4ede5;
   border-radius: 12px;
 }
 
@@ -221,7 +235,7 @@
 }
 
 .tarjetaAcceso span {
-  color: #66756B;
+  color: #66756b;
   font-size: 13px;
 }
 
@@ -235,7 +249,7 @@
 .opcionMenu:focus-visible,
 .opcionActiva:focus-visible,
 .tarjetaAcceso:focus-visible {
-  outline: 3px solid #8FBDA2;
+  outline: 3px solid #8fbda2;
   outline-offset: 2px;
 }
 
@@ -250,13 +264,17 @@
 @media (max-width: 850px) {
   .panel {
     flex-direction: column;
+    padding-left: 0;
   }
 
   .sidebar {
     width: 100%;
     min-width: 0;
     min-height: auto;
+    height: auto;
     padding: 18px;
+    position: static;
+    overflow-y: visible;
   }
 
   .menu {
