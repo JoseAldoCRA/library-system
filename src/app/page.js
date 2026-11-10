@@ -49,6 +49,9 @@ export default function Home() {
   const [consultandoCuenta, setConsultandoCuenta] = useState(false);
   const [paginaActual, setPaginaActual] = useState(1);
 
+  const [menuCategoriasAbierto, setMenuCategoriasAbierto] = useState(false);
+  const [busquedaCategoria, setBusquedaCategoria] = useState("");
+
   // Consultar libros y categorías
 
   useEffect(() => {
@@ -227,6 +230,16 @@ export default function Home() {
     }
   }
 
+  const nombreCategoriaSeleccionada =
+    categorias.find(
+      (categoria) =>
+        String(categoria.id_categoria) === String(categoriaSeleccionada),
+    )?.nombre || "Todas las categorías";
+
+  const categoriasVisibles = categorias.filter((categoria) =>
+    categoria.nombre.toLowerCase().includes(busquedaCategoria.toLowerCase()),
+  );
+
   return (
     <main className={styles.pagina}>
       {/* ENCABEZADO */}
@@ -301,26 +314,97 @@ export default function Home() {
             <p>Encuentra tu próxima lectura entre nuestros libros.</p>
           </div>
 
-          <div className={styles.filtroCategoria}>
-            <SlidersHorizontal size={19} />
-
-            <select
-              className={styles.selectorCategorias}
-              aria-label="Filtrar por categoría"
-              value={categoriaSeleccionada}
-              onChange={(e) => cambiarCategoria(e.target.value)}
+          <div className={styles.filtroCategoriaModerno}>
+            <button
+              type="button"
+              className={styles.botonFiltroCategorias}
+              aria-expanded={menuCategoriasAbierto}
+              aria-controls="lista-categorias"
+              onClick={() => setMenuCategoriasAbierto(!menuCategoriasAbierto)}
             >
-              <option value="">Todas las categorías</option>
+              <SlidersHorizontal size={19} />
 
-              {categorias.map((categoria) => (
-                <option
-                  key={categoria.id_categoria}
-                  value={String(categoria.id_categoria)}
-                >
-                  {categoria.nombre}
-                </option>
-              ))}
-            </select>
+              <span>{nombreCategoriaSeleccionada}</span>
+
+              <span className={styles.flechaCategoria}>
+                {menuCategoriasAbierto ? "⌃" : "⌄"}
+              </span>
+            </button>
+
+            {menuCategoriasAbierto && (
+              <div
+                id="lista-categorias"
+                className={styles.panelCategorias}
+                onKeyDown={(e) => {
+                  if (e.key === "Escape") {
+                    setMenuCategoriasAbierto(false);
+                    setBusquedaCategoria("");
+                  }
+                }}
+              >
+                <input
+                  type="text"
+                  className={styles.buscarCategoria}
+                  placeholder="Buscar categoría..."
+                  aria-label="Buscar categoría"
+                  value={busquedaCategoria}
+                  onChange={(e) => setBusquedaCategoria(e.target.value)}
+                />
+
+                <div className={styles.listaCategorias}>
+                  <button
+                    type="button"
+                    aria-pressed={categoriaSeleccionada === ""}
+                    className={`${styles.opcionCategoria} ${
+                      categoriaSeleccionada === "" ? styles.categoriaActiva : ""
+                    }`}
+                    onClick={() => {
+                      cambiarCategoria("");
+                      setMenuCategoriasAbierto(false);
+                      setBusquedaCategoria("");
+                    }}
+                  >
+                    Todas las categorías
+                    {categoriaSeleccionada === "" && <span>✓</span>}
+                  </button>
+
+                  {categoriasVisibles.map((categoria) => {
+                    const seleccionada =
+                      String(categoria.id_categoria) ===
+                      String(categoriaSeleccionada);
+
+                    return (
+                      <button
+                        type="button"
+                        key={categoria.id_categoria}
+                        aria-pressed={seleccionada}
+                        className={`${styles.opcionCategoria} ${
+                          seleccionada ? styles.categoriaActiva : ""
+                        }`}
+                        onClick={() => {
+                          cambiarCategoria(String(categoria.id_categoria));
+                          setMenuCategoriasAbierto(false);
+                          setBusquedaCategoria("");
+                        }}
+                      >
+                        {categoria.nombre}
+                        {seleccionada && <span>✓</span>}
+                      </button>
+                    );
+                  })}
+
+                  {categoriasVisibles.length === 0 && (
+                    <p className={styles.sinCategorias}>
+                      No se encontraron categorías.
+                    </p>
+                  )}
+                </div>
+
+                <div className={styles.pieCategorias}>
+                  {categorias.length} categorías disponibles
+                </div>
+              </div>
+            )}
           </div>
         </div>
 
