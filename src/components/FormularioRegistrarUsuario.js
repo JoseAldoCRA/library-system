@@ -1,9 +1,10 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { crearClienteSupabase } from "@/lib/supabaseClient";
-import { UserPlus, Plus, Eye, EyeOff } from "lucide-react";
+import { UserPlus, Plus, Eye, EyeOff, SlidersHorizontal } from "lucide-react";
 import styles from "./FormularioLibro.module.css";
+import estilosCategorias from "@/app/catalogo.module.css";
 
 export default function FormularioRegistrarUsuario({ alRegistrar }) {
   const [nombre, setNombre] = useState("");
@@ -16,12 +17,61 @@ export default function FormularioRegistrarUsuario({ alRegistrar }) {
   const [mostrarContrasena, setMostrarContrasena] = useState(false);
   const [mostrarConfirmacion, setMostrarConfirmacion] = useState(false);
 
+  const [menuRolesAbierto, setMenuRolesAbierto] = useState(false);
+  const [busquedaRol, setBusquedaRol] = useState("");
+  const selectorRolRef = useRef(null);
+
+  const opcionesRol = [
+    { valor: "estudiante", nombre: "Estudiante" },
+    { valor: "docente", nombre: "Docente" },
+  ];
+
+  const rolSeleccionado =
+    opcionesRol.find((opcion) => opcion.valor === rol)?.nombre ||
+    "Selecciona un rol";
+
+  const rolesVisibles = opcionesRol.filter((opcion) =>
+    opcion.nombre.toLowerCase().includes(busquedaRol.toLowerCase().trim()),
+  );
+
+  useEffect(() => {
+    function cerrarSelector(evento) {
+      if (
+        selectorRolRef.current &&
+        !selectorRolRef.current.contains(evento.target)
+      ) {
+        setMenuRolesAbierto(false);
+        setBusquedaRol("");
+      }
+    }
+
+    function cerrarConEscape(evento) {
+      if (evento.key === "Escape") {
+        setMenuRolesAbierto(false);
+        setBusquedaRol("");
+      }
+    }
+
+    document.addEventListener("mousedown", cerrarSelector);
+    document.addEventListener("keydown", cerrarConEscape);
+
+    return () => {
+      document.removeEventListener("mousedown", cerrarSelector);
+      document.removeEventListener("keydown", cerrarConEscape);
+    };
+  }, []);
+
   async function registrarUsuario(evento) {
     evento.preventDefault();
 
     if (guardando) return;
 
     setMensaje("");
+
+    if (!rol) {
+      setMensaje("Error: Selecciona un rol antes de registrar el usuario.");
+      return;
+    }
 
     if (contrasena.length < 8 || contrasena.length > 72) {
       setMensaje("Error: La contraseña debe tener entre 8 y 72 caracteres.");
@@ -67,7 +117,9 @@ export default function FormularioRegistrarUsuario({ alRegistrar }) {
         throw new Error(datos.error || "No se pudo registrar el usuario.");
       }
 
-      setMensaje("Cuenta creada correctamente. El usuario ya puede iniciar sesión.");
+      setMensaje(
+        "Cuenta creada correctamente. El usuario ya puede iniciar sesión.",
+      );
 
       setNombre("");
       setCorreo("");
@@ -85,10 +137,8 @@ export default function FormularioRegistrarUsuario({ alRegistrar }) {
     }
   }
 
-  
   return (
     <section className={styles.tarjeta}>
-
       <div className={styles.encabezado}>
         <div className={styles.icono}>
           <UserPlus size={25} />
@@ -96,20 +146,14 @@ export default function FormularioRegistrarUsuario({ alRegistrar }) {
 
         <div>
           <h2>Registrar nuevo usuario</h2>
-          <p>
-            Crea cuentas para estudiantes y docentes de la biblioteca.
-          </p>
+          <p>Crea cuentas para estudiantes y docentes de la biblioteca.</p>
         </div>
       </div>
 
       <form onSubmit={registrarUsuario}>
-
         <div className={styles.campos}>
-
           <div className={styles.grupo}>
-            <label htmlFor="nombreUsuario">
-              Nombre completo
-            </label>
+            <label htmlFor="nombreUsuario">Nombre completo</label>
 
             <input
               id="nombreUsuario"
@@ -123,9 +167,7 @@ export default function FormularioRegistrarUsuario({ alRegistrar }) {
           </div>
 
           <div className={styles.grupo}>
-            <label htmlFor="correoUsuario">
-              Correo electrónico
-            </label>
+            <label htmlFor="correoUsuario">Correo electrónico</label>
 
             <input
               id="correoUsuario"
@@ -138,35 +180,98 @@ export default function FormularioRegistrarUsuario({ alRegistrar }) {
           </div>
 
           <div className={styles.grupo}>
-            <label htmlFor="rolUsuario">
-              Rol
-            </label>
-
-            <select
-              id="rolUsuario"
-              value={rol}
-              onChange={(evento) => setRol(evento.target.value)}
-              required
+            <label htmlFor="rolUsuario">Rol</label>
+            <div
+              ref={selectorRolRef}
+              className={estilosCategorias.filtroCategoriaModerno}
+              style={{ width: "100%", marginLeft: 0 }}
             >
-              <option value="">Selecciona un rol</option>
-              <option value="estudiante">Estudiante</option>
-              <option value="docente">Docente</option>
-            </select>
+              <button
+                id="rolUsuario"
+                type="button"
+                className={estilosCategorias.botonFiltroCategorias}
+                style={{
+                  height: "49px",
+                  minHeight: "49px",
+                  padding: "0 16px",
+                  boxSizing: "border-box",
+                }}
+                aria-expanded={menuRolesAbierto}
+                aria-controls="lista-roles-usuario"
+                aria-required="true"
+                onClick={() => {
+                  setMenuRolesAbierto(!menuRolesAbierto);
+                  setBusquedaRol("");
+                }}
+              >
+                <SlidersHorizontal size={19} />
+
+                <span>{rolSeleccionado}</span>
+
+                <span className={estilosCategorias.flechaCategoria}>
+                  {menuRolesAbierto ? "⌃" : "⌄"}
+                </span>
+              </button>
+
+              {menuRolesAbierto && (
+                <div
+                  id="lista-roles-usuario"
+                  className={estilosCategorias.panelCategorias}
+                >
+                  <input
+                    type="search"
+                    className={estilosCategorias.buscarCategoria}
+                    placeholder="Buscar rol..."
+                    aria-label="Buscar rol"
+                    value={busquedaRol}
+                    onChange={(evento) => setBusquedaRol(evento.target.value)}
+                  />
+
+                  <div className={estilosCategorias.listaCategorias}>
+                    {rolesVisibles.map((opcion) => (
+                      <button
+                        key={opcion.valor}
+                        type="button"
+                        className={`${estilosCategorias.opcionCategoria} ${
+                          rol === opcion.valor
+                            ? estilosCategorias.categoriaActiva
+                            : ""
+                        }`}
+                        onClick={() => {
+                          setRol(opcion.valor);
+                          setMenuRolesAbierto(false);
+                          setBusquedaRol("");
+                        }}
+                      >
+                        <span>{opcion.nombre}</span>
+                        {rol === opcion.valor && <span>✓</span>}
+                      </button>
+                    ))}
+
+                    {rolesVisibles.length === 0 && (
+                      <p className={estilosCategorias.sinCategorias}>
+                        No se encontraron roles.
+                      </p>
+                    )}
+                  </div>
+
+                  <div className={estilosCategorias.pieCategorias}>
+                    2 roles disponibles
+                  </div>
+                </div>
+              )}
+            </div>
           </div>
 
           <div className={styles.grupo}>
-            <label htmlFor="contrasenaUsuario">
-              Contraseña inicial
-            </label>
+            <label htmlFor="contrasenaUsuario">Contraseña inicial</label>
 
             <div className={styles.campoContrasena}>
               <input
                 id="contrasenaUsuario"
                 type={mostrarContrasena ? "text" : "password"}
                 value={contrasena}
-                onChange={(evento) =>
-                  setContrasena(evento.target.value)
-                }
+                onChange={(evento) => setContrasena(evento.target.value)}
                 placeholder="Mínimo 8 caracteres"
                 minLength={8}
                 maxLength={72}
@@ -176,18 +281,14 @@ export default function FormularioRegistrarUsuario({ alRegistrar }) {
 
               <button
                 type="button"
-                onClick={() =>
-                  setMostrarContrasena(!mostrarContrasena)
-                }
+                onClick={() => setMostrarContrasena(!mostrarContrasena)}
                 aria-label={
                   mostrarContrasena
                     ? "Ocultar contraseña"
                     : "Mostrar contraseña"
                 }
               >
-                {mostrarContrasena
-                  ? <EyeOff size={19} />
-                  : <Eye size={19} />}
+                {mostrarContrasena ? <EyeOff size={19} /> : <Eye size={19} />}
               </button>
             </div>
           </div>
@@ -200,9 +301,7 @@ export default function FormularioRegistrarUsuario({ alRegistrar }) {
             <div className={styles.campoContrasena}>
               <input
                 id="confirmarContrasenaUsuario"
-                type={
-                  mostrarConfirmacion ? "text" : "password"
-                }
+                type={mostrarConfirmacion ? "text" : "password"}
                 value={confirmarContrasena}
                 onChange={(evento) =>
                   setConfirmarContrasena(evento.target.value)
@@ -216,49 +315,38 @@ export default function FormularioRegistrarUsuario({ alRegistrar }) {
 
               <button
                 type="button"
-                onClick={() =>
-                  setMostrarConfirmacion(!mostrarConfirmacion)
-                }
+                onClick={() => setMostrarConfirmacion(!mostrarConfirmacion)}
                 aria-label={
                   mostrarConfirmacion
                     ? "Ocultar confirmación"
                     : "Mostrar confirmación"
                 }
               >
-                {mostrarConfirmacion
-                  ? <EyeOff size={19} />
-                  : <Eye size={19} />}
+                {mostrarConfirmacion ? <EyeOff size={19} /> : <Eye size={19} />}
               </button>
             </div>
           </div>
-
         </div>
 
         <div className={styles.acciones}>
           <button type="submit" disabled={guardando}>
             <Plus size={18} />
 
-            {guardando
-              ? "Registrando..."
-              : "Registrar usuario"}
+            {guardando ? "Registrando..." : "Registrar usuario"}
           </button>
         </div>
-
       </form>
 
       {mensaje && (
         <p
           role="status"
           className={
-            mensaje.startsWith("Error")
-              ? styles.mensajeError
-              : styles.mensaje
+            mensaje.startsWith("Error") ? styles.mensajeError : styles.mensaje
           }
         >
           {mensaje}
         </p>
       )}
-
     </section>
   );
 }
