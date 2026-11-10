@@ -1,15 +1,9 @@
-
 "use client";
 
-import { useEffect, useState } from "react";
+import { Fragment, useEffect, useState } from "react";
 import { listarHistorialDevoluciones } from "@/services/prestamosService";
 
-import {
-  BookCheck,
-  Search,
-  ChevronLeft,
-  ChevronRight
-} from "lucide-react";
+import { BookCheck, Search, ChevronLeft, ChevronRight } from "lucide-react";
 
 import styles from "./TablaLibros.module.css";
 
@@ -71,16 +65,24 @@ export default function TablaDevoluciones({ actualizacion }) {
     );
   });
 
-  const totalPaginas = Math.max(
-    1,
-    Math.ceil(filtradas.length / 10)
-  );
+  const totalPaginas = Math.max(1, Math.ceil(filtradas.length / 10));
 
   const paginaVisible = Math.min(pagina, totalPaginas);
 
+  const paginasNumeradas = Array.from(
+    { length: totalPaginas },
+    (_, indice) => indice + 1,
+  ).filter(
+    (numero) =>
+      totalPaginas <= 9 ||
+      numero === 1 ||
+      numero === totalPaginas ||
+      Math.abs(numero - paginaVisible) <= 2,
+  );
+
   const devolucionesPagina = filtradas.slice(
     (paginaVisible - 1) * 10,
-    paginaVisible * 10
+    paginaVisible * 10,
   );
 
   function tieneRetraso(item) {
@@ -89,14 +91,12 @@ export default function TablaDevoluciones({ actualizacion }) {
     }
 
     return (
-      item.fecha_devolucion.split("T")[0] >
-      item.fecha_vencimiento.split("T")[0]
+      item.fecha_devolucion.split("T")[0] > item.fecha_vencimiento.split("T")[0]
     );
   }
 
   return (
     <section className={styles.tarjeta}>
-
       <div className={styles.encabezado}>
         <div className={styles.titulo}>
           <div className={styles.icono}>
@@ -105,15 +105,11 @@ export default function TablaDevoluciones({ actualizacion }) {
 
           <div>
             <h2>Historial de devoluciones</h2>
-            <p>
-              Consulta los ejemplares que ya fueron devueltos.
-            </p>
+            <p>Consulta los ejemplares que ya fueron devueltos.</p>
           </div>
         </div>
 
-        <span className={styles.total}>
-          {devoluciones.length} devoluciones
-        </span>
+        <span className={styles.total}>{devoluciones.length} devoluciones</span>
       </div>
 
       <div className={styles.buscador}>
@@ -131,17 +127,9 @@ export default function TablaDevoluciones({ actualizacion }) {
         />
       </div>
 
-      {cargando && (
-        <p className={styles.mensaje}>
-          Cargando devoluciones...
-        </p>
-      )}
+      {cargando && <p className={styles.mensaje}>Cargando devoluciones...</p>}
 
-      {error && (
-        <p className={styles.mensajeError}>
-          Error: {error}
-        </p>
-      )}
+      {error && <p className={styles.mensajeError}>Error: {error}</p>}
 
       {!cargando && !error && (
         <>
@@ -176,9 +164,7 @@ export default function TablaDevoluciones({ actualizacion }) {
                       <tr key={item.id_prestamo}>
                         <td>{item.usuario}</td>
                         <td>{item.ejemplar}</td>
-                        <td className={styles.nombreLibro}>
-                          {item.libro}
-                        </td>
+                        <td className={styles.nombreLibro}>{item.libro}</td>
                         <td>{mostrarFecha(item.fecha_prestamo)}</td>
                         <td>{mostrarFecha(item.fecha_vencimiento)}</td>
                         <td>{mostrarFecha(item.fecha_devolucion)}</td>
@@ -190,9 +176,7 @@ export default function TablaDevoluciones({ actualizacion }) {
                                 : styles.estadoDevuelto
                             }
                           >
-                            {tieneRetraso(item)
-                              ? "Con retraso"
-                              : "A tiempo"}
+                            {tieneRetraso(item) ? "Con retraso" : "A tiempo"}
                           </span>
                         </td>
                       </tr>
@@ -202,7 +186,10 @@ export default function TablaDevoluciones({ actualizacion }) {
               </div>
 
               {totalPaginas > 1 && (
-                <div className={styles.paginacion}>
+                <nav
+                  className={styles.paginacion}
+                  aria-label="Paginación de devoluciones"
+                >
                   <button
                     type="button"
                     disabled={paginaVisible === 1}
@@ -212,9 +199,32 @@ export default function TablaDevoluciones({ actualizacion }) {
                     Anterior
                   </button>
 
-                  <span>
-                    Página {paginaVisible} de {totalPaginas}
-                  </span>
+                  <div className={styles.paginasNumeradas}>
+                    {paginasNumeradas.map((numero, indice) => (
+                      <Fragment key={numero}>
+                        {indice > 0 &&
+                          numero - paginasNumeradas[indice - 1] > 1 && (
+                            <span aria-hidden="true">...</span>
+                          )}
+
+                        <button
+                          type="button"
+                          className={
+                            numero === paginaVisible
+                              ? styles.paginaActiva
+                              : styles.numeroPagina
+                          }
+                          aria-label={`Ir a la página ${numero}`}
+                          aria-current={
+                            numero === paginaVisible ? "page" : undefined
+                          }
+                          onClick={() => setPagina(numero)}
+                        >
+                          {numero}
+                        </button>
+                      </Fragment>
+                    ))}
+                  </div>
 
                   <button
                     type="button"
@@ -224,7 +234,7 @@ export default function TablaDevoluciones({ actualizacion }) {
                     Siguiente
                     <ChevronRight size={17} />
                   </button>
-                </div>
+                </nav>
               )}
             </>
           )}
