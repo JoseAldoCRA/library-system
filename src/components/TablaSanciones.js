@@ -1,4 +1,3 @@
-
 "use client";
 
 import { useEffect, useState } from "react";
@@ -20,6 +19,7 @@ import {
 } from "lucide-react";
 
 import styles from "./TablaLibros.module.css";
+import SelectorPrestamo from "./SelectorPrestamo";
 
 export default function TablaSanciones({ actualizacion }) {
   const [sanciones, setSanciones] = useState([]);
@@ -104,7 +104,7 @@ export default function TablaSanciones({ actualizacion }) {
       } catch (error) {
         setMensajePago(
           "Pago registrado, pero no se pudo actualizar la tabla: " +
-          error.message
+            error.message,
         );
       }
     } catch (error) {
@@ -119,11 +119,11 @@ export default function TablaSanciones({ actualizacion }) {
   const totalSanciones = sanciones.length;
 
   const totalPendientes = sanciones.filter(
-    (item) => item.estado_pago === "pendiente"
+    (item) => item.estado_pago === "pendiente",
   ).length;
 
   const totalPagadas = sanciones.filter(
-    (item) => item.estado_pago === "pagado"
+    (item) => item.estado_pago === "pagado",
   ).length;
 
   // Buscar y filtrar
@@ -132,34 +132,35 @@ export default function TablaSanciones({ actualizacion }) {
     const texto = busqueda.toLowerCase().trim();
 
     const coincideBusqueda =
-      String(item.usuario || "").toLowerCase().includes(texto) ||
-      String(item.libro || "").toLowerCase().includes(texto) ||
-      String(item.ejemplar || "").toLowerCase().includes(texto);
+      String(item.usuario || "")
+        .toLowerCase()
+        .includes(texto) ||
+      String(item.libro || "")
+        .toLowerCase()
+        .includes(texto) ||
+      String(item.ejemplar || "")
+        .toLowerCase()
+        .includes(texto);
 
     const coincideEstado =
-      filtroEstado === "todos" ||
-      item.estado_pago === filtroEstado;
+      filtroEstado === "todos" || item.estado_pago === filtroEstado;
 
     return coincideBusqueda && coincideEstado;
   });
 
   // Paginación
 
-  const totalPaginas = Math.max(
-    1,
-    Math.ceil(sancionesFiltradas.length / 10)
-  );
+  const totalPaginas = Math.max(1, Math.ceil(sancionesFiltradas.length / 10));
 
   const paginaVisible = Math.min(pagina, totalPaginas);
 
   const sancionesPagina = sancionesFiltradas.slice(
     (paginaVisible - 1) * 10,
-    paginaVisible * 10
+    paginaVisible * 10,
   );
 
   return (
     <section className={styles.tarjeta}>
-
       {/* ENCABEZADO */}
 
       <div className={styles.encabezado}>
@@ -170,21 +171,16 @@ export default function TablaSanciones({ actualizacion }) {
 
           <div>
             <h2>Sanciones y multas</h2>
-            <p>
-              Consulta las multas por retraso y registra los pagos.
-            </p>
+            <p>Consulta las multas por retraso y registra los pagos.</p>
           </div>
         </div>
 
-        <span className={styles.total}>
-          {totalSanciones} sanciones
-        </span>
+        <span className={styles.total}>{totalSanciones} sanciones</span>
       </div>
 
       {/* INDICADORES */}
 
       <div className={styles.resumenSanciones}>
-
         <div className={styles.indicadorSancion}>
           <ShieldAlert size={20} />
           <div>
@@ -208,7 +204,6 @@ export default function TablaSanciones({ actualizacion }) {
             <strong>{totalPagadas}</strong>
           </div>
         </div>
-
       </div>
 
       {/* BÚSQUEDA */}
@@ -231,22 +226,25 @@ export default function TablaSanciones({ actualizacion }) {
       {/* FILTRO */}
 
       <div className={styles.filtrosSanciones}>
-        <label htmlFor="filtroEstadoSancion">
-          Estado de pago
-        </label>
+        <label htmlFor="filtroEstadoSancion">Estado de pago</label>
 
-        <select
-          id="filtroEstadoSancion"
-          value={filtroEstado}
-          onChange={(evento) => {
-            setFiltroEstado(evento.target.value);
-            setPagina(1);
-          }}
-        >
-          <option value="todos">Todas las sanciones</option>
-          <option value="pendiente">Pendientes</option>
-          <option value="pagado">Pagadas</option>
-        </select>
+        <div style={{ width: "280px", maxWidth: "100%", minWidth: 0 }}>
+          <SelectorPrestamo
+            id="filtroEstadoSancion"
+            valor={filtroEstado}
+            alCambiar={(nuevoEstado) => {
+              setFiltroEstado(nuevoEstado);
+              setPagina(1);
+            }}
+            opciones={[
+              { valor: "todos", texto: "Todas las sanciones" },
+              { valor: "pendiente", texto: "Pendientes" },
+              { valor: "pagado", texto: "Pagadas" },
+            ]}
+            textoInicial="Todas las sanciones"
+            mostrarBuscador={false}
+          />
+        </div>
       </div>
 
       {/* MENSAJES */}
@@ -264,17 +262,9 @@ export default function TablaSanciones({ actualizacion }) {
         </p>
       )}
 
-      {cargando && (
-        <p className={styles.mensaje}>
-          Cargando sanciones...
-        </p>
-      )}
+      {cargando && <p className={styles.mensaje}>Cargando sanciones...</p>}
 
-      {error && (
-        <p className={styles.mensajeError}>
-          Error: {error}
-        </p>
-      )}
+      {error && <p className={styles.mensajeError}>Error: {error}</p>}
 
       {/* TABLA */}
 
@@ -313,19 +303,13 @@ export default function TablaSanciones({ actualizacion }) {
                       <tr key={sancion.id_sancion}>
                         <td>{sancion.usuario}</td>
 
-                        <td className={styles.nombreLibro}>
-                          {sancion.libro}
-                        </td>
+                        <td className={styles.nombreLibro}>{sancion.libro}</td>
 
                         <td>{sancion.ejemplar}</td>
 
-                        <td>
-                          {mostrarFecha(sancion.fecha_vencimiento)}
-                        </td>
+                        <td>{mostrarFecha(sancion.fecha_vencimiento)}</td>
 
-                        <td>
-                          {mostrarFecha(sancion.fecha_devolucion)}
-                        </td>
+                        <td>{mostrarFecha(sancion.fecha_devolucion)}</td>
 
                         <td>{sancion.dias_retraso}</td>
 
@@ -423,9 +407,7 @@ export default function TablaSanciones({ actualizacion }) {
               </div>
 
               <div>
-                <h3 id="tituloConfirmarPago">
-                  Confirmar pago de multa
-                </h3>
+                <h3 id="tituloConfirmarPago">Confirmar pago de multa</h3>
                 <p id="descripcionConfirmarPago">
                   Verifica los datos antes de continuar.
                 </p>
@@ -444,18 +426,15 @@ export default function TablaSanciones({ actualizacion }) {
 
             <div className={styles.detallesSancion}>
               <p>
-                <strong>Usuario:</strong>{" "}
-                {sancionSeleccionada.usuario}
+                <strong>Usuario:</strong> {sancionSeleccionada.usuario}
               </p>
 
               <p>
-                <strong>Libro:</strong>{" "}
-                {sancionSeleccionada.libro}
+                <strong>Libro:</strong> {sancionSeleccionada.libro}
               </p>
 
               <p>
-                <strong>Ejemplar:</strong>{" "}
-                {sancionSeleccionada.ejemplar}
+                <strong>Ejemplar:</strong> {sancionSeleccionada.ejemplar}
               </p>
 
               <p>
@@ -487,15 +466,12 @@ export default function TablaSanciones({ actualizacion }) {
               >
                 <CheckCircle2 size={17} />
 
-                {guardandoPago
-                  ? "Registrando..."
-                  : "Sí, registrar pago"}
+                {guardandoPago ? "Registrando..." : "Sí, registrar pago"}
               </button>
             </div>
           </div>
         </div>
       )}
-
     </section>
   );
 }
