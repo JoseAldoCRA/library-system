@@ -668,7 +668,7 @@
   width: 100%;
   max-width: 600px;
   max-height: 90vh;
-  overflow-y: auto;
+  overflow: visible;
   padding: 25px;
   background: #FFFFFF;
   border-radius: 14px;
@@ -796,6 +796,7 @@
 @media (max-width: 600px) {
   .modalUsuario {
     padding: 18px;
+    overflow-y: auto;
   }
 
   .camposEditarUsuario {

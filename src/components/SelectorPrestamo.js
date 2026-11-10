@@ -1,4 +1,3 @@
-
 "use client";
 
 import { useEffect, useRef, useState } from "react";
@@ -13,6 +12,7 @@ export default function SelectorPrestamo({
   textoInicial,
   textoBusqueda,
   deshabilitado = false,
+  mostrarBuscador = true,
 }) {
   const [abierto, setAbierto] = useState(false);
   const [busqueda, setBusqueda] = useState("");
@@ -21,11 +21,11 @@ export default function SelectorPrestamo({
   const buscadorRef = useRef(null);
 
   const opcionSeleccionada = opciones.find(
-    (item) => String(item.valor) === String(valor)
+    (item) => String(item.valor) === String(valor),
   );
 
   const coincidencias = opciones.filter((item) =>
-    item.texto.toLowerCase().includes(busqueda.trim().toLowerCase())
+    item.texto.toLowerCase().includes(busqueda.trim().toLowerCase()),
   );
 
   // Mostrar hasta 50 resultados para mantener rápida la lista.
@@ -37,10 +37,7 @@ export default function SelectorPrestamo({
     buscadorRef.current?.focus();
 
     function cerrarAlHacerClicFuera(evento) {
-      if (
-        selectorRef.current &&
-        !selectorRef.current.contains(evento.target)
-      ) {
+      if (selectorRef.current && !selectorRef.current.contains(evento.target)) {
         setAbierto(false);
         setBusqueda("");
       }
@@ -106,25 +103,22 @@ export default function SelectorPrestamo({
           {opcionSeleccionada?.texto || textoInicial}
         </span>
 
-        <span className={estilos.flechaCategoria}>
-          {abierto ? "⌃" : "⌄"}
-        </span>
+        <span className={estilos.flechaCategoria}>{abierto ? "⌃" : "⌄"}</span>
       </button>
 
       {abierto && (
-        <div
-          id={`${id}-lista`}
-          className={estilos.panelCategorias}
-        >
-          <input
-            ref={buscadorRef}
-            type="search"
-            className={estilos.buscarCategoria}
-            placeholder={textoBusqueda}
-            aria-label={textoBusqueda}
-            value={busqueda}
-            onChange={(evento) => setBusqueda(evento.target.value)}
-          />
+        <div id={`${id}-lista`} className={estilos.panelCategorias}>
+          {mostrarBuscador && (
+            <input
+              ref={buscadorRef}
+              type="search"
+              className={estilos.buscarCategoria}
+              placeholder={textoBusqueda}
+              aria-label={textoBusqueda}
+              value={busqueda}
+              onChange={(evento) => setBusqueda(evento.target.value)}
+            />
+          )}
 
           <div className={estilos.listaCategorias}>
             {resultadosVisibles.length > 0 ? (
@@ -142,9 +136,7 @@ export default function SelectorPrestamo({
                 >
                   <span>{item.texto}</span>
 
-                  {String(valor) === String(item.valor) && (
-                    <span>✓</span>
-                  )}
+                  {String(valor) === String(item.valor) && <span>✓</span>}
                 </button>
               ))
             ) : (

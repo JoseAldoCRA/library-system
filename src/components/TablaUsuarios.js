@@ -1,9 +1,9 @@
-
 "use client";
 
 import { useEffect, useState } from "react";
 import { listarUsuarios } from "@/services/usuariosService";
 import { crearClienteSupabase } from "@/lib/supabaseClient";
+import SelectorPrestamo from "@/components/SelectorPrestamo";
 
 import {
   Users,
@@ -12,7 +12,7 @@ import {
   X,
   Save,
   ChevronLeft,
-  ChevronRight
+  ChevronRight,
 } from "lucide-react";
 
 import styles from "./TablaLibros.module.css";
@@ -100,9 +100,7 @@ export default function TablaUsuarios({ actualizacion }) {
     const nombre = nombreEditado.trim();
 
     if (!nombre || nombre.length > 100) {
-      setMensaje(
-        "Error: Ingresa un nombre válido de máximo 100 caracteres."
-      );
+      setMensaje("Error: Ingresa un nombre válido de máximo 100 caracteres.");
       return;
     }
 
@@ -139,23 +137,20 @@ export default function TablaUsuarios({ actualizacion }) {
       const datos = await respuesta.json();
 
       if (!respuesta.ok) {
-        throw new Error(
-          datos.error || "No se pudo actualizar el usuario."
-        );
+        throw new Error(datos.error || "No se pudo actualizar el usuario.");
       }
 
       setUsuarios((anteriores) =>
         anteriores.map((usuario) =>
           usuario.id_usuario === idUsuario
             ? { ...usuario, ...datos.usuario }
-            : usuario
-        )
+            : usuario,
+        ),
       );
 
       setUsuarioEditando(null);
       setNombreEditado("");
       setMensaje("Usuario actualizado correctamente.");
-
     } catch (error) {
       setMensaje("Error: " + error.message);
     } finally {
@@ -166,36 +161,38 @@ export default function TablaUsuarios({ actualizacion }) {
   // Filtrar usuarios
 
   const usuariosVisibles = usuarios.filter(
-    (usuario) => usuario.rol !== "bibliotecario"
+    (usuario) => usuario.rol !== "bibliotecario",
   );
 
   const usuariosFiltrados = usuariosVisibles.filter((usuario) => {
     const texto = busqueda.toLowerCase().trim();
 
     return (
-      String(usuario.nombre || "").toLowerCase().includes(texto) ||
-      String(usuario.correo || "").toLowerCase().includes(texto) ||
-      String(usuario.rol || "").toLowerCase().includes(texto)
+      String(usuario.nombre || "")
+        .toLowerCase()
+        .includes(texto) ||
+      String(usuario.correo || "")
+        .toLowerCase()
+        .includes(texto) ||
+      String(usuario.rol || "")
+        .toLowerCase()
+        .includes(texto)
     );
   });
 
   // Paginación
 
-  const totalPaginas = Math.max(
-    1,
-    Math.ceil(usuariosFiltrados.length / 10)
-  );
+  const totalPaginas = Math.max(1, Math.ceil(usuariosFiltrados.length / 10));
 
   const paginaVisible = Math.min(pagina, totalPaginas);
 
   const usuariosPagina = usuariosFiltrados.slice(
     (paginaVisible - 1) * 10,
-    paginaVisible * 10
+    paginaVisible * 10,
   );
 
   return (
     <section className={styles.tarjeta}>
-
       {/* ENCABEZADO */}
 
       <div className={styles.encabezado}>
@@ -206,15 +203,11 @@ export default function TablaUsuarios({ actualizacion }) {
 
           <div>
             <h2>Usuarios registrados</h2>
-            <p>
-              Consulta y administra las cuentas de la biblioteca.
-            </p>
+            <p>Consulta y administra las cuentas de la biblioteca.</p>
           </div>
         </div>
 
-        <span className={styles.total}>
-          {usuariosVisibles.length} usuarios
-        </span>
+        <span className={styles.total}>{usuariosVisibles.length} usuarios</span>
       </div>
 
       {/* BUSCADOR */}
@@ -247,17 +240,9 @@ export default function TablaUsuarios({ actualizacion }) {
         </p>
       )}
 
-      {cargando && (
-        <p className={styles.mensaje}>
-          Cargando usuarios...
-        </p>
-      )}
+      {cargando && <p className={styles.mensaje}>Cargando usuarios...</p>}
 
-      {error && (
-        <p className={styles.mensajeError}>
-          Error: {error}
-        </p>
-      )}
+      {error && <p className={styles.mensajeError}>Error: {error}</p>}
 
       {!cargando && !error && (
         <>
@@ -288,9 +273,7 @@ export default function TablaUsuarios({ actualizacion }) {
                   <tbody>
                     {usuariosPagina.map((usuario) => (
                       <tr key={usuario.id_usuario}>
-                        <td className={styles.nombreLibro}>
-                          {usuario.nombre}
-                        </td>
+                        <td className={styles.nombreLibro}>{usuario.nombre}</td>
 
                         <td>{usuario.correo}</td>
 
@@ -338,9 +321,7 @@ export default function TablaUsuarios({ actualizacion }) {
                   <button
                     type="button"
                     disabled={paginaVisible === 1}
-                    onClick={() =>
-                      setPagina(paginaVisible - 1)
-                    }
+                    onClick={() => setPagina(paginaVisible - 1)}
                   >
                     <ChevronLeft size={17} />
                     Anterior
@@ -353,9 +334,7 @@ export default function TablaUsuarios({ actualizacion }) {
                   <button
                     type="button"
                     disabled={paginaVisible === totalPaginas}
-                    onClick={() =>
-                      setPagina(paginaVisible + 1)
-                    }
+                    onClick={() => setPagina(paginaVisible + 1)}
                   >
                     Siguiente
                     <ChevronRight size={17} />
@@ -383,9 +362,7 @@ export default function TablaUsuarios({ actualizacion }) {
               </div>
 
               <div className={styles.tituloEditarUsuario}>
-                <h3 id="tituloEditarUsuario">
-                  Editar usuario
-                </h3>
+                <h3 id="tituloEditarUsuario">Editar usuario</h3>
                 <p>Modifica los datos de la cuenta.</p>
               </div>
 
@@ -407,19 +384,14 @@ export default function TablaUsuarios({ actualizacion }) {
               }}
             >
               <div className={styles.camposEditarUsuario}>
-
                 <div className={styles.grupoEditarUsuario}>
-                  <label htmlFor="editar-nombre">
-                    Nombre completo
-                  </label>
+                  <label htmlFor="editar-nombre">Nombre completo</label>
 
                   <input
                     id="editar-nombre"
                     type="text"
                     value={nombreEditado}
-                    onChange={(evento) =>
-                      setNombreEditado(evento.target.value)
-                    }
+                    onChange={(evento) => setNombreEditado(evento.target.value)}
                     maxLength={100}
                     required
                     disabled={guardando}
@@ -427,58 +399,53 @@ export default function TablaUsuarios({ actualizacion }) {
                 </div>
 
                 <div className={styles.grupoEditarUsuario}>
-                  <label htmlFor="editar-correo">
-                    Correo electrónico
-                  </label>
+                  <label htmlFor="editar-correo">Correo electrónico</label>
 
                   <input
                     id="editar-correo"
                     type="email"
                     value={correoEditado}
-                    onChange={(evento) =>
-                      setCorreoEditado(evento.target.value)
-                    }
+                    onChange={(evento) => setCorreoEditado(evento.target.value)}
                     required
                     disabled={guardando}
                   />
                 </div>
 
                 <div className={styles.grupoEditarUsuario}>
-                  <label htmlFor="editar-rol">
-                    Rol
-                  </label>
+                  <label htmlFor="editar-rol">Rol</label>
 
-                  <select
+                  <SelectorPrestamo
                     id="editar-rol"
-                    value={rolEditado}
-                    onChange={(evento) =>
-                      setRolEditado(evento.target.value)
-                    }
-                    disabled={guardando}
-                  >
-                    <option value="estudiante">Estudiante</option>
-                    <option value="docente">Docente</option>
-                  </select>
+                    valor={rolEditado}
+                    alCambiar={setRolEditado}
+                    opciones={[
+                      { valor: "estudiante", texto: "Estudiante" },
+                      { valor: "docente", texto: "Docente" },
+                    ]}
+                    textoInicial="Selecciona un rol"
+                    textoBusqueda="Buscar rol..."
+                    deshabilitado={guardando}
+                    mostrarBuscador={false}
+                  />
                 </div>
 
                 <div className={styles.grupoEditarUsuario}>
-                  <label htmlFor="editar-estado">
-                    Estado
-                  </label>
+                  <label htmlFor="editar-estado">Estado</label>
 
-                  <select
+                  <SelectorPrestamo
                     id="editar-estado"
-                    value={estadoEditado}
-                    onChange={(evento) =>
-                      setEstadoEditado(evento.target.value)
-                    }
-                    disabled={guardando}
-                  >
-                    <option value="activo">Activo</option>
-                    <option value="inactivo">Inactivo</option>
-                  </select>
+                    valor={estadoEditado}
+                    alCambiar={setEstadoEditado}
+                    opciones={[
+                      { valor: "activo", texto: "Activo" },
+                      { valor: "inactivo", texto: "Inactivo" },
+                    ]}
+                    textoInicial="Selecciona un estado"
+                    textoBusqueda="Buscar estado..."
+                    deshabilitado={guardando}
+                    mostrarBuscador={false}
+                  />
                 </div>
-
               </div>
 
               {mensaje && (
@@ -511,16 +478,13 @@ export default function TablaUsuarios({ actualizacion }) {
                 >
                   <Save size={17} />
 
-                  {guardando
-                    ? "Guardando..."
-                    : "Guardar cambios"}
+                  {guardando ? "Guardando..." : "Guardar cambios"}
                 </button>
               </div>
             </form>
           </div>
         </div>
       )}
-
     </section>
   );
 }
