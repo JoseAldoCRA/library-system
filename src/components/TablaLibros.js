@@ -10,7 +10,7 @@ import {
   ChevronLeft,
   ChevronRight,
   TriangleAlert,
-  X
+  X,
 } from "lucide-react";
 
 import styles from "./TablaLibros.module.css";
@@ -96,23 +96,31 @@ export default function TablaLibros({ actualizacion, alEditar }) {
     const texto = busqueda.toLowerCase().trim();
 
     return (
-      String(libro.isbn || "").toLowerCase().includes(texto) ||
-      String(libro.titulo || "").toLowerCase().includes(texto) ||
-      String(libro.autor || "").toLowerCase().includes(texto) ||
-      String(libro.categoria || "").toLowerCase().includes(texto)
+      String(libro.isbn || "")
+        .toLowerCase()
+        .includes(texto) ||
+      String(libro.titulo || "")
+        .toLowerCase()
+        .includes(texto) ||
+      String(libro.autor || "")
+        .toLowerCase()
+        .includes(texto) ||
+      String(libro.categoria || "")
+        .toLowerCase()
+        .includes(texto)
     );
   });
 
   const totalPaginas = Math.max(
     1,
-    Math.ceil(librosFiltrados.length / LIBROS_POR_PAGINA)
+    Math.ceil(librosFiltrados.length / LIBROS_POR_PAGINA),
   );
 
   const paginaVisible = Math.min(paginaActual, totalPaginas);
 
   const librosPagina = librosFiltrados.slice(
     (paginaVisible - 1) * LIBROS_POR_PAGINA,
-    paginaVisible * LIBROS_POR_PAGINA
+    paginaVisible * LIBROS_POR_PAGINA,
   );
 
   function cambiarBusqueda(valor) {
@@ -134,9 +142,7 @@ export default function TablaLibros({ actualizacion, alEditar }) {
           </div>
         </div>
 
-        <span className={styles.total}>
-          {libros.length} libros
-        </span>
+        <span className={styles.total}>{libros.length} libros</span>
       </div>
 
       <div className={styles.buscador}>
@@ -175,9 +181,7 @@ export default function TablaLibros({ actualizacion, alEditar }) {
           </p>
 
           {librosFiltrados.length === 0 ? (
-            <p className={styles.mensaje}>
-              No se encontraron libros.
-            </p>
+            <p className={styles.mensaje}>No se encontraron libros.</p>
           ) : (
             <>
               <div className={styles.tablaContenedor}>
@@ -198,9 +202,7 @@ export default function TablaLibros({ actualizacion, alEditar }) {
                     {librosPagina.map((libro) => (
                       <tr key={libro.id_libro}>
                         <td>{libro.isbn}</td>
-                        <td className={styles.nombreLibro}>
-                          {libro.titulo}
-                        </td>
+                        <td className={styles.nombreLibro}>{libro.titulo}</td>
                         <td>{libro.autor}</td>
                         <td>{libro.categoria}</td>
                         <td>{libro.disponibles}</td>
@@ -250,9 +252,30 @@ export default function TablaLibros({ actualizacion, alEditar }) {
                     Anterior
                   </button>
 
-                  <span>
-                    Página {paginaVisible} de {totalPaginas}
-                  </span>
+                  <div className={styles.paginasNumeradas}>
+                    {Array.from({ length: totalPaginas }, (_, indice) => {
+                      const numero = indice + 1;
+
+                      return (
+                        <button
+                          key={numero}
+                          type="button"
+                          className={
+                            numero === paginaVisible
+                              ? styles.paginaActiva
+                              : styles.numeroPagina
+                          }
+                          aria-label={`Ir a la página ${numero}`}
+                          aria-current={
+                            numero === paginaVisible ? "page" : undefined
+                          }
+                          onClick={() => setPaginaActual(numero)}
+                        >
+                          {numero}
+                        </button>
+                      );
+                    })}
+                  </div>
 
                   <button
                     type="button"
@@ -294,9 +317,7 @@ export default function TablaLibros({ actualizacion, alEditar }) {
               </button>
             </div>
 
-            <h3 id="tituloEliminarLibro">
-              Confirmar eliminación
-            </h3>
+            <h3 id="tituloEliminarLibro">Confirmar eliminación</h3>
 
             <p id="descripcionEliminarLibro">
               ¿Estás seguro de que deseas eliminar este libro?
@@ -327,9 +348,7 @@ export default function TablaLibros({ actualizacion, alEditar }) {
                 disabled={eliminando !== null}
               >
                 <Trash2 size={16} />
-                {eliminando !== null
-                  ? "Eliminando..."
-                  : "Sí, eliminar"}
+                {eliminando !== null ? "Eliminando..." : "Sí, eliminar"}
               </button>
             </div>
           </div>
