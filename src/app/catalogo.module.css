@@ -846,3 +846,58 @@
     width: 100%;
   }
 }
+
+
+/* PAGINACIÓN NUMERADA DEL CATÁLOGO */
+
+.paginacion {
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+.paginasNumeradas {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.paginacion .numeroPagina,
+.paginacion .paginaActiva {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 42px;
+  height: 42px;
+  padding: 0;
+  border-radius: 8px;
+}
+
+.paginacion .paginaActiva,
+.paginacion .paginaActiva:hover:not(:disabled) {
+  background: #244d3d;
+  border-color: #244d3d;
+  color: #ffffff;
+}
+
+.puntosPagina {
+  padding: 0 3px;
+  color: #66756b;
+}
+
+@media (max-width: 600px) {
+  .paginacion {
+    gap: 10px;
+  }
+
+  .paginasNumeradas {
+    gap: 5px;
+  }
+
+  .paginacion .numeroPagina,
+  .paginacion .paginaActiva {
+    width: 36px;
+    height: 36px;
+  }
+}

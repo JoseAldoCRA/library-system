@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { Fragment, useEffect, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { crearClienteSupabase } from "@/lib/supabaseClient";
@@ -144,15 +144,27 @@ export default function Home() {
   });
 
   // Paginación
-
   const totalPaginas = Math.max(
     1,
     Math.ceil(librosFiltrados.length / LIBROS_POR_PAGINA),
   );
 
+  const paginaVisible = Math.min(paginaActual, totalPaginas);
+
+  const paginasNumeradas = Array.from(
+    { length: totalPaginas },
+    (_, indice) => indice + 1,
+  ).filter(
+    (numero) =>
+      totalPaginas <= 9 ||
+      numero === 1 ||
+      numero === totalPaginas ||
+      Math.abs(numero - paginaVisible) <= 2,
+  );
+
   const librosPagina = librosFiltrados.slice(
-    (paginaActual - 1) * LIBROS_POR_PAGINA,
-    paginaActual * LIBROS_POR_PAGINA,
+    (paginaVisible - 1) * LIBROS_POR_PAGINA,
+    paginaVisible * LIBROS_POR_PAGINA,
   );
 
   function cambiarBusqueda(valor) {
@@ -517,7 +529,6 @@ export default function Home() {
                 </div>
 
                 {/* PAGINACIÓN */}
-
                 {totalPaginas > 1 && (
                   <nav
                     className={styles.paginacion}
@@ -525,21 +536,49 @@ export default function Home() {
                   >
                     <button
                       type="button"
-                      disabled={paginaActual === 1}
-                      onClick={() => cambiarPagina(paginaActual - 1)}
+                      disabled={paginaVisible === 1}
+                      onClick={() => cambiarPagina(paginaVisible - 1)}
                     >
                       <ChevronLeft size={18} />
                       Anterior
                     </button>
 
-                    <span>
-                      Página {paginaActual} de {totalPaginas}
-                    </span>
+                    <div className={styles.paginasNumeradas}>
+                      {paginasNumeradas.map((numero, indice) => (
+                        <Fragment key={numero}>
+                          {indice > 0 &&
+                            numero - paginasNumeradas[indice - 1] > 1 && (
+                              <span
+                                className={styles.puntosPagina}
+                                aria-hidden="true"
+                              >
+                                ...
+                              </span>
+                            )}
+
+                          <button
+                            type="button"
+                            className={
+                              numero === paginaVisible
+                                ? styles.paginaActiva
+                                : styles.numeroPagina
+                            }
+                            aria-label={`Ir a la página ${numero}`}
+                            aria-current={
+                              numero === paginaVisible ? "page" : undefined
+                            }
+                            onClick={() => cambiarPagina(numero)}
+                          >
+                            {numero}
+                          </button>
+                        </Fragment>
+                      ))}
+                    </div>
 
                     <button
                       type="button"
-                      disabled={paginaActual === totalPaginas}
-                      onClick={() => cambiarPagina(paginaActual + 1)}
+                      disabled={paginaVisible === totalPaginas}
+                      onClick={() => cambiarPagina(paginaVisible + 1)}
                     >
                       Siguiente
                       <ChevronRight size={18} />
