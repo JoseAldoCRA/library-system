@@ -114,92 +114,92 @@ export default function FormularioEjemplar({ alRegistrar, actualizacion }) {
       <form onSubmit={registrarEjemplar}>
         <div className={styles.campos}>
           <div className={styles.grupo}>
-              <label htmlFor="libroEjemplar">Libro</label>
+            <label htmlFor="libroEjemplar">Libro</label>
 
-              <div
-                ref={selectorLibroRef}
-                className={estilosCategorias.filtroCategoriaModerno}
-                style={{ width: "100%", marginLeft: 0 }}
+            <div
+              ref={selectorLibroRef}
+              className={estilosCategorias.filtroCategoriaModerno}
+              style={{ width: "100%", marginLeft: 0 }}
+            >
+              <button
+                id="libroEjemplar"
+                type="button"
+                className={estilosCategorias.botonFiltroCategorias}
+                style={{
+                  height: "49px",
+                  minHeight: "49px",
+                  padding: "0 16px",
+                  boxSizing: "border-box",
+                }}
+                aria-expanded={menuLibrosAbierto}
+                aria-controls="lista-libros-ejemplar"
+                onClick={() => {
+                  setMenuLibrosAbierto(!menuLibrosAbierto);
+                  setBusquedaLibro("");
+                }}
               >
-                <button
-                  id="libroEjemplar"
-                  type="button"
-                  className={estilosCategorias.botonFiltroCategorias}
-                  style={{
-                    height: "49px",
-                    minHeight: "49px",
-                    padding: "0 16px",
-                    boxSizing: "border-box",
-                  }}
-                  aria-expanded={menuLibrosAbierto}
-                  aria-controls="lista-libros-ejemplar"
-                  onClick={() => {
-                    setMenuLibrosAbierto(!menuLibrosAbierto);
-                    setBusquedaLibro("");
-                  }}
+                <SlidersHorizontal size={19} />
+
+                <span>
+                  {libroSeleccionado?.titulo || "Selecciona un libro"}
+                </span>
+
+                <span className={estilosCategorias.flechaCategoria}>
+                  {menuLibrosAbierto ? "⌃" : "⌄"}
+                </span>
+              </button>
+
+              {menuLibrosAbierto && (
+                <div
+                  id="lista-libros-ejemplar"
+                  className={estilosCategorias.panelCategorias}
                 >
-                  <SlidersHorizontal size={19} />
+                  <input
+                    type="search"
+                    className={estilosCategorias.buscarCategoria}
+                    placeholder="Buscar libro..."
+                    aria-label="Buscar libro por título"
+                    value={busquedaLibro}
+                    onChange={(e) => setBusquedaLibro(e.target.value)}
+                  />
 
-                  <span>
-                    {libroSeleccionado?.titulo || "Selecciona un libro"}
-                  </span>
+                  <div className={estilosCategorias.listaCategorias}>
+                    {librosVisibles.map((libro) => (
+                      <button
+                        key={libro.id_libro}
+                        type="button"
+                        className={`${estilosCategorias.opcionCategoria} ${
+                          String(idLibro) === String(libro.id_libro)
+                            ? estilosCategorias.categoriaActiva
+                            : ""
+                        }`}
+                        onClick={() => {
+                          setIdLibro(String(libro.id_libro));
+                          setMenuLibrosAbierto(false);
+                          setBusquedaLibro("");
+                        }}
+                      >
+                        <span>{libro.titulo}</span>
 
-                  <span className={estilosCategorias.flechaCategoria}>
-                    {menuLibrosAbierto ? "⌃" : "⌄"}
-                  </span>
-                </button>
+                        {String(idLibro) === String(libro.id_libro) && (
+                          <span>✓</span>
+                        )}
+                      </button>
+                    ))}
 
-                {menuLibrosAbierto && (
-                  <div
-                    id="lista-libros-ejemplar"
-                    className={estilosCategorias.panelCategorias}
-                  >
-                    <input
-                      type="search"
-                      className={estilosCategorias.buscarCategoria}
-                      placeholder="Buscar libro..."
-                      aria-label="Buscar libro por título"
-                      value={busquedaLibro}
-                      onChange={(e) => setBusquedaLibro(e.target.value)}
-                    />
-
-                    <div className={estilosCategorias.listaCategorias}>
-                      {librosVisibles.map((libro) => (
-                        <button
-                          key={libro.id_libro}
-                          type="button"
-                          className={`${estilosCategorias.opcionCategoria} ${
-                            String(idLibro) === String(libro.id_libro)
-                              ? estilosCategorias.categoriaActiva
-                              : ""
-                          }`}
-                          onClick={() => {
-                            setIdLibro(String(libro.id_libro));
-                            setMenuLibrosAbierto(false);
-                            setBusquedaLibro("");
-                          }}
-                        >
-                          <span>{libro.titulo}</span>
-
-                          {String(idLibro) === String(libro.id_libro) && (
-                            <span>✓</span>
-                          )}
-                        </button>
-                      ))}
-
-                      {librosVisibles.length === 0 && (
-                        <p className={estilosCategorias.sinCategorias}>
-                          No se encontraron libros.
-                        </p>
-                      )}
-                    </div>
-
-                    <div className={estilosCategorias.pieCategorias}>
-                      {libros.length} libros disponibles
-                    </div>
+                    {librosVisibles.length === 0 && (
+                      <p className={estilosCategorias.sinCategorias}>
+                        No se encontraron libros.
+                      </p>
+                    )}
                   </div>
-                )}
-              </div>
+
+                  <div className={estilosCategorias.pieCategorias}>
+                    {libros.length} libros disponibles
+                  </div>
+                </div>
+              )}
+            </div>
           </div>
 
           <div className={styles.grupo}>
@@ -208,6 +208,11 @@ export default function FormularioEjemplar({ alRegistrar, actualizacion }) {
             <input
               id="codigoEjemplar"
               type="text"
+              style={{
+                height: "49px",
+                minHeight: "49px",
+                boxSizing: "border-box",
+              }}
               value={codigo}
               onChange={(e) => setCodigo(e.target.value)}
               required
