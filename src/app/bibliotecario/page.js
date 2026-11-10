@@ -1,7 +1,6 @@
-
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import { crearClienteSupabase } from "@/lib/supabaseClient";
 import TablaDevoluciones from "@/components/TablaDevoluciones";
@@ -18,7 +17,7 @@ import {
   ChartColumn,
   ShieldAlert,
   LogOut,
-  ArrowUpRight
+  ArrowUpRight,
 } from "lucide-react";
 
 import TablaLibros from "@/components/TablaLibros";
@@ -44,6 +43,7 @@ export default function PanelBibliotecario() {
   const [seccion, setSeccion] = useState("inicio");
   const [actualizacionLibros, setActualizacionLibros] = useState(0);
   const [libroEditar, setLibroEditar] = useState(null);
+  const formularioEditarRef = useRef(null);
 
   useEffect(() => {
     async function verificarUsuario() {
@@ -51,7 +51,7 @@ export default function PanelBibliotecario() {
 
       const {
         data: { user },
-        error
+        error,
       } = await supabase.auth.getUser();
 
       if (error || !user) {
@@ -107,25 +107,28 @@ export default function PanelBibliotecario() {
     { id: "devoluciones", nombre: "Devoluciones", icono: ClipboardCheck },
     { id: "usuarios", nombre: "Usuarios", icono: Users },
     { id: "sanciones", nombre: "Sanciones", icono: ShieldAlert },
-    { id: "reportes", nombre: "Reportes", icono: ChartColumn }
+    { id: "reportes", nombre: "Reportes", icono: ChartColumn },
   ];
 
-  const tituloActual = opciones.find(
-    (opcion) => opcion.id === seccion
-  )?.nombre;
+  const tituloActual = opciones.find((opcion) => opcion.id === seccion)?.nombre;
+
+  // redireccionamiento al editar libro
+  useEffect(() => {
+    if (libroEditar && formularioEditarRef.current) {
+      formularioEditarRef.current.scrollIntoView({
+        behavior: "smooth",
+        block: "start",
+      });
+    }
+  }, [libroEditar]);
 
   if (cargando) {
-    return (
-      <main className={styles.cargando}>
-        Verificando sesión...
-      </main>
-    );
+    return <main className={styles.cargando}>Verificando sesión...</main>;
   }
 
   return (
     <div className={styles.panel} translate="no">
-
-      { }
+      {}
 
       <aside className={styles.sidebar}>
         <div className={styles.marca}>
@@ -137,9 +140,7 @@ export default function PanelBibliotecario() {
           </div>
         </div>
 
-        <div className={styles.etiquetaMenu}>
-          MENÚ PRINCIPAL
-        </div>
+        <div className={styles.etiquetaMenu}>MENÚ PRINCIPAL</div>
 
         <nav className={styles.menu} aria-label="Administración">
           {opciones.map((opcion) => {
@@ -154,9 +155,7 @@ export default function PanelBibliotecario() {
                     ? styles.opcionActiva
                     : styles.opcionMenu
                 }
-                aria-current={
-                  seccion === opcion.id ? "page" : undefined
-                }
+                aria-current={seccion === opcion.id ? "page" : undefined}
                 onClick={() => cambiarSeccion(opcion.id)}
               >
                 <Icono size={20} />
@@ -187,15 +186,12 @@ export default function PanelBibliotecario() {
         </div>
       </aside>
 
-      { }
+      {}
 
       <main className={styles.contenido}>
-
         <header className={styles.encabezado}>
           <div>
-            <span className={styles.subtitulo}>
-              PANEL ADMINISTRATIVO
-            </span>
+            <span className={styles.subtitulo}>PANEL ADMINISTRATIVO</span>
             <h1>{seccion === "inicio" ? "Panel de control" : tituloActual}</h1>
             <p>Bienvenido, {nombre}</p>
           </div>
@@ -213,8 +209,8 @@ export default function PanelBibliotecario() {
             <div className={styles.bienvenida}>
               <h2>Administración de la biblioteca</h2>
               <p>
-                Gestiona los libros, préstamos, usuarios y demás
-                servicios desde un solo lugar.
+                Gestiona los libros, préstamos, usuarios y demás servicios desde
+                un solo lugar.
               </p>
             </div>
 
@@ -257,15 +253,20 @@ export default function PanelBibliotecario() {
             />
 
             {libroEditar && (
-              <FormularioEditarLibro
-                key={libroEditar.id_libro}
-                libro={libroEditar}
-                alGuardar={() => {
-                  setLibroEditar(null);
-                  actualizarDatos();
-                }}
-                alCancelar={() => setLibroEditar(null)}
-              />
+              <div
+                ref={formularioEditarRef}
+                style={{ scrollMarginTop: "20px" }}
+              >
+                <FormularioEditarLibro
+                  key={libroEditar.id_libro}
+                  libro={libroEditar}
+                  alGuardar={() => {
+                    setLibroEditar(null);
+                    actualizarDatos();
+                  }}
+                  alCancelar={() => setLibroEditar(null)}
+                />
+              </div>
             )}
           </div>
         )}
@@ -289,9 +290,7 @@ export default function PanelBibliotecario() {
           <div className={styles.seccion}>
             <div className={styles.bienvenida}>
               <h2>Gestión de solicitudes</h2>
-              <p>
-                Consulta las solicitudes de estudiantes y docentes.
-              </p>
+              <p>Consulta las solicitudes de estudiantes y docentes.</p>
             </div>
             <TablaSolicitudes />
           </div>
@@ -317,9 +316,7 @@ export default function PanelBibliotecario() {
 
         {seccion === "devoluciones" && (
           <div className={styles.seccion}>
-            <TablaDevoluciones
-              actualizacion={actualizacionLibros}
-            />
+            <TablaDevoluciones actualizacion={actualizacionLibros} />
           </div>
         )}
 
@@ -348,7 +345,6 @@ export default function PanelBibliotecario() {
             <ReportesBiblioteca actualizacion={actualizacionLibros} />
           </div>
         )}
-
       </main>
     </div>
   );

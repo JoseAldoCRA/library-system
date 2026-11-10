@@ -1,17 +1,16 @@
-
 /* PÁGINA PRINCIPAL */
 
 .pagina {
   min-height: 100vh;
-  background: #FAF9F6;
-  color: #26352D;
+  background: #faf9f6;
+  color: #26352d;
   font-family: Arial, Helvetica, sans-serif;
 }
 
 /* ENCABEZADO */
 
 .encabezado {
-  background: #244D3D;
+  background: #244d3d;
   padding: 18px 28px;
   border-bottom: 1px solid rgba(255, 255, 255, 0.12);
 }
@@ -46,7 +45,7 @@
 .nombreMarca small {
   font-size: 10px;
   letter-spacing: 2px;
-  color: #D5E4D8;
+  color: #d5e4d8;
 }
 
 .menuDerecho {
@@ -56,7 +55,7 @@
 }
 
 .enlaceCatalogo {
-  color: #E4EDE5;
+  color: #e4ede5;
   font-size: 14px;
   font-weight: 500;
 }
@@ -72,7 +71,7 @@
   gap: 10px;
   background: transparent;
   color: white;
-  border: 1px solid #B5C9BC;
+  border: 1px solid #b5c9bc;
   border-radius: 9px;
   padding: 11px 18px;
   font-size: 14px;
@@ -82,7 +81,7 @@
 }
 
 .botonLogin:hover:not(:disabled) {
-  background: #365E4D;
+  background: #365e4d;
 }
 
 .botonLogin:disabled {
@@ -101,10 +100,7 @@
   text-align: center;
 
   background-image:
-    linear-gradient(
-      rgba(0, 0, 0, 0.35),
-      rgba(0, 0, 0, 0.35)
-    ),
+    linear-gradient(rgba(0, 0, 0, 0.35), rgba(0, 0, 0, 0.35)),
     url("/fondoprincipal.jpg");
 
   background-size: cover;
@@ -124,11 +120,11 @@
   font-size: 12px;
   font-weight: 600;
   letter-spacing: 3px;
-  color: #FFFFFF;
+  color: #ffffff;
 }
 
 .bienvenida h1 {
-  color: #FFFFFF;
+  color: #ffffff;
   font-size: clamp(32px, 4vw, 48px);
   font-weight: 700;
   line-height: 1.2;
@@ -137,7 +133,7 @@
 }
 
 .bienvenida p {
-  color: #F2F5F0;
+  color: #f2f5f0;
   font-size: 17px;
   line-height: 1.7;
   margin-bottom: 30px;
@@ -149,11 +145,11 @@
   display: flex;
   align-items: center;
   gap: 13px;
-  background: #FFFFFF;
+  background: #ffffff;
   padding: 0 20px;
   border-radius: 12px;
   box-shadow: 0 8px 28px rgba(0, 0, 0, 0.13);
-  color: #54806A;
+  color: #54806a;
 }
 
 .buscador input {
@@ -163,7 +159,7 @@
   border: none;
   outline: none;
   background: transparent;
-  color: #26352D;
+  color: #26352d;
   font-size: 16px;
 }
 
@@ -190,7 +186,7 @@
 
 .etiquetaSeccion {
   display: inline-block;
-  color: #54806A;
+  color: #54806a;
   font-size: 12px;
   letter-spacing: 2px;
   font-weight: 700;
@@ -198,14 +194,14 @@
 }
 
 .tituloSeccion h2 {
-  color: #244D3D;
+  color: #244d3d;
   font-size: 32px;
   margin-bottom: 10px;
   letter-spacing: -0.6px;
 }
 
 .tituloSeccion p {
-  color: #66756B;
+  color: #66756b;
   font-size: 15px;
 }
 
@@ -214,10 +210,10 @@
   align-items: center;
   gap: 10px;
   padding: 0 12px;
-  border: 1px solid #DDE5DC;
+  border: 1px solid #dde5dc;
   border-radius: 9px;
-  background: #FFFFFF;
-  color: #54806A;
+  background: #ffffff;
+  color: #54806a;
 }
 
 .filtroCategoria select {
@@ -227,13 +223,13 @@
   border: none;
   outline: none;
   background: transparent;
-  color: #26352D;
+  color: #26352d;
   font-size: 14px;
   cursor: pointer;
 }
 
 .contador {
-  color: #66756B;
+  color: #66756b;
   font-size: 14px;
   margin-bottom: 23px;
 }
@@ -249,8 +245,8 @@
 .tarjetaLibro {
   display: flex;
   min-width: 0;
-  background: #FFFFFF;
-  border: 1px solid #E2E7E0;
+  background: #ffffff;
+  border: 1px solid #e2e7e0;
   border-radius: 14px;
   overflow: hidden;
   transition:
@@ -261,8 +257,8 @@
 
 .tarjetaLibro:hover {
   transform: translateY(-4px);
-  border-color: #B5C9BC;
-  box-shadow: 0 12px 30px rgba(36, 77, 61, 0.10);
+  border-color: #b5c9bc;
+  box-shadow: 0 12px 30px rgba(36, 77, 61, 0.1);
 }
 
 .botonTarjeta {
@@ -279,7 +275,7 @@
 }
 
 .botonTarjeta:focus-visible {
-  outline: 3px solid #54806A;
+  outline: 3px solid #54806a;
   outline-offset: -3px;
 }
 
@@ -290,8 +286,8 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  background: #EFF1EC;
-  color: #54806A;
+  background: #eff1ec;
+  color: #54806a;
   overflow: hidden;
 }
 
@@ -306,8 +302,8 @@
 .categoria {
   display: inline-block;
   align-self: flex-start;
-  background: #E4EDE5;
-  color: #244D3D;
+  background: #e4ede5;
+  color: #244d3d;
   padding: 6px 10px;
   border-radius: 6px;
   font-size: 11px;
@@ -316,7 +312,7 @@
 }
 
 .informacionLibro h3 {
-  color: #26352D;
+  color: #26352d;
   font-size: 17px;
   font-weight: 700;
   line-height: 1.4;
@@ -325,27 +321,27 @@
 }
 
 .autor {
-  color: #66756B;
+  color: #66756b;
   font-size: 13px;
   line-height: 1.5;
   margin-bottom: 12px;
 }
 
 .isbn {
-  color: #7C8980;
+  color: #7c8980;
   font-size: 12px;
   margin-bottom: 20px;
   overflow-wrap: anywhere;
 }
 
 .disponibilidad {
-  border-top: 1px solid #E4EDE5;
+  border-top: 1px solid #e4ede5;
   padding-top: 15px;
   display: flex;
   flex-direction: column;
   gap: 7px;
   font-size: 12px;
-  color: #66756B;
+  color: #66756b;
   margin-top: auto;
 }
 
@@ -362,7 +358,7 @@
 }
 
 .noDisponible {
-  color: #B42318;
+  color: #b42318;
 }
 
 .enlaceDetalles {
@@ -370,14 +366,14 @@
   align-items: center;
   justify-content: space-between;
   gap: 8px;
-  color: #244D3D;
+  color: #244d3d;
   font-size: 13px;
   font-weight: 700;
   margin-top: 19px;
 }
 
 .tarjetaLibro:hover .enlaceDetalles {
-  color: #54806A;
+  color: #54806a;
 }
 
 /* MENSAJES */
@@ -390,7 +386,7 @@
 }
 
 .mensajeError {
-  color: #B42318;
+  color: #b42318;
 }
 
 .sinResultados {
@@ -399,12 +395,12 @@
   align-items: center;
   gap: 12px;
   padding: 65px 20px;
-  color: #66756B;
+  color: #66756b;
   text-align: center;
 }
 
 .sinResultados h3 {
-  color: #244D3D;
+  color: #244d3d;
 }
 
 /* PAGINACIÓN */
@@ -422,17 +418,17 @@
   align-items: center;
   gap: 6px;
   padding: 11px 16px;
-  border: 1px solid #DDE5DC;
+  border: 1px solid #dde5dc;
   border-radius: 8px;
-  background: #FFFFFF;
-  color: #244D3D;
+  background: #ffffff;
+  color: #244d3d;
   font-size: 14px;
   font-weight: 600;
   cursor: pointer;
 }
 
 .paginacion button:hover:not(:disabled) {
-  background: #E4EDE5;
+  background: #e4ede5;
 }
 
 .paginacion button:disabled {
@@ -441,7 +437,7 @@
 }
 
 .paginacion span {
-  color: #66756B;
+  color: #66756b;
   font-size: 14px;
 }
 
@@ -464,7 +460,7 @@
   max-width: 480px;
   max-height: 90vh;
   overflow-y: auto;
-  background: #FFFFFF;
+  background: #ffffff;
   border-radius: 18px;
   padding: 38px 32px;
   text-align: center;
@@ -482,13 +478,13 @@
   height: 35px;
   border: none;
   border-radius: 50%;
-  background: #F1F4EF;
+  background: #f1f4ef;
   color: #526357;
   cursor: pointer;
 }
 
 .cerrarModal:hover {
-  background: #E4EDE5;
+  background: #e4ede5;
 }
 
 .iconoLibroModal {
@@ -499,19 +495,19 @@
   height: 100px;
   margin: 0 auto 22px;
   border-radius: 18px;
-  background: #E4EDE5;
-  color: #244D3D;
+  background: #e4ede5;
+  color: #244d3d;
 }
 
 .modalLibro h2 {
-  color: #244D3D;
+  color: #244d3d;
   font-size: 25px;
   line-height: 1.3;
   margin-bottom: 10px;
 }
 
 .autorModal {
-  color: #66756B;
+  color: #66756b;
   margin-bottom: 28px;
 }
 
@@ -538,23 +534,23 @@
 }
 
 .solicitarPrestamo {
-  background: #244D3D;
-  color: #FFFFFF;
-  border: 1px solid #244D3D;
+  background: #244d3d;
+  color: #ffffff;
+  border: 1px solid #244d3d;
 }
 
 .solicitarPrestamo:hover {
-  background: #19382C;
+  background: #19382c;
 }
 
 .verResumen {
-  background: #FFFFFF;
-  color: #244D3D;
-  border: 1px solid #54806A;
+  background: #ffffff;
+  color: #244d3d;
+  border: 1px solid #54806a;
 }
 
 .verResumen:hover {
-  background: #E4EDE5;
+  background: #e4ede5;
 }
 
 .contenidoResumen {
@@ -562,7 +558,7 @@
 }
 
 .contenidoResumen h3 {
-  color: #244D3D;
+  color: #244d3d;
   margin-bottom: 12px;
 }
 
@@ -581,8 +577,8 @@
   align-items: center;
   gap: 12px;
   padding: 35px 20px;
-  background: #244D3D;
-  color: #FFFFFF;
+  background: #244d3d;
+  color: #ffffff;
   text-align: center;
 }
 
@@ -598,7 +594,7 @@
 }
 
 .piePagina p {
-  color: #D5E4D8;
+  color: #d5e4d8;
   font-size: 13px;
 }
 
@@ -708,31 +704,33 @@
   gap: 14px;
   padding: 12px 16px;
 
-  background: #FFFFFF;
-  color: #244D3D;
-  border: 1px solid #DDE5DC;
+  background: #ffffff;
+  color: #244d3d;
+  border: 1px solid #dde5dc;
   border-radius: 12px;
 
   font-family: inherit;
   font-size: 14px;
   cursor: pointer;
 
-  transition: border-color 0.2s, box-shadow 0.2s;
+  transition:
+    border-color 0.2s,
+    box-shadow 0.2s;
 }
 
 .botonFiltroCategorias:hover {
-  border-color: #54806A;
+  border-color: #54806a;
 }
 
 .botonFiltroCategorias:focus-visible,
 .buscarCategoria:focus-visible,
 .opcionCategoria:focus-visible {
-  outline: 2px solid #54806A;
+  outline: 2px solid #54806a;
   outline-offset: 2px;
 }
 
 .botonFiltroCategorias svg {
-  color: #54806A;
+  color: #54806a;
   flex-shrink: 0;
 }
 
@@ -743,7 +741,7 @@
 
 .flechaCategoria {
   font-size: 21px;
-  color: #244D3D;
+  color: #244d3d;
 }
 
 /* PANEL DESPLEGABLE */
@@ -756,8 +754,8 @@
   box-sizing: border-box;
 
   padding: 10px;
-  background: #FFFFFF;
-  border: 1px solid #DDE5DC;
+  background: #ffffff;
+  border: 1px solid #dde5dc;
   border-radius: 14px;
 
   box-shadow: 0 12px 30px rgba(36, 77, 61, 0.15);
@@ -768,11 +766,11 @@
   box-sizing: border-box;
   padding: 12px;
 
-  background: #FAF9F6;
-  border: 1px solid #DDE5DC;
+  background: #faf9f6;
+  border: 1px solid #dde5dc;
   border-radius: 9px;
 
-  color: #244D3D;
+  color: #244d3d;
   font-family: inherit;
   font-size: 13px;
 }
@@ -789,7 +787,7 @@
   margin-top: 10px;
   padding-right: 3px;
   scrollbar-width: thin;
-  scrollbar-color: #A6BDAE transparent;
+  scrollbar-color: #a6bdae transparent;
 }
 
 .opcionCategoria {
@@ -802,7 +800,7 @@
   margin-bottom: 3px;
 
   background: transparent;
-  color: #244D3D;
+  color: #244d3d;
   border: none;
   border-radius: 8px;
 
@@ -813,30 +811,30 @@
 }
 
 .opcionCategoria:hover {
-  background: #F0F5F0;
+  background: #f0f5f0;
 }
 
 .categoriaActiva {
-  background: #E4EDE5;
+  background: #e4ede5;
   font-weight: 600;
 }
 
 .categoriaActiva span {
-  color: #54806A;
+  color: #54806a;
   font-weight: bold;
 }
 
 .sinCategorias {
   padding: 12px;
-  color: #66756B;
+  color: #66756b;
   font-size: 13px;
 }
 
 .pieCategorias {
   padding: 12px 6px 3px;
-  border-top: 1px solid #E4EDE5;
+  border-top: 1px solid #e4ede5;
 
-  color: #66756B;
+  color: #66756b;
   font-size: 11px;
   text-align: center;
 }
