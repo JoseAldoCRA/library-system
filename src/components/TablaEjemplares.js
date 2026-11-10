@@ -1,10 +1,9 @@
-
 "use client";
 
-import { useEffect, useState } from "react";
+import { Fragment, useEffect, useState } from "react";
 import {
   listarEjemplares,
-  cambiarEstadoEjemplar
+  cambiarEstadoEjemplar,
 } from "@/services/ejemplaresService";
 
 import {
@@ -19,17 +18,14 @@ import {
   ChevronLeft,
   ChevronRight,
   TriangleAlert,
-  X
+  X,
 } from "lucide-react";
 
 import styles from "./TablaLibros.module.css";
 
 const EJEMPLARES_POR_PAGINA = 10;
 
-export default function TablaEjemplares({
-  actualizacion,
-  alCambiarEstado
-}) {
+export default function TablaEjemplares({ actualizacion, alCambiarEstado }) {
   const [ejemplares, setEjemplares] = useState([]);
   const [cargando, setCargando] = useState(true);
   const [error, setError] = useState("");
@@ -37,6 +33,7 @@ export default function TablaEjemplares({
   const [categoriaSeleccionada, setCategoriaSeleccionada] = useState("");
   const [busqueda, setBusqueda] = useState("");
   const [paginaActual, setPaginaActual] = useState(1);
+  const [paginaDestino, setPaginaDestino] = useState("");
 
   const [ejemplarSeleccionado, setEjemplarSeleccionado] = useState(null);
   const [guardando, setGuardando] = useState(false);
@@ -77,10 +74,8 @@ export default function TablaEjemplares({
 
   const categorias = [
     ...new Set(
-      ejemplares
-        .map((ejemplar) => ejemplar.categoria)
-        .filter(Boolean)
-    )
+      ejemplares.map((ejemplar) => ejemplar.categoria).filter(Boolean),
+    ),
   ].sort((a, b) => a.localeCompare(b, "es"));
 
   // Filtrar ejemplares
@@ -89,9 +84,15 @@ export default function TablaEjemplares({
     const texto = busqueda.toLowerCase().trim();
 
     const coincideBusqueda =
-      String(ejemplar.codigo || "").toLowerCase().includes(texto) ||
-      String(ejemplar.isbn || "").toLowerCase().includes(texto) ||
-      String(ejemplar.titulo || "").toLowerCase().includes(texto);
+      String(ejemplar.codigo || "")
+        .toLowerCase()
+        .includes(texto) ||
+      String(ejemplar.isbn || "")
+        .toLowerCase()
+        .includes(texto) ||
+      String(ejemplar.titulo || "")
+        .toLowerCase()
+        .includes(texto);
 
     const coincideCategoria =
       categoriaSeleccionada === "" ||
@@ -104,14 +105,26 @@ export default function TablaEjemplares({
 
   const totalPaginas = Math.max(
     1,
-    Math.ceil(ejemplaresFiltrados.length / EJEMPLARES_POR_PAGINA)
+    Math.ceil(ejemplaresFiltrados.length / EJEMPLARES_POR_PAGINA),
   );
 
   const paginaVisible = Math.min(paginaActual, totalPaginas);
+  // Mostrar la primera, la última y las páginas cercanas.
+  const paginasNumeradas = [];
+
+  for (let numero = 1; numero <= totalPaginas; numero++) {
+    if (
+      numero === 1 ||
+      numero === totalPaginas ||
+      Math.abs(numero - paginaVisible) <= 2
+    ) {
+      paginasNumeradas.push(numero);
+    }
+  }
 
   const ejemplaresPagina = ejemplaresFiltrados.slice(
     (paginaVisible - 1) * EJEMPLARES_POR_PAGINA,
-    paginaVisible * EJEMPLARES_POR_PAGINA
+    paginaVisible * EJEMPLARES_POR_PAGINA,
   );
 
   function cambiarBusqueda(valor) {
@@ -142,10 +155,7 @@ export default function TablaEjemplares({
     const ejemplar = ejemplarSeleccionado;
 
     // Solo permitir baja o reactivación
-    if (
-      ejemplar.estado !== "disponible" &&
-      ejemplar.estado !== "baja"
-    ) {
+    if (ejemplar.estado !== "disponible" && ejemplar.estado !== "baja") {
       setEjemplarSeleccionado(null);
       return;
     }
@@ -171,7 +181,7 @@ export default function TablaEjemplares({
       setMensaje(
         nuevoEstado === "baja"
           ? "Ejemplar dado de baja correctamente."
-          : "Ejemplar reactivado correctamente."
+          : "Ejemplar reactivado correctamente.",
       );
     } catch (error) {
       setMensaje("Error: " + error.message);
@@ -183,7 +193,6 @@ export default function TablaEjemplares({
 
   return (
     <section className={styles.tarjeta}>
-
       {/* ENCABEZADO */}
 
       <div className={styles.encabezado}>
@@ -198,9 +207,7 @@ export default function TablaEjemplares({
           </div>
         </div>
 
-        <span className={styles.total}>
-          {ejemplares.length} ejemplares
-        </span>
+        <span className={styles.total}>{ejemplares.length} ejemplares</span>
       </div>
 
       {/* BUSCADOR */}
@@ -252,15 +259,9 @@ export default function TablaEjemplares({
         </p>
       )}
 
-      {cargando && (
-        <p className={styles.mensaje}>Cargando ejemplares...</p>
-      )}
+      {cargando && <p className={styles.mensaje}>Cargando ejemplares...</p>}
 
-      {error && (
-        <p className={styles.mensajeError}>
-          Error: {error}
-        </p>
-      )}
+      {error && <p className={styles.mensajeError}>Error: {error}</p>}
 
       {!cargando && !error && (
         <>
@@ -269,9 +270,7 @@ export default function TablaEjemplares({
           </p>
 
           {ejemplaresFiltrados.length === 0 ? (
-            <p className={styles.mensaje}>
-              No se encontraron ejemplares.
-            </p>
+            <p className={styles.mensaje}>No se encontraron ejemplares.</p>
           ) : (
             <>
               {/* TABLA */}
@@ -366,7 +365,6 @@ export default function TablaEjemplares({
               </div>
 
               {/* PAGINACIÓN */}
-
               {totalPaginas > 1 && (
                 <nav
                   className={styles.paginacion}
@@ -381,9 +379,32 @@ export default function TablaEjemplares({
                     Anterior
                   </button>
 
-                  <span>
-                    Página {paginaVisible} de {totalPaginas}
-                  </span>
+                  <div className={styles.paginasNumeradas}>
+                    {paginasNumeradas.map((numero, indice) => (
+                      <Fragment key={numero}>
+                        {indice > 0 &&
+                          numero - paginasNumeradas[indice - 1] > 1 && (
+                            <span aria-hidden="true">…</span>
+                          )}
+
+                        <button
+                          type="button"
+                          className={
+                            numero === paginaVisible
+                              ? styles.paginaActiva
+                              : styles.numeroPagina
+                          }
+                          aria-label={`Ir a la página ${numero}`}
+                          aria-current={
+                            numero === paginaVisible ? "page" : undefined
+                          }
+                          onClick={() => setPaginaActual(numero)}
+                        >
+                          {numero}
+                        </button>
+                      </Fragment>
+                    ))}
+                  </div>
 
                   <button
                     type="button"
@@ -393,6 +414,43 @@ export default function TablaEjemplares({
                     Siguiente
                     <ChevronRight size={17} />
                   </button>
+
+                  <form
+                    className={styles.irAPagina}
+                    onSubmit={(evento) => {
+                      evento.preventDefault();
+
+                      const numero = Number(paginaDestino);
+
+                      if (
+                        paginaDestino.trim() !== "" &&
+                        Number.isInteger(numero) &&
+                        numero >= 1 &&
+                        numero <= totalPaginas
+                      ) {
+                        setPaginaActual(numero);
+                        setPaginaDestino("");
+                      }
+                    }}
+                  >
+                    <label htmlFor="pagina-destino-ejemplares">
+                      Ir a página
+                    </label>
+
+                    <input
+                      id="pagina-destino-ejemplares"
+                      type="number"
+                      min="1"
+                      max={totalPaginas}
+                      value={paginaDestino}
+                      onChange={(evento) =>
+                        setPaginaDestino(evento.target.value)
+                      }
+                      aria-label="Número de página"
+                    />
+
+                    <button type="submit">Ir</button>
+                  </form>
                 </nav>
               )}
             </>
@@ -481,7 +539,6 @@ export default function TablaEjemplares({
           </div>
         </div>
       )}
-
     </section>
   );
 }

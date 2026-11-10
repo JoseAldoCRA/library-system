@@ -70,6 +70,13 @@
   font-family: inherit;
 }
 
+/* Uniformar altura de los campos del formulario de libros */
+.campos > .grupo > input {
+  height: 48px;
+  min-height: 48px;
+  box-sizing: border-box;
+}
+
 .grupo input:focus,
 .grupo select:focus {
   outline: none;

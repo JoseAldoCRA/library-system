@@ -1356,3 +1356,42 @@
     flex-wrap: wrap;
   }
 }
+
+
+
+/* IR DIRECTAMENTE A UNA PÁGINA */
+
+.paginacion {
+  flex-wrap: wrap;
+}
+
+.irAPagina {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+}
+
+.irAPagina label {
+  color: #66756B;
+  font-size: 13px;
+  white-space: nowrap;
+}
+
+.irAPagina input {
+  width: 65px;
+  height: 40px;
+  padding: 8px;
+  text-align: center;
+  border: 1px solid #DDE5DC;
+  border-radius: 8px;
+  background: #FFFFFF;
+  color: #244D3D;
+  font: inherit;
+}
+
+.irAPagina input:focus {
+  outline: none;
+  border-color: #54806A;
+  box-shadow: 0 0 0 3px rgba(84, 128, 106, 0.12);
+}
