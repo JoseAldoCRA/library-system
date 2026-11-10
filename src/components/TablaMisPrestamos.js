@@ -1,4 +1,3 @@
-
 "use client";
 
 import { useEffect, useState } from "react";
@@ -10,10 +9,11 @@ import {
   Clock3,
   CircleCheck,
   ChevronLeft,
-  ChevronRight
+  ChevronRight,
 } from "lucide-react";
 
 import styles from "./TablaLibros.module.css";
+import SelectorPrestamo from "./SelectorPrestamo";
 
 export default function TablaMisPrestamos() {
   const [prestamos, setPrestamos] = useState([]);
@@ -66,10 +66,7 @@ export default function TablaMisPrestamos() {
   }
 
   function estaVencido(prestamo) {
-    if (
-      prestamo.estado !== "Activo" ||
-      !prestamo.fecha_vencimiento
-    ) {
+    if (prestamo.estado !== "Activo" || !prestamo.fecha_vencimiento) {
       return false;
     }
 
@@ -81,9 +78,7 @@ export default function TablaMisPrestamos() {
 
     const fechaHoy = `${anio}-${mes}-${dia}`;
 
-    return (
-      prestamo.fecha_vencimiento.split("T")[0] < fechaHoy
-    );
+    return prestamo.fecha_vencimiento.split("T")[0] < fechaHoy;
   }
 
   // Indicadores
@@ -91,11 +86,11 @@ export default function TablaMisPrestamos() {
   const totalPrestamos = prestamos.length;
 
   const prestamosActivos = prestamos.filter(
-    (item) => item.estado === "Activo"
+    (item) => item.estado === "Activo",
   ).length;
 
   const prestamosDevueltos = prestamos.filter(
-    (item) => item.estado === "Devuelto"
+    (item) => item.estado === "Devuelto",
   ).length;
 
   // Buscador y filtros
@@ -104,8 +99,12 @@ export default function TablaMisPrestamos() {
     const texto = busqueda.toLowerCase().trim();
 
     const coincideBusqueda =
-      String(item.libro || "").toLowerCase().includes(texto) ||
-      String(item.ejemplar || "").toLowerCase().includes(texto);
+      String(item.libro || "")
+        .toLowerCase()
+        .includes(texto) ||
+      String(item.ejemplar || "")
+        .toLowerCase()
+        .includes(texto);
 
     const coincideFiltro =
       filtro === "todos" ||
@@ -117,21 +116,17 @@ export default function TablaMisPrestamos() {
 
   // Paginación
 
-  const totalPaginas = Math.max(
-    1,
-    Math.ceil(prestamosFiltrados.length / 10)
-  );
+  const totalPaginas = Math.max(1, Math.ceil(prestamosFiltrados.length / 10));
 
   const paginaVisible = Math.min(pagina, totalPaginas);
 
   const prestamosPagina = prestamosFiltrados.slice(
     (paginaVisible - 1) * 10,
-    paginaVisible * 10
+    paginaVisible * 10,
   );
 
   return (
     <section className={styles.tarjeta}>
-
       {/* ENCABEZADO */}
 
       <div className={styles.encabezado}>
@@ -142,15 +137,11 @@ export default function TablaMisPrestamos() {
 
           <div>
             <h2>Mis préstamos</h2>
-            <p>
-              Consulta tus préstamos y fechas de vencimiento.
-            </p>
+            <p>Consulta tus préstamos y fechas de vencimiento.</p>
           </div>
         </div>
 
-        <span className={styles.total}>
-          {totalPrestamos} préstamos
-        </span>
+        <span className={styles.total}>{totalPrestamos} préstamos</span>
       </div>
 
       {/* INDICADORES */}
@@ -193,37 +184,31 @@ export default function TablaMisPrestamos() {
       </div>
 
       {/* FILTRO */}
-
       <div className={styles.filtrosSanciones}>
-        <label htmlFor="filtroMisPrestamos">
-          Mostrar
-        </label>
+        <label htmlFor="filtroMisPrestamos">Mostrar</label>
 
-        <select
-          id="filtroMisPrestamos"
-          value={filtro}
-          onChange={(evento) => {
-            setFiltro(evento.target.value);
-            setPagina(1);
-          }}
-        >
-          <option value="todos">Todos los préstamos</option>
-          <option value="activos">Activos</option>
-          <option value="devueltos">Devueltos</option>
-        </select>
+        <div style={{ width: "300px", maxWidth: "100%" }}>
+          <SelectorPrestamo
+            id="filtroMisPrestamos"
+            valor={filtro}
+            alCambiar={(nuevoValor) => {
+              setFiltro(nuevoValor);
+              setPagina(1);
+            }}
+            opciones={[
+              { valor: "todos", texto: "Todos los préstamos" },
+              { valor: "activos", texto: "Activos" },
+              { valor: "devueltos", texto: "Devueltos" },
+            ]}
+            textoInicial="Todos los préstamos"
+            mostrarBuscador={false}
+          />
+        </div>
       </div>
 
-      {cargando && (
-        <p className={styles.mensaje}>
-          Cargando tus préstamos...
-        </p>
-      )}
+      {cargando && <p className={styles.mensaje}>Cargando tus préstamos...</p>}
 
-      {error && (
-        <p className={styles.mensajeError}>
-          Error: {error}
-        </p>
-      )}
+      {error && <p className={styles.mensajeError}>Error: {error}</p>}
 
       {!cargando && !error && (
         <>
@@ -255,23 +240,15 @@ export default function TablaMisPrestamos() {
                   <tbody>
                     {prestamosPagina.map((prestamo) => (
                       <tr key={prestamo.id_prestamo}>
-                        <td className={styles.nombreLibro}>
-                          {prestamo.libro}
-                        </td>
+                        <td className={styles.nombreLibro}>{prestamo.libro}</td>
 
                         <td>{prestamo.ejemplar}</td>
 
-                        <td>
-                          {mostrarFecha(prestamo.fecha_prestamo)}
-                        </td>
+                        <td>{mostrarFecha(prestamo.fecha_prestamo)}</td>
 
-                        <td>
-                          {mostrarFecha(prestamo.fecha_vencimiento)}
-                        </td>
+                        <td>{mostrarFecha(prestamo.fecha_vencimiento)}</td>
 
-                        <td>
-                          {mostrarFecha(prestamo.fecha_devolucion)}
-                        </td>
+                        <td>{mostrarFecha(prestamo.fecha_devolucion)}</td>
 
                         <td>
                           <span

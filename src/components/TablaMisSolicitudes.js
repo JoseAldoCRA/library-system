@@ -1,4 +1,3 @@
-
 "use client";
 
 import { useEffect, useState } from "react";
@@ -19,6 +18,7 @@ import {
 } from "lucide-react";
 
 import styles from "./TablaLibros.module.css";
+import SelectorPrestamo from "./SelectorPrestamo";
 
 export default function TablaMisSolicitudes() {
   const [solicitudes, setSolicitudes] = useState([]);
@@ -81,10 +81,8 @@ export default function TablaMisSolicitudes() {
 
       setSolicitudes((actuales) =>
         actuales.map((item) =>
-          item.id_solicitud === id
-            ? { ...item, estado: "cancelada" }
-            : item
-        )
+          item.id_solicitud === id ? { ...item, estado: "cancelada" } : item,
+        ),
       );
 
       setMensaje("La solicitud se canceló correctamente.");
@@ -99,11 +97,11 @@ export default function TablaMisSolicitudes() {
   const totalSolicitudes = solicitudes.length;
 
   const pendientes = solicitudes.filter(
-    (item) => item.estado === "pendiente"
+    (item) => item.estado === "pendiente",
   ).length;
 
   const finalizadas = solicitudes.filter(
-    (item) => item.estado !== "pendiente"
+    (item) => item.estado !== "pendiente",
   ).length;
 
   const solicitudesFiltradas = solicitudes.filter((item) => {
@@ -120,22 +118,18 @@ export default function TablaMisSolicitudes() {
         .toLowerCase()
         .includes(texto);
 
-    const coincideFiltro =
-      filtro === "todos" || item.estado === filtro;
+    const coincideFiltro = filtro === "todos" || item.estado === filtro;
 
     return coincideBusqueda && coincideFiltro;
   });
 
-  const totalPaginas = Math.max(
-    1,
-    Math.ceil(solicitudesFiltradas.length / 10)
-  );
+  const totalPaginas = Math.max(1, Math.ceil(solicitudesFiltradas.length / 10));
 
   const paginaVisible = Math.min(pagina, totalPaginas);
 
   const solicitudesPagina = solicitudesFiltradas.slice(
     (paginaVisible - 1) * 10,
-    paginaVisible * 10
+    paginaVisible * 10,
   );
 
   function textoEstado(estado) {
@@ -165,15 +159,11 @@ export default function TablaMisSolicitudes() {
 
           <div>
             <h2>Mis solicitudes</h2>
-            <p>
-              Consulta el estado de tus solicitudes de préstamo.
-            </p>
+            <p>Consulta el estado de tus solicitudes de préstamo.</p>
           </div>
         </div>
 
-        <span className={styles.total}>
-          {totalSolicitudes} solicitudes
-        </span>
+        <span className={styles.total}>{totalSolicitudes} solicitudes</span>
       </div>
 
       {/* INDICADORES */}
@@ -215,35 +205,35 @@ export default function TablaMisSolicitudes() {
         />
       </div>
 
-      {/* FILTROS */}
-
+      {/* FILTRO */}
       <div className={styles.filtrosSanciones}>
-        <label htmlFor="filtroMisSolicitudes">
-          Mostrar
-        </label>
+        <label htmlFor="filtroMisSolicitudes">Mostrar</label>
 
-        <select
-          id="filtroMisSolicitudes"
-          value={filtro}
-          onChange={(evento) => {
-            setFiltro(evento.target.value);
-            setPagina(1);
-          }}
-        >
-          <option value="todos">Todas las solicitudes</option>
-          <option value="pendiente">Pendientes</option>
-          <option value="aprobada">Aprobadas</option>
-          <option value="rechazada">Rechazadas</option>
-          <option value="cancelada">Canceladas</option>
-        </select>
+        <div style={{ width: "300px", maxWidth: "100%" }}>
+          <SelectorPrestamo
+            id="filtroMisSolicitudes"
+            valor={filtro}
+            alCambiar={(nuevoValor) => {
+              setFiltro(nuevoValor);
+              setPagina(1);
+            }}
+            opciones={[
+              { valor: "todos", texto: "Todas las solicitudes" },
+              { valor: "pendiente", texto: "Pendientes" },
+              { valor: "aprobada", texto: "Aprobadas" },
+              { valor: "rechazada", texto: "Rechazadas" },
+              { valor: "cancelada", texto: "Canceladas" },
+            ]}
+            textoInicial="Todas las solicitudes"
+            mostrarBuscador={false}
+          />
+        </div>
       </div>
 
       {/* MENSAJES */}
 
       {cargando && (
-        <p className={styles.mensaje}>
-          Cargando tus solicitudes...
-        </p>
+        <p className={styles.mensaje}>Cargando tus solicitudes...</p>
       )}
 
       {error && (
@@ -293,13 +283,9 @@ export default function TablaMisSolicitudes() {
                           {solicitud.libros?.titulo || "Sin título"}
                         </td>
 
-                        <td>
-                          {solicitud.libros?.autor || "—"}
-                        </td>
+                        <td>{solicitud.libros?.autor || "—"}</td>
 
-                        <td>
-                          {mostrarFecha(solicitud.fecha_solicitud)}
-                        </td>
+                        <td>{mostrarFecha(solicitud.fecha_solicitud)}</td>
 
                         <td>
                           <span className={estiloEstado(solicitud.estado)}>
@@ -312,9 +298,7 @@ export default function TablaMisSolicitudes() {
                             <button
                               type="button"
                               className={styles.botonCancelarSolicitud}
-                              onClick={() =>
-                                setSolicitudCancelar(solicitud)
-                              }
+                              onClick={() => setSolicitudCancelar(solicitud)}
                               disabled={cancelando !== null}
                             >
                               <XCircle size={15} />
@@ -371,10 +355,7 @@ export default function TablaMisSolicitudes() {
           className={styles.fondoModal}
           role="presentation"
           onMouseDown={(evento) => {
-            if (
-              evento.target === evento.currentTarget &&
-              cancelando === null
-            ) {
+            if (evento.target === evento.currentTarget && cancelando === null) {
               setSolicitudCancelar(null);
             }
           }}
@@ -391,22 +372,17 @@ export default function TablaMisSolicitudes() {
               </div>
             </div>
 
-            <h3 id="tituloCancelarSolicitud">
-              ¿Cancelar solicitud?
-            </h3>
+            <h3 id="tituloCancelarSolicitud">¿Cancelar solicitud?</h3>
 
-            <p>
-              Estás a punto de cancelar la solicitud de:
-            </p>
+            <p>Estás a punto de cancelar la solicitud de:</p>
 
             <strong className={styles.libroEliminar}>
               {solicitudCancelar.libros?.titulo}
             </strong>
 
             <p className={styles.advertencia}>
-              La solicitud quedará registrada como cancelada.
-              Si vuelves a necesitar este libro, podrás crear
-              una nueva solicitud.
+              La solicitud quedará registrada como cancelada. Si vuelves a
+              necesitar este libro, podrás crear una nueva solicitud.
             </p>
 
             <div className={styles.accionesModal}>

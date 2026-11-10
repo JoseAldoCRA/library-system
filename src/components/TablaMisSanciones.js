@@ -1,4 +1,3 @@
-
 "use client";
 
 import { useEffect, useState } from "react";
@@ -10,10 +9,11 @@ import {
   CircleCheck,
   Search,
   ChevronLeft,
-  ChevronRight
+  ChevronRight,
 } from "lucide-react";
 
 import styles from "./TablaLibros.module.css";
+import SelectorPrestamo from "./SelectorPrestamo";
 
 export default function TablaMisSanciones() {
   const [sanciones, setSanciones] = useState([]);
@@ -74,11 +74,11 @@ export default function TablaMisSanciones() {
   const totalSanciones = sanciones.length;
 
   const sancionesPendientes = sanciones.filter(
-    (item) => item.estado_pago === "pendiente"
+    (item) => item.estado_pago === "pendiente",
   ).length;
 
   const sancionesPagadas = sanciones.filter(
-    (item) => item.estado_pago === "pagado"
+    (item) => item.estado_pago === "pagado",
   ).length;
 
   // Búsqueda y filtros
@@ -87,33 +87,31 @@ export default function TablaMisSanciones() {
     const texto = busqueda.toLowerCase().trim();
 
     const coincideBusqueda =
-      String(item.libro || "").toLowerCase().includes(texto) ||
-      String(item.ejemplar || "").toLowerCase().includes(texto);
+      String(item.libro || "")
+        .toLowerCase()
+        .includes(texto) ||
+      String(item.ejemplar || "")
+        .toLowerCase()
+        .includes(texto);
 
-    const coincideEstado =
-      filtro === "todos" ||
-      item.estado_pago === filtro;
+    const coincideEstado = filtro === "todos" || item.estado_pago === filtro;
 
     return coincideBusqueda && coincideEstado;
   });
 
   // Paginación
 
-  const totalPaginas = Math.max(
-    1,
-    Math.ceil(sancionesFiltradas.length / 10)
-  );
+  const totalPaginas = Math.max(1, Math.ceil(sancionesFiltradas.length / 10));
 
   const paginaVisible = Math.min(pagina, totalPaginas);
 
   const sancionesPagina = sancionesFiltradas.slice(
     (paginaVisible - 1) * 10,
-    paginaVisible * 10
+    paginaVisible * 10,
   );
 
   return (
     <section className={styles.tarjeta}>
-
       {/* ENCABEZADO */}
 
       <div className={styles.encabezado}>
@@ -124,21 +122,16 @@ export default function TablaMisSanciones() {
 
           <div>
             <h2>Mis sanciones</h2>
-            <p>
-              Consulta las multas relacionadas con tus préstamos.
-            </p>
+            <p>Consulta las multas relacionadas con tus préstamos.</p>
           </div>
         </div>
 
-        <span className={styles.total}>
-          {totalSanciones} sanciones
-        </span>
+        <span className={styles.total}>{totalSanciones} sanciones</span>
       </div>
 
       {/* RESUMEN */}
 
       <div className={styles.resumenSanciones}>
-
         <div className={styles.indicadorSancion}>
           <ShieldAlert size={20} />
           <div>
@@ -162,7 +155,6 @@ export default function TablaMisSanciones() {
             <strong>{sancionesPagadas}</strong>
           </div>
         </div>
-
       </div>
 
       {/* BUSCADOR */}
@@ -183,33 +175,31 @@ export default function TablaMisSanciones() {
       </div>
 
       {/* FILTRO */}
-
       <div className={styles.filtrosSanciones}>
-        <label htmlFor="filtroMisSanciones">
-          Estado de pago
-        </label>
+        <label htmlFor="filtroMisSanciones">Estado de pago</label>
 
-        <select
-          id="filtroMisSanciones"
-          value={filtro}
-          onChange={(evento) => {
-            setFiltro(evento.target.value);
-            setPagina(1);
-          }}
-        >
-          <option value="todos">Todas las sanciones</option>
-          <option value="pendiente">Pendientes</option>
-          <option value="pagado">Pagadas</option>
-        </select>
+        <div style={{ width: "300px", maxWidth: "100%" }}>
+          <SelectorPrestamo
+            id="filtroMisSanciones"
+            valor={filtro}
+            alCambiar={(nuevoValor) => {
+              setFiltro(nuevoValor);
+              setPagina(1);
+            }}
+            opciones={[
+              { valor: "todos", texto: "Todas las sanciones" },
+              { valor: "pendiente", texto: "Pendientes" },
+              { valor: "pagado", texto: "Pagadas" },
+            ]}
+            textoInicial="Todas las sanciones"
+            mostrarBuscador={false}
+          />
+        </div>
       </div>
 
       {/* MENSAJES */}
 
-      {cargando && (
-        <p className={styles.mensaje}>
-          Cargando tus sanciones...
-        </p>
-      )}
+      {cargando && <p className={styles.mensaje}>Cargando tus sanciones...</p>}
 
       {error && (
         <p role="alert" className={styles.mensajeError}>
@@ -249,15 +239,11 @@ export default function TablaMisSanciones() {
                   <tbody>
                     {sancionesPagina.map((sancion) => (
                       <tr key={sancion.id_sancion}>
-                        <td className={styles.nombreLibro}>
-                          {sancion.libro}
-                        </td>
+                        <td className={styles.nombreLibro}>{sancion.libro}</td>
 
                         <td>{sancion.ejemplar}</td>
 
-                        <td>
-                          {mostrarFecha(sancion.fecha_vencimiento)}
-                        </td>
+                        <td>{mostrarFecha(sancion.fecha_vencimiento)}</td>
 
                         <td>{sancion.dias_retraso}</td>
 
@@ -317,7 +303,6 @@ export default function TablaMisSanciones() {
           )}
         </>
       )}
-
     </section>
   );
 }
