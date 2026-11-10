@@ -1,13 +1,12 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import {
   obtenerTodasSolicitudes,
   rechazarSolicitudPrestamo,
   aprobarSolicitudPrestamo,
 } from "@/repositories/solicitudesRepository";
 import { crearClienteSupabase } from "@/lib/supabaseClient";
-
 
 import {
   ClipboardList,
@@ -17,10 +16,13 @@ import {
   ChevronLeft,
   ChevronRight,
   CheckCircle2,
-  CalendarDays
+  CalendarDays,
+  SlidersHorizontal,
+  Check,
 } from "lucide-react";
 
 import styles from "./TablaLibros.module.css";
+import estilosCategorias from "@/app/catalogo.module.css";
 
 export default function TablaSolicitudes() {
   const [solicitudes, setSolicitudes] = useState([]);
@@ -35,10 +37,56 @@ export default function TablaSolicitudes() {
   const [ejemplaresDisponibles, setEjemplaresDisponibles] = useState([]);
   const [cargandoEjemplares, setCargandoEjemplares] = useState(false);
 
-
   const [busqueda, setBusqueda] = useState("");
   const [filtro, setFiltro] = useState("pendiente");
   const [pagina, setPagina] = useState(1);
+
+  const [menuEstadosAbierto, setMenuEstadosAbierto] = useState(false);
+  const [busquedaEstados, setBusquedaEstados] = useState("");
+  const selectorEstadosRef = useRef(null);
+
+  const opcionesEstado = [
+    { valor: "todos", nombre: "Todas las solicitudes" },
+    { valor: "pendiente", nombre: "Pendientes" },
+    { valor: "aprobada", nombre: "Aprobadas" },
+    { valor: "rechazada", nombre: "Rechazadas" },
+    { valor: "cancelada", nombre: "Canceladas" },
+  ];
+
+  const estadoSeleccionado =
+    opcionesEstado.find((opcion) => opcion.valor === filtro)?.nombre ||
+    "Todas las solicitudes";
+
+  const estadosVisibles = opcionesEstado.filter((opcion) =>
+    opcion.nombre.toLowerCase().includes(busquedaEstados.toLowerCase()),
+  );
+
+  useEffect(() => {
+    function cerrarSelector(evento) {
+      if (
+        selectorEstadosRef.current &&
+        !selectorEstadosRef.current.contains(evento.target)
+      ) {
+        setMenuEstadosAbierto(false);
+        setBusquedaEstados("");
+      }
+    }
+
+    function cerrarConEscape(evento) {
+      if (evento.key === "Escape") {
+        setMenuEstadosAbierto(false);
+        setBusquedaEstados("");
+      }
+    }
+
+    document.addEventListener("mousedown", cerrarSelector);
+    document.addEventListener("keydown", cerrarConEscape);
+
+    return () => {
+      document.removeEventListener("mousedown", cerrarSelector);
+      document.removeEventListener("keydown", cerrarConEscape);
+    };
+  }, []);
 
   useEffect(() => {
     let activo = true;
@@ -66,7 +114,6 @@ export default function TablaSolicitudes() {
     };
   }, []);
 
-
   async function confirmarRechazo() {
     if (!solicitudRechazar || procesando) return;
 
@@ -75,16 +122,14 @@ export default function TablaSolicitudes() {
     setMensaje("");
 
     try {
-      await rechazarSolicitudPrestamo(
-        solicitudRechazar.id_solicitud
-      );
+      await rechazarSolicitudPrestamo(solicitudRechazar.id_solicitud);
 
       setSolicitudes((actuales) =>
         actuales.map((solicitud) =>
           solicitud.id_solicitud === solicitudRechazar.id_solicitud
             ? { ...solicitud, estado: "rechazada" }
-            : solicitud
-        )
+            : solicitud,
+        ),
       );
 
       setMensaje("La solicitud se rechazó correctamente.");
@@ -95,8 +140,6 @@ export default function TablaSolicitudes() {
       setProcesando(false);
     }
   }
-
-
 
   async function abrirAprobacion(solicitud) {
     setError("");
@@ -123,14 +166,11 @@ export default function TablaSolicitudes() {
 
       setEjemplaresDisponibles(data || []);
     } catch (err) {
-      setError(
-        "No se pudieron cargar los ejemplares: " + err.message
-      );
+      setError("No se pudieron cargar los ejemplares: " + err.message);
     } finally {
       setCargandoEjemplares(false);
     }
   }
-
 
   async function confirmarAprobacion() {
     if (
@@ -150,21 +190,19 @@ export default function TablaSolicitudes() {
       await aprobarSolicitudPrestamo(
         solicitudAprobar.id_solicitud,
         ejemplarSeleccionado,
-        fechaVencimiento
+        fechaVencimiento,
       );
 
       setSolicitudes((actuales) =>
         actuales.map((solicitud) =>
           solicitud.id_solicitud === solicitudAprobar.id_solicitud
             ? { ...solicitud, estado: "aprobada" }
-            : solicitud
-        )
+            : solicitud,
+        ),
       );
 
       setSolicitudAprobar(null);
-      setMensaje(
-        "Solicitud aprobada y préstamo registrado correctamente."
-      );
+      setMensaje("Solicitud aprobada y préstamo registrado correctamente.");
     } catch (err) {
       setError(err.message || "No se pudo aprobar la solicitud.");
     } finally {
@@ -174,7 +212,7 @@ export default function TablaSolicitudes() {
 
   const total = solicitudes.length;
   const pendientes = solicitudes.filter(
-    (item) => item.estado === "pendiente"
+    (item) => item.estado === "pendiente",
   ).length;
   const finalizadas = total - pendientes;
 
@@ -182,18 +220,21 @@ export default function TablaSolicitudes() {
     const texto = busqueda.toLowerCase().trim();
 
     const coincideBusqueda =
-      String(item.usuarios?.nombre || "").toLowerCase().includes(texto) ||
-      String(item.libros?.titulo || "").toLowerCase().includes(texto);
+      String(item.usuarios?.nombre || "")
+        .toLowerCase()
+        .includes(texto) ||
+      String(item.libros?.titulo || "")
+        .toLowerCase()
+        .includes(texto);
 
-    return coincideBusqueda &&
-      (filtro === "todos" || item.estado === filtro);
+    return coincideBusqueda && (filtro === "todos" || item.estado === filtro);
   });
 
   const totalPaginas = Math.max(1, Math.ceil(filtradas.length / 10));
   const paginaVisible = Math.min(pagina, totalPaginas);
   const paginaActual = filtradas.slice(
     (paginaVisible - 1) * 10,
-    paginaVisible * 10
+    paginaVisible * 10,
   );
 
   function fechaCorta(fecha) {
@@ -265,25 +306,89 @@ export default function TablaSolicitudes() {
 
       <div className={styles.filtrosSanciones}>
         <label htmlFor="filtroSolicitudesAdmin">Mostrar</label>
-        <select
-          id="filtroSolicitudesAdmin"
-          value={filtro}
-          onChange={(e) => {
-            setFiltro(e.target.value);
-            setPagina(1);
-          }}
+
+        <div
+          ref={selectorEstadosRef}
+          className={estilosCategorias.filtroCategoriaModerno}
+          style={{ width: "280px", marginLeft: 0 }}
         >
-          <option value="todos">Todas las solicitudes</option>
-          <option value="pendiente">Pendientes</option>
-          <option value="aprobada">Aprobadas</option>
-          <option value="rechazada">Rechazadas</option>
-          <option value="cancelada">Canceladas</option>
-        </select>
+          <button
+            id="filtroSolicitudesAdmin"
+            type="button"
+            className={estilosCategorias.botonFiltroCategorias}
+            aria-expanded={menuEstadosAbierto}
+            aria-controls="lista-estados-solicitudes"
+            onClick={() => {
+              setMenuEstadosAbierto(!menuEstadosAbierto);
+              setBusquedaEstados("");
+            }}
+          >
+            <SlidersHorizontal size={19} />
+
+            <span>{estadoSeleccionado}</span>
+
+            <span className={estilosCategorias.flechaCategoria}>
+              {menuEstadosAbierto ? "⌃" : "⌄"}
+            </span>
+          </button>
+
+          {menuEstadosAbierto && (
+            <div
+              id="lista-estados-solicitudes"
+              className={estilosCategorias.panelCategorias}
+            >
+              <input
+                type="search"
+                className={estilosCategorias.buscarCategoria}
+                placeholder="Buscar estado..."
+                aria-label="Buscar estado de solicitud"
+                value={busquedaEstados}
+                onChange={(e) => setBusquedaEstados(e.target.value)}
+              />
+
+              <div className={estilosCategorias.listaCategorias}>
+                {estadosVisibles.length === 0 ? (
+                  <p className={estilosCategorias.sinCategorias}>
+                    No se encontraron resultados.
+                  </p>
+                ) : (
+                  estadosVisibles.map((opcion) => (
+                    <button
+                      key={opcion.valor}
+                      type="button"
+                      className={`${estilosCategorias.opcionCategoria} ${
+                        filtro === opcion.valor
+                          ? estilosCategorias.categoriaActiva
+                          : ""
+                      }`}
+                      onClick={() => {
+                        setFiltro(opcion.valor);
+                        setPagina(1);
+                        setMenuEstadosAbierto(false);
+                        setBusquedaEstados("");
+                      }}
+                    >
+                      {opcion.nombre}
+
+                      {filtro === opcion.valor && (
+                        <span>
+                          <Check size={16} />
+                        </span>
+                      )}
+                    </button>
+                  ))
+                )}
+              </div>
+
+              <div className={estilosCategorias.pieCategorias}>
+                5 opciones disponibles
+              </div>
+            </div>
+          )}
+        </div>
       </div>
 
-      {cargando && (
-        <p className={styles.mensaje}>Cargando solicitudes...</p>
-      )}
+      {cargando && <p className={styles.mensaje}>Cargando solicitudes...</p>}
 
       {error && (
         <p className={styles.mensajeError} role="alert">
@@ -336,7 +441,6 @@ export default function TablaSolicitudes() {
                           </span>
                         </td>
 
-
                         <td>
                           {solicitud.estado === "pendiente" ? (
                             <div className={styles.accionesSolicitud}>
@@ -365,8 +469,6 @@ export default function TablaSolicitudes() {
                             </span>
                           )}
                         </td>
-
-
                       </tr>
                     ))}
                   </tbody>
@@ -401,7 +503,6 @@ export default function TablaSolicitudes() {
         </>
       )}
 
-
       {mensaje && (
         <p className={styles.mensajeExito} role="status">
           {mensaje}
@@ -424,9 +525,7 @@ export default function TablaSolicitudes() {
 
             <h3 id="tituloRechazo">Rechazar solicitud</h3>
 
-            <p>
-              ¿Seguro que deseas rechazar la solicitud de este libro?
-            </p>
+            <p>¿Seguro que deseas rechazar la solicitud de este libro?</p>
 
             <strong className={styles.libroEliminar}>
               {solicitudRechazar.libros?.titulo}
@@ -461,7 +560,6 @@ export default function TablaSolicitudes() {
         </div>
       )}
 
-
       {/* APROBAR SOLICITUD */}
 
       {solicitudAprobar && (
@@ -489,22 +587,17 @@ export default function TablaSolicitudes() {
               </p>
 
               <p>
-                <strong>Libro:</strong>{" "}
-                {solicitudAprobar.libros?.titulo}
+                <strong>Libro:</strong> {solicitudAprobar.libros?.titulo}
               </p>
             </div>
 
             <div className={styles.campoSolicitudAdmin}>
-              <label htmlFor="ejemplarAprobar">
-                Ejemplar disponible
-              </label>
+              <label htmlFor="ejemplarAprobar">Ejemplar disponible</label>
 
               <select
                 id="ejemplarAprobar"
                 value={ejemplarSeleccionado}
-                onChange={(e) =>
-                  setEjemplarSeleccionado(e.target.value)
-                }
+                onChange={(e) => setEjemplarSeleccionado(e.target.value)}
                 disabled={procesando || cargandoEjemplares}
               >
                 <option value="">
@@ -514,10 +607,7 @@ export default function TablaSolicitudes() {
                 </option>
 
                 {ejemplaresDisponibles.map((item) => (
-                  <option
-                    key={item.id_ejemplar}
-                    value={item.id_ejemplar}
-                  >
+                  <option key={item.id_ejemplar} value={item.id_ejemplar}>
                     {item.codigo}
                   </option>
                 ))}
@@ -546,12 +636,11 @@ export default function TablaSolicitudes() {
               />
             </div>
 
-            {!cargandoEjemplares &&
-              ejemplaresDisponibles.length === 0 && (
-                <p className={styles.mensajeError}>
-                  No hay ejemplares disponibles para aprobar esta solicitud.
-                </p>
-              )}
+            {!cargandoEjemplares && ejemplaresDisponibles.length === 0 && (
+              <p className={styles.mensajeError}>
+                No hay ejemplares disponibles para aprobar esta solicitud.
+              </p>
+            )}
 
             {error && (
               <p className={styles.mensajeError} role="alert">
@@ -581,16 +670,12 @@ export default function TablaSolicitudes() {
                   !fechaVencimiento
                 }
               >
-                {procesando
-                  ? "Aprobando..."
-                  : "Aprobar y registrar préstamo"}
+                {procesando ? "Aprobando..." : "Aprobar y registrar préstamo"}
               </button>
             </div>
           </div>
         </div>
       )}
-
-
     </section>
   );
 }
