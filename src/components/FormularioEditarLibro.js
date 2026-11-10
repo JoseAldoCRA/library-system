@@ -175,6 +175,12 @@ export default function FormularioEditarLibro({
                 id="editarCategoria"
                 type="button"
                 className={estilosCategorias.botonFiltroCategorias}
+                style={{
+                  height: "48px",
+                  minHeight: "48px",
+                  padding: "0 16px",
+                  boxSizing: "border-box",
+                }}
                 aria-expanded={menuCategoriasAbierto}
                 aria-controls="lista-categorias-editar"
                 onClick={() => {
