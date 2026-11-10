@@ -13,7 +13,7 @@ import {
   EyeOff,
   UserRound,
   GraduationCap,
-  LogIn
+  LogIn,
 } from "lucide-react";
 
 export default function LoginForm() {
@@ -23,6 +23,8 @@ export default function LoginForm() {
 
   const [modoRegistro, setModoRegistro] = useState(false);
   const [mostrarContrasena, setMostrarContrasena] = useState(false);
+  const [mostrarConfirmarContrasena, setMostrarConfirmarContrasena] =
+    useState(false);
 
   const [nombre, setNombre] = useState("");
   const [correo, setCorreo] = useState("");
@@ -90,27 +92,23 @@ export default function LoginForm() {
 
           if (resultado.usuario.rol === "bibliotecario") {
             router.replace("/bibliotecario");
-
           } else if (resultado.usuario.rol === "estudiante") {
             if (tieneLibro) {
               router.replace(`/estudiante?libro=${idLibro}`);
             } else {
               router.replace("/estudiante");
             }
-
           } else if (resultado.usuario.rol === "docente") {
             if (tieneLibro) {
               router.replace(`/docente?libro=${idLibro}`);
             } else {
               router.replace("/docente");
             }
-
           } else {
             setEsError(true);
             setMensaje("No tienes un rol válido para ingresar.");
           }
         }
-
       }
     } catch (error) {
       setEsError(true);
@@ -132,18 +130,14 @@ export default function LoginForm() {
     setRol("");
   }
 
-
   return (
     <div className={styles.tarjetaLogin}>
-
       <div className={styles.encabezadoLogin}>
         <div className={styles.logoLogin}>
           <LibraryBig size={32} strokeWidth={1.6} />
         </div>
 
-        <h1>
-          {modoRegistro ? "Crea tu cuenta" : "Bienvenido de nuevo"}
-        </h1>
+        <h1>{modoRegistro ? "Crea tu cuenta" : "Bienvenido de nuevo"}</h1>
 
         <p>
           {modoRegistro
@@ -152,11 +146,7 @@ export default function LoginForm() {
         </p>
       </div>
 
-      <form
-        className={styles.formularioLogin}
-        onSubmit={manejarEnvio}
-      >
-
+      <form className={styles.formularioLogin} onSubmit={manejarEnvio}>
         {modoRegistro && (
           <div className={styles.grupoCampo}>
             <label htmlFor="nombre">Nombre completo</label>
@@ -215,16 +205,10 @@ export default function LoginForm() {
               className={styles.botonMostrar}
               onClick={() => setMostrarContrasena(!mostrarContrasena)}
               aria-label={
-                mostrarContrasena
-                  ? "Ocultar contraseña"
-                  : "Mostrar contraseña"
+                mostrarContrasena ? "Ocultar contraseña" : "Mostrar contraseña"
               }
             >
-              {mostrarContrasena ? (
-                <EyeOff size={19} />
-              ) : (
-                <Eye size={19} />
-              )}
+              {mostrarContrasena ? <EyeOff size={19} /> : <Eye size={19} />}
             </button>
           </div>
         </div>
@@ -232,23 +216,38 @@ export default function LoginForm() {
         {modoRegistro && (
           <>
             <div className={styles.grupoCampo}>
-              <label htmlFor="confirmarContrasena">
-                Confirmar contraseña
-              </label>
+              <label htmlFor="confirmarContrasena">Confirmar contraseña</label>
 
               <div className={styles.campoIcono}>
                 <LockKeyhole size={19} />
 
                 <input
-                  type="password"
+                  type={mostrarConfirmarContrasena ? "text" : "password"}
                   id="confirmarContrasena"
                   placeholder="Confirma tu contraseña"
                   value={confirmarContrasena}
-                  onChange={(e) =>
-                    setConfirmarContrasena(e.target.value)
-                  }
+                  onChange={(e) => setConfirmarContrasena(e.target.value)}
                   required
                 />
+
+                <button
+                  type="button"
+                  className={styles.botonMostrar}
+                  onClick={() =>
+                    setMostrarConfirmarContrasena(!mostrarConfirmarContrasena)
+                  }
+                  aria-label={
+                    mostrarConfirmarContrasena
+                      ? "Ocultar confirmación de contraseña"
+                      : "Mostrar confirmación de contraseña"
+                  }
+                >
+                  {mostrarConfirmarContrasena ? (
+                    <EyeOff size={19} />
+                  ) : (
+                    <Eye size={19} />
+                  )}
+                </button>
               </div>
             </div>
 
@@ -290,10 +289,9 @@ export default function LoginForm() {
 
       {mensaje && (
         <p
-          className={`${styles.mensajeLogin} ${esError
-              ? styles.mensajeError
-              : styles.mensajeExito
-            }`}
+          className={`${styles.mensajeLogin} ${
+            esError ? styles.mensajeError : styles.mensajeExito
+          }`}
           role="status"
         >
           {mensaje}
@@ -312,13 +310,9 @@ export default function LoginForm() {
           onClick={cambiarModo}
           className={styles.botonCambiarModo}
         >
-          {modoRegistro
-            ? "Inicia sesión aquí"
-            : "Regístrate aquí"}
+          {modoRegistro ? "Inicia sesión aquí" : "Regístrate aquí"}
         </button>
       </div>
-
     </div>
   );
 }
-
