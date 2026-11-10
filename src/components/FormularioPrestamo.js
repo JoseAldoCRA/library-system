@@ -11,6 +11,7 @@ import { es } from "date-fns/locale";
 import { registerLocale } from "react-datepicker";
 import { Handshake, Plus, CalendarDays } from "lucide-react";
 import styles from "./FormularioLibro.module.css";
+import SelectorPrestamo from "@/components/SelectorPrestamo";
 
 registerLocale("es", es);
 
@@ -89,10 +90,8 @@ export default function FormularioPrestamo({ alRegistrar, actualizacion }) {
     }
   }
 
-  
   return (
     <section className={styles.tarjeta}>
-
       <div className={styles.encabezado}>
         <div className={styles.icono}>
           <Handshake size={25} />
@@ -100,80 +99,55 @@ export default function FormularioPrestamo({ alRegistrar, actualizacion }) {
 
         <div>
           <h2>Registrar nuevo préstamo</h2>
-          <p>
-            Selecciona el usuario, el ejemplar y la fecha de vencimiento.
-          </p>
+          <p>Selecciona el usuario, el ejemplar y la fecha de vencimiento.</p>
         </div>
       </div>
 
       {cargando && (
-        <p className={styles.mensaje}>
-          Cargando usuarios y ejemplares...
-        </p>
+        <p className={styles.mensaje}>Cargando usuarios y ejemplares...</p>
       )}
 
       {!cargando && (
         <form onSubmit={registrarPrestamo}>
-
           <div className={styles.campos}>
-
             <div className={styles.grupo}>
               <label htmlFor="usuarioPrestamo">Usuario</label>
 
-              <select
+              <SelectorPrestamo
                 id="usuarioPrestamo"
-                value={usuario}
-                onChange={(evento) => setUsuario(evento.target.value)}
-                required
-              >
-                <option value="">
-                  Selecciona un estudiante o docente
-                </option>
-
-                {usuarios.map((item) => (
-                  <option
-                    key={item.id_usuario}
-                    value={item.id_usuario}
-                  >
-                    {item.nombre} (
-                    {item.rol === "estudiante"
-                      ? "Estudiante"
-                      : "Docente"})
-                  </option>
-                ))}
-              </select>
+                valor={usuario}
+                alCambiar={setUsuario}
+                opciones={usuarios.map((item) => ({
+                  valor: item.id_usuario,
+                  texto: `${item.nombre} (${
+                    item.rol === "estudiante" ? "Estudiante" : "Docente"
+                  })`,
+                }))}
+                textoInicial="Selecciona un estudiante o docente"
+                textoBusqueda="Buscar usuario..."
+                deshabilitado={guardando}
+              />
             </div>
 
             <div className={styles.grupo}>
-              <label htmlFor="ejemplarPrestamo">
-                Ejemplar disponible
-              </label>
+              <label htmlFor="ejemplarPrestamo">Ejemplar disponible</label>
 
-              <select
+              <SelectorPrestamo
                 id="ejemplarPrestamo"
-                value={ejemplar}
-                onChange={(evento) => setEjemplar(evento.target.value)}
-                required
-              >
-                <option value="">
-                  Selecciona un ejemplar
-                </option>
-
-                {ejemplares.map((item) => (
-                  <option
-                    key={item.id_ejemplar}
-                    value={item.id_ejemplar}
-                  >
-                    {item.codigo} - {item.libros?.titulo}
-                  </option>
-                ))}
-              </select>
+                valor={ejemplar}
+                alCambiar={setEjemplar}
+                opciones={ejemplares.map((item) => ({
+                  valor: item.id_ejemplar,
+                  texto: `${item.codigo} - ${item.libros?.titulo || "Sin título"}`,
+                }))}
+                textoInicial="Selecciona un ejemplar"
+                textoBusqueda="Buscar por código o libro..."
+                deshabilitado={guardando}
+              />
             </div>
 
             <div className={styles.grupo}>
-              <label htmlFor="fechaVencimiento">
-                Fecha de vencimiento
-              </label>
+              <label htmlFor="fechaVencimiento">Fecha de vencimiento</label>
 
               <div className={styles.campoCalendario}>
                 <CalendarDays size={19} />
@@ -189,9 +163,7 @@ export default function FormularioPrestamo({ alRegistrar, actualizacion }) {
                       const mes = String(fecha.getMonth() + 1).padStart(2, "0");
                       const dia = String(fecha.getDate()).padStart(2, "0");
 
-                      setFechaVencimiento(
-                        `${anio}-${mes}-${dia}`
-                      );
+                      setFechaVencimiento(`${anio}-${mes}-${dia}`);
                     } else {
                       setFechaVencimiento("");
                     }
@@ -207,7 +179,6 @@ export default function FormularioPrestamo({ alRegistrar, actualizacion }) {
                 />
               </div>
             </div>
-
           </div>
 
           <div className={styles.acciones}>
@@ -224,12 +195,9 @@ export default function FormularioPrestamo({ alRegistrar, actualizacion }) {
             >
               <Plus size={18} />
 
-              {guardando
-                ? "Registrando..."
-                : "Registrar préstamo"}
+              {guardando ? "Registrando..." : "Registrar préstamo"}
             </button>
           </div>
-
         </form>
       )}
 
@@ -237,16 +205,12 @@ export default function FormularioPrestamo({ alRegistrar, actualizacion }) {
         <p
           role="status"
           className={
-            mensaje.startsWith("Error")
-              ? styles.mensajeError
-              : styles.mensaje
+            mensaje.startsWith("Error") ? styles.mensajeError : styles.mensaje
           }
         >
           {mensaje}
         </p>
       )}
-
     </section>
   );
 }
-
