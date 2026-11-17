@@ -4,7 +4,9 @@ const {
   obtenerEjemplares,
   obtenerEjemplaresDisponibles,
   insertarLibro,
-  actualizarLibro
+  actualizarLibro,
+  contarEjemplaresLibro,
+  eliminarLibro
 } = require("../repositories/catalogoRepository");
 
 // Consultar las categorías de la biblioteca
@@ -144,11 +146,48 @@ async function editarLibro(idLibro, libro, token) {
   }
 }
 
+ // Eliminar un libro solamente si no tiene ejemplares
+async function eliminarLibroSeguro(idLibro, token) {
+  const id = Number(idLibro);
+
+  if (!Number.isSafeInteger(id) || id <= 0) {
+    throw new Error("El libro seleccionado no es válido.");
+  }
+
+  const cantidadEjemplares = await contarEjemplaresLibro(id, token);
+
+  if (cantidadEjemplares === null) {
+    throw new Error("No se pudo comprobar la cantidad de ejemplares.");
+  }
+
+  if (cantidadEjemplares > 0) {
+    throw new Error(
+      "No se puede eliminar el libro porque tiene ejemplares registrados."
+    );
+  }
+
+  try {
+    return await eliminarLibro(id, token);
+  } catch (error) {
+    if (
+      error.message.includes("foreign key constraint") ||
+      error.message.includes("violates foreign key")
+    ) {
+      throw new Error(
+        "No se puede eliminar el libro porque tiene registros relacionados."
+      );
+    }
+
+    throw error;
+  }
+}
+
 module.exports = {
   listarCategorias,
   listarLibros,
   listarEjemplares,
   listarEjemplaresDisponibles,
   registrarNuevoLibro,
-  editarLibro
+  editarLibro,
+  eliminarLibroSeguro
 };

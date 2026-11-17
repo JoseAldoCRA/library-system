@@ -8,7 +8,8 @@ const {
   listarEjemplares,
   listarEjemplaresDisponibles,
   registrarNuevoLibro,
-  editarLibro
+  editarLibro,
+  eliminarLibroSeguro,
 } = require("./services/catalogoService");
 
 const verificarToken = require("./middlewares/verificarToken");
@@ -99,8 +100,8 @@ app.get("/api/catalogo/verificar-sesion", verificarToken, (req, res) => {
   res.json({
     mensaje: "Sesión válida.",
     usuario: {
-      id: req.usuarioAuth.id
-    }
+      id: req.usuarioAuth.id,
+    },
   });
 });
 // Comprobar permisos de bibliotecario
@@ -110,12 +111,12 @@ app.get(
   verificarBibliotecario,
   (req, res) => {
     res.json({
-      mensaje: "Acceso autorizado para bibliotecario."
+      mensaje: "Acceso autorizado para bibliotecario.",
     });
-  }
+  },
 );
 
- // Registrar un nuevo libro
+// Registrar un nuevo libro
 app.post(
   "/api/catalogo/libros",
   verificarToken,
@@ -126,7 +127,7 @@ app.post(
 
       return res.status(201).json({
         mensaje: "Libro registrado correctamente.",
-        libro
+        libro,
       });
     } catch (error) {
       console.error("Error al registrar libro:", error.message);
@@ -137,34 +138,29 @@ app.post(
         error.message === "Ya existe un libro registrado con ese ISBN."
       ) {
         return res.status(400).json({
-          error: error.message
+          error: error.message,
         });
       }
 
       return res.status(500).json({
-        error: "No se pudo registrar el libro."
+        error: "No se pudo registrar el libro.",
       });
     }
-  }
+  },
 );
 
-
- // Editar la información de un libro
+// Editar la información de un libro
 app.put(
   "/api/catalogo/libros/:id",
   verificarToken,
   verificarBibliotecario,
   async (req, res) => {
     try {
-      const libro = await editarLibro(
-        req.params.id,
-        req.body,
-        req.token
-      );
+      const libro = await editarLibro(req.params.id, req.body, req.token);
 
       return res.status(200).json({
         mensaje: "Libro actualizado correctamente.",
-        libro
+        libro,
       });
     } catch (error) {
       console.error("Error al actualizar libro:", error.message);
@@ -176,15 +172,50 @@ app.put(
         error.message === "Ya existe otro libro registrado con ese ISBN."
       ) {
         return res.status(400).json({
-          error: error.message
+          error: error.message,
         });
       }
 
       return res.status(500).json({
-        error: "No se pudo actualizar el libro."
+        error: "No se pudo actualizar el libro.",
       });
     }
-  }
+  },
+);
+
+// Eliminar un libro de forma segura
+app.delete(
+  "/api/catalogo/libros/:id",
+  verificarToken,
+  verificarBibliotecario,
+  async (req, res) => {
+    try {
+      const libro = await eliminarLibroSeguro(req.params.id, req.token);
+
+      return res.status(200).json({
+        mensaje: "Libro eliminado correctamente.",
+        libro,
+      });
+    } catch (error) {
+      console.error("Error al eliminar libro:", error.message);
+
+      if (
+        error.message === "El libro seleccionado no es válido." ||
+        error.message ===
+          "No se puede eliminar el libro porque tiene ejemplares registrados." ||
+        error.message ===
+          "No se puede eliminar el libro porque tiene registros relacionados."
+      ) {
+        return res.status(400).json({
+          error: error.message,
+        });
+      }
+
+      return res.status(500).json({
+        error: "No se pudo eliminar el libro.",
+      });
+    }
+  },
 );
 
 // Iniciar servidor

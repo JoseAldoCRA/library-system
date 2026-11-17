@@ -19,7 +19,8 @@ async function obtenerCategorias() {
 async function obtenerLibros() {
   const { data, error } = await supabase
     .from("libros")
-    .select(`
+    .select(
+      `
       id_libro,
       isbn,
       titulo,
@@ -29,7 +30,8 @@ async function obtenerLibros() {
       id_categoria,
       categorias ( nombre ),
       ejemplares ( id_ejemplar, estado )
-    `)
+    `,
+    )
     .order("id_libro", { ascending: true });
 
   if (error) {
@@ -39,11 +41,12 @@ async function obtenerLibros() {
   return data;
 }
 
- // Obtener todos los ejemplares registrados
+// Obtener todos los ejemplares registrados
 async function obtenerEjemplares() {
   const { data, error } = await supabase
     .from("ejemplares")
-    .select(`
+    .select(
+      `
       id_ejemplar,
       id_libro,
       codigo,
@@ -53,7 +56,8 @@ async function obtenerEjemplares() {
         isbn,
         categorias ( nombre )
       )
-    `)
+    `,
+    )
     .order("codigo", { ascending: true });
 
   if (error) {
@@ -67,7 +71,8 @@ async function obtenerEjemplares() {
 async function obtenerEjemplaresDisponibles() {
   const { data, error } = await supabase
     .from("ejemplares")
-    .select(`
+    .select(
+      `
       id_ejemplar,
       codigo,
       estado,
@@ -75,7 +80,8 @@ async function obtenerEjemplaresDisponibles() {
         titulo,
         isbn
       )
-    `)
+    `,
+    )
     .eq("estado", "disponible")
     .order("codigo", { ascending: true });
 
@@ -86,7 +92,7 @@ async function obtenerEjemplaresDisponibles() {
   return data;
 }
 
- // Registrar un libro utilizando el token del bibliotecario
+// Registrar un libro utilizando el token del bibliotecario
 async function insertarLibro(libro, token) {
   const supabaseAutenticado = crearClienteAutenticado(token);
 
@@ -103,7 +109,7 @@ async function insertarLibro(libro, token) {
   return data;
 }
 
- // Actualizar los datos de un libro
+// Actualizar los datos de un libro
 async function actualizarLibro(idLibro, libro, token) {
   const supabaseAutenticado = crearClienteAutenticado(token);
 
@@ -121,11 +127,50 @@ async function actualizarLibro(idLibro, libro, token) {
   return data;
 }
 
+// Contar los ejemplares registrados de un libro
+async function contarEjemplaresLibro(idLibro, token) {
+  const supabaseAutenticado = crearClienteAutenticado(token);
+
+  const { count, error } = await supabaseAutenticado
+    .from("ejemplares")
+    .select("id_ejemplar", {
+      count: "exact",
+      head: true,
+    })
+    .eq("id_libro", idLibro);
+
+  if (error) {
+    throw new Error(error.message);
+  }
+
+  return count;
+}
+
+// Eliminar un libro utilizando los permisos del bibliotecario
+async function eliminarLibro(idLibro, token) {
+  const supabaseAutenticado = crearClienteAutenticado(token);
+
+  const { data, error } = await supabaseAutenticado
+    .from("libros")
+    .delete()
+    .eq("id_libro", idLibro)
+    .select("id_libro")
+    .single();
+
+  if (error) {
+    throw new Error(error.message);
+  }
+
+  return data;
+}
+
 module.exports = {
   obtenerCategorias,
   obtenerLibros,
   obtenerEjemplares,
   obtenerEjemplaresDisponibles,
   insertarLibro,
-  actualizarLibro
+  actualizarLibro,
+  contarEjemplaresLibro,
+  eliminarLibro
 };
