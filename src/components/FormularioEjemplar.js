@@ -2,7 +2,8 @@
 
 import { useEffect, useRef, useState } from "react";
 import { listarLibros } from "@/services/librosService";
-import { registrarNuevoEjemplar } from "@/services/ejemplaresService";
+// import { registrarNuevoEjemplar } from "@/services/ejemplaresService";
+import { crearClienteSupabase } from "@/lib/supabaseClient";
 import { BookCopy, Plus, SlidersHorizontal } from "lucide-react";
 import styles from "./FormularioLibro.module.css";
 import estilosCategorias from "@/app/catalogo.module.css";
@@ -39,7 +40,7 @@ export default function FormularioEjemplar({ alRegistrar, actualizacion }) {
     cargarLibros();
   }, [actualizacion]);
 
-  async function registrarEjemplar(evento) {
+  /* async function registrarEjemplar(evento) {
     evento.preventDefault();
 
     if (guardando) return;
@@ -56,6 +57,66 @@ export default function FormularioEjemplar({ alRegistrar, actualizacion }) {
         id_libro: idLibro,
         codigo: codigo,
       });
+
+      setMensaje("Ejemplar registrado correctamente.");
+      setIdLibro("");
+      setCodigo("");
+
+      if (alRegistrar) {
+        alRegistrar();
+      }
+    } catch (error) {
+      setMensaje("Error: " + error.message);
+    } finally {
+      setGuardando(false);
+    }
+  } */
+
+  async function registrarEjemplar(evento) {
+    evento.preventDefault();
+
+    if (guardando) return;
+
+    if (!idLibro) {
+      setMensaje("Selecciona un libro antes de registrar el ejemplar.");
+      return;
+    }
+
+    setGuardando(true);
+    setMensaje("");
+
+    try {
+      const supabase = crearClienteSupabase();
+
+      const {
+        data: { session },
+        error,
+      } = await supabase.auth.getSession();
+
+      if (error || !session) {
+        throw new Error("Debes iniciar sesión primero.");
+      }
+
+      const respuesta = await fetch(
+        "http://localhost:4002/api/catalogo/ejemplares",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${session.access_token}`,
+          },
+          body: JSON.stringify({
+            id_libro: Number(idLibro),
+            codigo: codigo.trim(),
+          }),
+        },
+      );
+
+      const datos = await respuesta.json();
+
+      if (!respuesta.ok) {
+        throw new Error(datos.error || "No se pudo registrar el ejemplar.");
+      }
 
       setMensaje("Ejemplar registrado correctamente.");
       setIdLibro("");

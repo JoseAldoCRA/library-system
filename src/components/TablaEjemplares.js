@@ -1,10 +1,9 @@
 "use client";
 
 import { Fragment, useEffect, useState } from "react";
-import {
-  listarEjemplares,
-  cambiarEstadoEjemplar,
-} from "@/services/ejemplaresService";
+// import {  listarEjemplares, cambiarEstadoEjemplar, } from "@/services/ejemplaresService";
+import { listarEjemplares } from "@/services/ejemplaresService";
+import { crearClienteSupabase } from "@/lib/supabaseClient";
 
 import {
   BookCopy,
@@ -167,7 +166,38 @@ export default function TablaEjemplares({ actualizacion, alCambiarEstado }) {
     setMensaje("");
 
     try {
-      await cambiarEstadoEjemplar(ejemplar.id_ejemplar, nuevoEstado);
+      const supabase = crearClienteSupabase();
+
+      const {
+        data: { session },
+        error,
+      } = await supabase.auth.getSession();
+
+      if (error || !session) {
+        throw new Error("Debes iniciar sesión primero.");
+      }
+
+      const respuesta = await fetch(
+        `http://localhost:4002/api/catalogo/ejemplares/${ejemplar.id_ejemplar}/estado`,
+        {
+          method: "PATCH",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${session.access_token}`,
+          },
+          body: JSON.stringify({
+            estado: nuevoEstado,
+          }),
+        },
+      );
+
+      const resultado = await respuesta.json();
+
+      if (!respuesta.ok) {
+        throw new Error(
+          resultado.error || "No se pudo cambiar el estado del ejemplar.",
+        );
+      }
 
       if (alCambiarEstado) {
         alCambiarEstado();
