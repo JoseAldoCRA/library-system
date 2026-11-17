@@ -10,6 +10,7 @@ const {
   registrarNuevoLibro,
   editarLibro,
   eliminarLibroSeguro,
+  registrarNuevoEjemplar
 } = require("./services/catalogoService");
 
 const verificarToken = require("./middlewares/verificarToken");
@@ -216,6 +217,46 @@ app.delete(
       });
     }
   },
+);
+
+ // Registrar un nuevo ejemplar
+app.post(
+  "/api/catalogo/ejemplares",
+  verificarToken,
+  verificarBibliotecario,
+  async (req, res) => {
+    try {
+      const ejemplar = await registrarNuevoEjemplar(
+        req.body,
+        req.token
+      );
+
+      return res.status(201).json({
+        mensaje: "Ejemplar registrado correctamente.",
+        ejemplar
+      });
+    } catch (error) {
+      console.error(
+        "Error al registrar ejemplar:",
+        error.message
+      );
+
+      if (
+        error.message ===
+          "Selecciona un libro e ingresa el código del ejemplar." ||
+        error.message ===
+          "Ya existe un ejemplar registrado con ese código."
+      ) {
+        return res.status(400).json({
+          error: error.message
+        });
+      }
+
+      return res.status(500).json({
+        error: "No se pudo registrar el ejemplar."
+      });
+    }
+  }
 );
 
 // Iniciar servidor

@@ -164,6 +164,23 @@ async function eliminarLibro(idLibro, token) {
   return data;
 }
 
+ // Registrar un ejemplar usando el token del bibliotecario
+async function insertarEjemplar(ejemplar, token) {
+  const supabaseAutenticado = crearClienteAutenticado(token);
+
+  const { data, error } = await supabaseAutenticado
+    .from("ejemplares")
+    .insert([ejemplar])
+    .select("id_ejemplar, id_libro, codigo, estado")
+    .single();
+
+  if (error) {
+    throw new Error(error.message);
+  }
+
+  return data;
+}
+
 module.exports = {
   obtenerCategorias,
   obtenerLibros,
@@ -172,5 +189,6 @@ module.exports = {
   insertarLibro,
   actualizarLibro,
   contarEjemplaresLibro,
-  eliminarLibro
+  eliminarLibro,
+  insertarEjemplar
 };
