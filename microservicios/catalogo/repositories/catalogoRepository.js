@@ -103,10 +103,29 @@ async function insertarLibro(libro, token) {
   return data;
 }
 
+ // Actualizar los datos de un libro
+async function actualizarLibro(idLibro, libro, token) {
+  const supabaseAutenticado = crearClienteAutenticado(token);
+
+  const { data, error } = await supabaseAutenticado
+    .from("libros")
+    .update(libro)
+    .eq("id_libro", idLibro)
+    .select("id_libro, isbn, titulo, autor, id_categoria")
+    .single();
+
+  if (error) {
+    throw new Error(error.message);
+  }
+
+  return data;
+}
+
 module.exports = {
   obtenerCategorias,
   obtenerLibros,
   obtenerEjemplares,
   obtenerEjemplaresDisponibles,
-  insertarLibro
+  insertarLibro,
+  actualizarLibro
 };

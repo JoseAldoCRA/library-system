@@ -7,7 +7,8 @@ const {
   listarLibros,
   listarEjemplares,
   listarEjemplaresDisponibles,
-  registrarNuevoLibro
+  registrarNuevoLibro,
+  editarLibro
 } = require("./services/catalogoService");
 
 const verificarToken = require("./middlewares/verificarToken");
@@ -142,6 +143,45 @@ app.post(
 
       return res.status(500).json({
         error: "No se pudo registrar el libro."
+      });
+    }
+  }
+);
+
+
+ // Editar la información de un libro
+app.put(
+  "/api/catalogo/libros/:id",
+  verificarToken,
+  verificarBibliotecario,
+  async (req, res) => {
+    try {
+      const libro = await editarLibro(
+        req.params.id,
+        req.body,
+        req.token
+      );
+
+      return res.status(200).json({
+        mensaje: "Libro actualizado correctamente.",
+        libro
+      });
+    } catch (error) {
+      console.error("Error al actualizar libro:", error.message);
+
+      if (
+        error.message === "El libro seleccionado no es válido." ||
+        error.message === "Completa correctamente todos los campos." ||
+        error.message === "El ISBN no puede superar 30 caracteres." ||
+        error.message === "Ya existe otro libro registrado con ese ISBN."
+      ) {
+        return res.status(400).json({
+          error: error.message
+        });
+      }
+
+      return res.status(500).json({
+        error: "No se pudo actualizar el libro."
       });
     }
   }
