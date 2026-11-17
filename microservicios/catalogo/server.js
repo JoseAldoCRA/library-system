@@ -7,6 +7,7 @@ const {
   listarLibros,
   listarEjemplares,
   listarEjemplaresDisponibles,
+  registrarNuevoLibro
 } = require("./services/catalogoService");
 
 const verificarToken = require("./middlewares/verificarToken");
@@ -110,6 +111,39 @@ app.get(
     res.json({
       mensaje: "Acceso autorizado para bibliotecario."
     });
+  }
+);
+
+ // Registrar un nuevo libro
+app.post(
+  "/api/catalogo/libros",
+  verificarToken,
+  verificarBibliotecario,
+  async (req, res) => {
+    try {
+      const libro = await registrarNuevoLibro(req.body, req.token);
+
+      return res.status(201).json({
+        mensaje: "Libro registrado correctamente.",
+        libro
+      });
+    } catch (error) {
+      console.error("Error al registrar libro:", error.message);
+
+      if (
+        error.message === "Completa correctamente todos los campos." ||
+        error.message === "El ISBN no puede superar 30 caracteres." ||
+        error.message === "Ya existe un libro registrado con ese ISBN."
+      ) {
+        return res.status(400).json({
+          error: error.message
+        });
+      }
+
+      return res.status(500).json({
+        error: "No se pudo registrar el libro."
+      });
+    }
   }
 );
 

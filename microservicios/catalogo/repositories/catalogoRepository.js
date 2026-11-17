@@ -1,5 +1,5 @@
-
 const supabase = require("../supabaseClient");
+const crearClienteAutenticado = require("../supabaseAutenticado");
 
 // Obtener todas las categorías
 async function obtenerCategorias() {
@@ -86,10 +86,27 @@ async function obtenerEjemplaresDisponibles() {
   return data;
 }
 
+ // Registrar un libro utilizando el token del bibliotecario
+async function insertarLibro(libro, token) {
+  const supabaseAutenticado = crearClienteAutenticado(token);
+
+  const { data, error } = await supabaseAutenticado
+    .from("libros")
+    .insert([libro])
+    .select("id_libro, isbn, titulo, autor, id_categoria")
+    .single();
+
+  if (error) {
+    throw new Error(error.message);
+  }
+
+  return data;
+}
 
 module.exports = {
   obtenerCategorias,
   obtenerLibros,
   obtenerEjemplares,
-  obtenerEjemplaresDisponibles
+  obtenerEjemplaresDisponibles,
+  insertarLibro
 };

@@ -3,6 +3,7 @@ const {
   obtenerLibros,
   obtenerEjemplares,
   obtenerEjemplaresDisponibles,
+  insertarLibro
 } = require("../repositories/catalogoRepository");
 
 // Consultar las categorías de la biblioteca
@@ -56,9 +57,50 @@ async function listarEjemplaresDisponibles() {
   return await obtenerEjemplaresDisponibles();
 }
 
+ // Registrar un nuevo libro
+async function registrarNuevoLibro(libro, token) {
+  const isbn = libro.isbn?.trim();
+  const titulo = libro.titulo?.trim();
+  const autor = libro.autor?.trim();
+  const id_categoria = Number(libro.id_categoria);
+
+  if (
+    !isbn ||
+    !titulo ||
+    !autor ||
+    !Number.isInteger(id_categoria) ||
+    id_categoria <= 0
+  ) {
+    throw new Error("Completa correctamente todos los campos.");
+  }
+
+  if (isbn.length > 30) {
+    throw new Error("El ISBN no puede superar 30 caracteres.");
+  }
+
+  try {
+    return await insertarLibro(
+      {
+        isbn,
+        titulo,
+        autor,
+        id_categoria
+      },
+      token
+    );
+  } catch (error) {
+    if (error.message.includes("libros_isbn_key")) {
+      throw new Error("Ya existe un libro registrado con ese ISBN.");
+    }
+
+    throw error;
+  }
+}
+
 module.exports = {
   listarCategorias,
   listarLibros,
   listarEjemplares,
-  listarEjemplaresDisponibles
+  listarEjemplaresDisponibles,
+  registrarNuevoLibro
 };
