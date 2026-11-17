@@ -9,6 +9,9 @@ const {
   listarEjemplaresDisponibles,
 } = require("./services/catalogoService");
 
+const verificarToken = require("./middlewares/verificarToken");
+const verificarBibliotecario = require("./middlewares/verificarBibliotecario");
+
 const app = express();
 const PORT = process.env.PORT || 4002;
 
@@ -88,6 +91,27 @@ app.get("/api/catalogo/ejemplares/disponibles", async (req, res) => {
     });
   }
 });
+
+// Comprobar que el usuario tiene una sesión válida
+app.get("/api/catalogo/verificar-sesion", verificarToken, (req, res) => {
+  res.json({
+    mensaje: "Sesión válida.",
+    usuario: {
+      id: req.usuarioAuth.id
+    }
+  });
+});
+// Comprobar permisos de bibliotecario
+app.get(
+  "/api/catalogo/verificar-bibliotecario",
+  verificarToken,
+  verificarBibliotecario,
+  (req, res) => {
+    res.json({
+      mensaje: "Acceso autorizado para bibliotecario."
+    });
+  }
+);
 
 // Iniciar servidor
 app.listen(PORT, () => {
