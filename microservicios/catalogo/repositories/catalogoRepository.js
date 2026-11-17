@@ -181,6 +181,23 @@ async function insertarEjemplar(ejemplar, token) {
   return data;
 }
 
+ // Cambiar el estado de un ejemplar usando el token del bibliotecario
+async function actualizarEstadoEjemplar(idEjemplar, nuevoEstado, token) {
+  const supabaseAutenticado = crearClienteAutenticado(token);
+
+  const { error } = await supabaseAutenticado.rpc(
+    "cambiar_estado_ejemplar",
+    {
+      p_id_ejemplar: idEjemplar,
+      p_nuevo_estado: nuevoEstado
+    }
+  );
+
+  if (error) {
+    throw new Error(error.message);
+  }
+}
+
 module.exports = {
   obtenerCategorias,
   obtenerLibros,
@@ -190,5 +207,6 @@ module.exports = {
   actualizarLibro,
   contarEjemplaresLibro,
   eliminarLibro,
-  insertarEjemplar
+  insertarEjemplar,
+  actualizarEstadoEjemplar
 };

@@ -10,7 +10,8 @@ const {
   registrarNuevoLibro,
   editarLibro,
   eliminarLibroSeguro,
-  registrarNuevoEjemplar
+  registrarNuevoEjemplar,
+  cambiarEstadoEjemplar
 } = require("./services/catalogoService");
 
 const verificarToken = require("./middlewares/verificarToken");
@@ -254,6 +255,51 @@ app.post(
 
       return res.status(500).json({
         error: "No se pudo registrar el ejemplar."
+      });
+    }
+  }
+);
+
+ // Cambiar el estado de un ejemplar
+app.patch(
+  "/api/catalogo/ejemplares/:id/estado",
+  verificarToken,
+  verificarBibliotecario,
+  async (req, res) => {
+    try {
+      await cambiarEstadoEjemplar(
+        req.params.id,
+        req.body?.estado,
+        req.token
+      );
+
+      return res.status(200).json({
+        mensaje: "Estado del ejemplar actualizado correctamente."
+      });
+    } catch (error) {
+      console.error(
+        "Error al cambiar el estado del ejemplar:",
+        error.message
+      );
+
+      const erroresValidacion = [
+        "El ejemplar seleccionado no es válido.",
+        "El estado solicitado no está permitido.",
+        "Estado solicitado no permitido.",
+        "El ejemplar no existe.",
+        "No se puede modificar un ejemplar prestado.",
+        "El ejemplar tiene un préstamo activo.",
+        "Cambio de estado no permitido."
+      ];
+
+      if (erroresValidacion.includes(error.message)) {
+        return res.status(400).json({
+          error: error.message
+        });
+      }
+
+      return res.status(500).json({
+        error: "No se pudo cambiar el estado del ejemplar."
       });
     }
   }

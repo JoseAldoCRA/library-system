@@ -7,7 +7,8 @@ const {
   actualizarLibro,
   contarEjemplaresLibro,
   eliminarLibro,
-  insertarEjemplar
+  insertarEjemplar,
+  actualizarEstadoEjemplar
 } = require("../repositories/catalogoRepository");
 
 // Consultar las categorías de la biblioteca
@@ -217,6 +218,21 @@ async function registrarNuevoEjemplar(ejemplar, token) {
   }
 }
 
+ // Cambiar el estado de un ejemplar
+async function cambiarEstadoEjemplar(idEjemplar, nuevoEstado, token) {
+  const id = Number(idEjemplar);
+
+  if (!Number.isSafeInteger(id) || id <= 0) {
+    throw new Error("El ejemplar seleccionado no es válido.");
+  }
+
+  if (nuevoEstado !== "baja" && nuevoEstado !== "disponible") {
+    throw new Error("El estado solicitado no está permitido.");
+  }
+
+  await actualizarEstadoEjemplar(id, nuevoEstado, token);
+}
+
 module.exports = {
   listarCategorias,
   listarLibros,
@@ -225,5 +241,6 @@ module.exports = {
   registrarNuevoLibro,
   editarLibro,
   eliminarLibroSeguro,
-  registrarNuevoEjemplar
+  registrarNuevoEjemplar,
+  cambiarEstadoEjemplar
 };
