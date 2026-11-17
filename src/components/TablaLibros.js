@@ -1,7 +1,9 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { listarLibros, eliminarLibroSeguro } from "@/services/librosService";
+// import { listarLibros, eliminarLibroSeguro } from "@/services/librosService";
+import { listarLibros } from "@/services/librosService";
+import { crearClienteSupabase } from "@/lib/supabaseClient";
 import {
   LibraryBig,
   Search,
@@ -63,7 +65,7 @@ export default function TablaLibros({ actualizacion, alEditar }) {
     setLibroPendienteEliminar(libro);
   }
 
-  async function ejecutarEliminacion() {
+  /* async function ejecutarEliminacion() {
     if (!libroPendienteEliminar || eliminando !== null) return;
 
     const libro = libroPendienteEliminar;
@@ -76,6 +78,55 @@ export default function TablaLibros({ actualizacion, alEditar }) {
 
       const datos = await listarLibros();
       setLibros(datos || []);
+
+      setLibroPendienteEliminar(null);
+      setMensajeEliminar("Libro eliminado correctamente.");
+    } catch (error) {
+      setLibroPendienteEliminar(null);
+      setMensajeEliminar("Error: " + error.message);
+    } finally {
+      setEliminando(null);
+    }
+  } */
+
+  async function ejecutarEliminacion() {
+    if (!libroPendienteEliminar || eliminando !== null) return;
+
+    const libro = libroPendienteEliminar;
+
+    setEliminando(libro.id_libro);
+    setMensajeEliminar("");
+
+    try {
+      const supabase = crearClienteSupabase();
+
+      const {
+        data: { session },
+        error,
+      } = await supabase.auth.getSession();
+
+      if (error || !session) {
+        throw new Error("Debes iniciar sesión primero.");
+      }
+
+      const respuesta = await fetch(
+        `http://localhost:4002/api/catalogo/libros/${libro.id_libro}`,
+        {
+          method: "DELETE",
+          headers: {
+            Authorization: `Bearer ${session.access_token}`,
+          },
+        },
+      );
+
+      const datos = await respuesta.json();
+
+      if (!respuesta.ok) {
+        throw new Error(datos.error || "No se pudo eliminar el libro.");
+      }
+
+      const librosActualizados = await listarLibros();
+      setLibros(librosActualizados || []);
 
       setLibroPendienteEliminar(null);
       setMensajeEliminar("Libro eliminado correctamente.");

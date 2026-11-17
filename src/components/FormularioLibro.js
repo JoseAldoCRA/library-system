@@ -1,10 +1,9 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import {
-  listarCategorias,
-  registrarNuevoLibro,
-} from "@/services/librosService";
+import { listarCategorias } from "@/services/librosService";
+import { crearClienteSupabase } from "@/lib/supabaseClient";
+// import { listarCategorias, registrarNuevoLibro, } from "@/services/librosService";
 import { BookPlus, Plus, SlidersHorizontal } from "lucide-react";
 import styles from "./FormularioLibro.module.css";
 import estilosCategorias from "@/app/catalogo.module.css";
@@ -58,7 +57,7 @@ export default function FormularioLibro({ alRegistrar }) {
     cargarCategorias();
   }, []);
 
-  async function registrarLibro(evento) {
+  /* async function registrarLibro(evento) {
     evento.preventDefault();
 
     if (guardando) return;
@@ -78,6 +77,71 @@ export default function FormularioLibro({ alRegistrar }) {
         autor,
         id_categoria: categoria,
       });
+
+      if (alRegistrar) {
+        alRegistrar();
+      }
+
+      setMensaje("Libro registrado correctamente.");
+
+      setIsbn("");
+      setTitulo("");
+      setAutor("");
+      setCategoria("");
+    } catch (error) {
+      setMensaje("Error: " + error.message);
+    } finally {
+      setGuardando(false);
+    }
+  } */
+
+  async function registrarLibro(evento) {
+    evento.preventDefault();
+
+    if (guardando) return;
+
+    if (!categoria) {
+      setMensaje("Selecciona una categoría antes de registrar el libro.");
+      return;
+    }
+
+    setGuardando(true);
+    setMensaje("");
+
+    try {
+      const supabase = crearClienteSupabase();
+
+      const {
+        data: { session },
+        error,
+      } = await supabase.auth.getSession();
+
+      if (error || !session) {
+        throw new Error("Debes iniciar sesión primero.");
+      }
+
+      const respuesta = await fetch(
+        "http://localhost:4002/api/catalogo/libros",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${session.access_token}`,
+          },
+          body: JSON.stringify({
+            isbn,
+            titulo,
+            autor,
+            id_categoria: Number(categoria),
+          }),
+        },
+      );
+
+      const datos = await respuesta.json();
+
+      if (!respuesta.ok) {
+        throw new Error(datos.error || "No se pudo registrar el libro.");
+      }
 
       if (alRegistrar) {
         alRegistrar();

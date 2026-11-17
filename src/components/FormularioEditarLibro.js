@@ -1,7 +1,9 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import { listarCategorias, editarLibro } from "@/services/librosService";
+//import { listarCategorias, editarLibro } from "@/services/librosService";
+import { listarCategorias } from "@/services/librosService";
+import { crearClienteSupabase } from "@/lib/supabaseClient";
 import { BookOpen, Save, X, SlidersHorizontal } from "lucide-react";
 
 import styles from "./FormularioEditarLibro.module.css";
@@ -84,7 +86,7 @@ export default function FormularioEditarLibro({
     };
   }, []);
 
-  async function guardarCambios(evento) {
+  /* async function guardarCambios(evento) {
     evento.preventDefault();
 
     if (guardando) return;
@@ -104,6 +106,64 @@ export default function FormularioEditarLibro({
         autor: autor.trim(),
         id_categoria: categoria,
       });
+
+      if (alGuardar) {
+        alGuardar();
+      }
+    } catch (error) {
+      setMensaje("Error: " + error.message);
+    } finally {
+      setGuardando(false);
+    }
+  } */
+
+  async function guardarCambios(evento) {
+    evento.preventDefault();
+
+    if (guardando) return;
+
+    if (!categoria) {
+      setMensaje("Selecciona una categoría antes de guardar los cambios.");
+      return;
+    }
+
+    setGuardando(true);
+    setMensaje("");
+
+    try {
+      const supabase = crearClienteSupabase();
+
+      const {
+        data: { session },
+        error,
+      } = await supabase.auth.getSession();
+
+      if (error || !session) {
+        throw new Error("Debes iniciar sesión primero.");
+      }
+
+      const respuesta = await fetch(
+        `http://localhost:4002/api/catalogo/libros/${libro.id_libro}`,
+        {
+          method: "PUT",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${session.access_token}`,
+          },
+          body: JSON.stringify({
+            isbn: isbn.trim(),
+            titulo: titulo.trim(),
+            autor: autor.trim(),
+            id_categoria: Number(categoria),
+          }),
+        },
+      );
+
+      const datos = await respuesta.json();
+
+      if (!respuesta.ok) {
+        throw new Error(datos.error || "No se pudo actualizar el libro.");
+      }
 
       if (alGuardar) {
         alGuardar();
