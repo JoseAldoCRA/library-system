@@ -15,6 +15,31 @@ async function obtenerCategorias() {
   return data;
 }
 
+// Obtener los libros con sus categorías y ejemplares
+async function obtenerLibros() {
+  const { data, error } = await supabase
+    .from("libros")
+    .select(`
+      id_libro,
+      isbn,
+      titulo,
+      autor,
+      resumen,
+      portada_url,
+      id_categoria,
+      categorias ( nombre ),
+      ejemplares ( id_ejemplar, estado )
+    `)
+    .order("id_libro", { ascending: true });
+
+  if (error) {
+    throw new Error(error.message);
+  }
+
+  return data;
+}
+
 module.exports = {
-  obtenerCategorias
+  obtenerCategorias,
+  obtenerLibros
 };
