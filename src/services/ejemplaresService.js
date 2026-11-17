@@ -23,7 +23,7 @@ export async function registrarNuevoEjemplar(ejemplar) {
   }
 }
 
-export async function listarEjemplares() {
+/* export async function listarEjemplares() {
   const ejemplares = await obtenerEjemplares();
 
   return ejemplares.map((ejemplar) => {
@@ -37,6 +37,22 @@ export async function listarEjemplares() {
       categoria: ejemplar.libros?.categorias?.nombre || "Sin categoría"
     };
   });
+} */
+
+export async function listarEjemplares() {
+  const respuesta = await fetch(
+    "http://localhost:4002/api/catalogo/ejemplares",
+    {
+      method: "GET",
+      cache: "no-store",
+    }
+  );
+
+  if (!respuesta.ok) {
+    throw new Error("No se pudieron obtener los ejemplares.");
+  }
+
+  return await respuesta.json();
 }
 
 export async function cambiarEstadoEjemplar(idEjemplar, nuevoEstado) {
@@ -55,4 +71,20 @@ export async function cambiarEstadoEjemplar(idEjemplar, nuevoEstado) {
   } catch (error) {
     throw new Error(error.message);
   }
+}
+
+export async function listarEjemplaresDisponibles() {
+  const respuesta = await fetch(
+    "http://localhost:4002/api/catalogo/ejemplares/disponibles",
+    {
+      method: "GET",
+      cache: "no-store",
+    }
+  );
+
+  if (!respuesta.ok) {
+    throw new Error("No se pudieron obtener los ejemplares disponibles.");
+  }
+
+  return await respuesta.json();
 }

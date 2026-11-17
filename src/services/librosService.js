@@ -1,6 +1,6 @@
 import { obtenerLibros, obtenerCategorias, insertarLibro, actualizarLibro, contarEjemplaresLibro, eliminarLibro } from "@/repositories/librosRepository";
 
-export async function listarLibros() {
+/*export async function listarLibros() {
   const libros = await obtenerLibros();
 
   return libros.map((libro) => {
@@ -21,10 +21,42 @@ export async function listarLibros() {
       total: ejemplares.length,
     };
   });
+} */
+
+export async function listarLibros() {
+  const respuesta = await fetch(
+    "http://localhost:4002/api/catalogo/libros",
+    {
+      method: "GET",
+      cache: "no-store",
+    }
+  );
+
+  if (!respuesta.ok) {
+    throw new Error("No se pudieron obtener los libros.");
+  }
+
+  return await respuesta.json();
 }
 
-export async function listarCategorias() {
+/* export async function listarCategorias() {
   return await obtenerCategorias();
+} */
+
+export async function listarCategorias() {
+  const respuesta = await fetch(
+    "http://localhost:4002/api/catalogo/categorias",
+    {
+      method: "GET",
+      cache: "no-store",
+    }
+  );
+
+  if (!respuesta.ok) {
+    throw new Error("No se pudieron obtener las categorías.");
+  }
+
+  return await respuesta.json();
 }
 
 
