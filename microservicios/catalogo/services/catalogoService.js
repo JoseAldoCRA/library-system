@@ -1,7 +1,8 @@
-
 const {
   obtenerCategorias,
-  obtenerLibros
+  obtenerLibros,
+  obtenerEjemplares,
+  obtenerEjemplaresDisponibles,
 } = require("../repositories/catalogoRepository");
 
 // Consultar las categorías de la biblioteca
@@ -17,7 +18,7 @@ async function listarLibros() {
     const ejemplares = libro.ejemplares || [];
 
     const disponibles = ejemplares.filter(
-      (ejemplar) => ejemplar.estado === "disponible"
+      (ejemplar) => ejemplar.estado === "disponible",
     ).length;
 
     return {
@@ -28,12 +29,36 @@ async function listarLibros() {
       id_categoria: libro.id_categoria,
       categoria: libro.categorias?.nombre || "Sin categoría",
       disponibles: disponibles,
-      total: ejemplares.length
+      total: ejemplares.length,
     };
   });
 }
 
+// Consultar todos los ejemplares registrados
+async function listarEjemplares() {
+  const ejemplares = await obtenerEjemplares();
+
+  return ejemplares.map((ejemplar) => {
+    return {
+      id_ejemplar: ejemplar.id_ejemplar,
+      id_libro: ejemplar.id_libro,
+      codigo: ejemplar.codigo,
+      estado: ejemplar.estado,
+      titulo: ejemplar.libros?.titulo || "Libro no encontrado",
+      isbn: ejemplar.libros?.isbn || "Sin ISBN",
+      categoria: ejemplar.libros?.categorias?.nombre || "Sin categoría",
+    };
+  });
+}
+
+// Consultar solamente los ejemplares disponibles
+async function listarEjemplaresDisponibles() {
+  return await obtenerEjemplaresDisponibles();
+}
+
 module.exports = {
   listarCategorias,
-  listarLibros
+  listarLibros,
+  listarEjemplares,
+  listarEjemplaresDisponibles
 };

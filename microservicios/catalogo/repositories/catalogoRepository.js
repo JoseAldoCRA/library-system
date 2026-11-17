@@ -39,7 +39,57 @@ async function obtenerLibros() {
   return data;
 }
 
+ // Obtener todos los ejemplares registrados
+async function obtenerEjemplares() {
+  const { data, error } = await supabase
+    .from("ejemplares")
+    .select(`
+      id_ejemplar,
+      id_libro,
+      codigo,
+      estado,
+      libros (
+        titulo,
+        isbn,
+        categorias ( nombre )
+      )
+    `)
+    .order("codigo", { ascending: true });
+
+  if (error) {
+    throw new Error(error.message);
+  }
+
+  return data;
+}
+
+// Obtener solamente los ejemplares disponibles
+async function obtenerEjemplaresDisponibles() {
+  const { data, error } = await supabase
+    .from("ejemplares")
+    .select(`
+      id_ejemplar,
+      codigo,
+      estado,
+      libros (
+        titulo,
+        isbn
+      )
+    `)
+    .eq("estado", "disponible")
+    .order("codigo", { ascending: true });
+
+  if (error) {
+    throw new Error(error.message);
+  }
+
+  return data;
+}
+
+
 module.exports = {
   obtenerCategorias,
-  obtenerLibros
+  obtenerLibros,
+  obtenerEjemplares,
+  obtenerEjemplaresDisponibles
 };

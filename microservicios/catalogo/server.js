@@ -5,6 +5,8 @@ require("dotenv").config();
 const {
   listarCategorias,
   listarLibros,
+  listarEjemplares,
+  listarEjemplaresDisponibles,
 } = require("./services/catalogoService");
 
 const app = express();
@@ -52,7 +54,37 @@ app.get("/api/catalogo/libros", async (req, res) => {
     console.error("Error al consultar libros:", error.message);
 
     res.status(500).json({
-      error: "No se pudieron obtener los libros."
+      error: "No se pudieron obtener los libros.",
+    });
+  }
+});
+
+// Consultar todos los ejemplares
+app.get("/api/catalogo/ejemplares", async (req, res) => {
+  try {
+    const ejemplares = await listarEjemplares();
+
+    res.json(ejemplares);
+  } catch (error) {
+    console.error("Error al consultar ejemplares:", error.message);
+
+    res.status(500).json({
+      error: "No se pudieron obtener los ejemplares.",
+    });
+  }
+});
+
+// Consultar solamente los ejemplares disponibles
+app.get("/api/catalogo/ejemplares/disponibles", async (req, res) => {
+  try {
+    const ejemplares = await listarEjemplaresDisponibles();
+
+    res.json(ejemplares);
+  } catch (error) {
+    console.error("Error al consultar ejemplares disponibles:", error.message);
+
+    res.status(500).json({
+      error: "No se pudieron obtener los ejemplares disponibles.",
     });
   }
 });
