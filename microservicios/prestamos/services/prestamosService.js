@@ -1,0 +1,70 @@
+const {
+  insertarPrestamo,
+  obtenerPrestamosActivos
+} = require("../repositories/prestamosRepository");
+
+// Validar y registrar un nuevo préstamo
+async function registrarNuevoPrestamo(prestamo, token) {
+  const idUsuario = Number(prestamo?.id_usuario);
+  const idEjemplar = Number(prestamo?.id_ejemplar);
+  const fechaVencimiento = prestamo?.fecha_vencimiento;
+
+  // Validar usuario
+  if (!Number.isSafeInteger(idUsuario) || idUsuario <= 0) {
+    throw new Error("Debes seleccionar un usuario válido.");
+  }
+
+  // Validar ejemplar
+  if (!Number.isSafeInteger(idEjemplar) || idEjemplar <= 0) {
+    throw new Error("Debes seleccionar un ejemplar válido.");
+  }
+
+  // Validar formato de fecha
+  if (
+    typeof fechaVencimiento !== "string" ||
+    !/^\d{4}-\d{2}-\d{2}$/.test(fechaVencimiento)
+  ) {
+    throw new Error("Debes seleccionar una fecha de vencimiento válida.");
+  }
+
+  const fecha = new Date(`${fechaVencimiento}T00:00:00Z`);
+
+  if (
+    Number.isNaN(fecha.getTime()) ||
+    fecha.toISOString().slice(0, 10) !== fechaVencimiento
+  ) {
+    throw new Error("La fecha de vencimiento no es válida.");
+  }
+
+  // Ejecutar la función segura de PostgreSQL
+  return await insertarPrestamo(
+    {
+      id_usuario: idUsuario,
+      id_ejemplar: idEjemplar,
+      fecha_vencimiento: fechaVencimiento
+    },
+    token
+  );
+}
+
+ // Consultar y preparar los préstamos activos
+async function listarPrestamosActivos(token) {
+  const prestamos = await obtenerPrestamosActivos(token);
+
+  return prestamos.map((prestamo) => {
+    return {
+      id_prestamo: prestamo.id_prestamo,
+      usuario: prestamo.usuarios?.nombre || "Sin usuario",
+      ejemplar: prestamo.ejemplares?.codigo || "Sin código",
+      libro: prestamo.ejemplares?.libros?.titulo || "Sin título",
+      fecha_prestamo: prestamo.fecha_prestamo,
+      fecha_vencimiento: prestamo.fecha_vencimiento,
+      estado: "Activo"
+    };
+  });
+}
+
+module.exports = {
+  registrarNuevoPrestamo,
+  listarPrestamosActivos
+};

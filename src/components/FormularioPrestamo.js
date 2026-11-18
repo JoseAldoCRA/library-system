@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { crearClienteSupabase } from "@/lib/supabaseClient";
-import { registrarNuevoPrestamo } from "@/services/prestamosService";
+// import { registrarNuevoPrestamo } from "@/services/prestamosService";
 import { obtenerUsuariosPrestamo } from "@/repositories/usuariosRepository";
 // import { obtenerEjemplaresDisponibles } from "@/repositories/ejemplaresRepository";
 import { listarEjemplaresDisponibles } from "@/services/ejemplaresService";
@@ -60,7 +60,7 @@ export default function FormularioPrestamo({ alRegistrar, actualizacion }) {
     };
   }, [actualizacion]);
 
-  async function registrarPrestamo(evento) {
+  /* async function registrarPrestamo(evento) {
     evento.preventDefault();
 
     if (guardando) return;
@@ -85,6 +85,66 @@ export default function FormularioPrestamo({ alRegistrar, actualizacion }) {
       if (alRegistrar) {
         alRegistrar();
       }
+    } catch (error) {
+      setMensaje("Error: " + error.message);
+    } finally {
+      setGuardando(false);
+    }
+  } */
+
+  async function registrarPrestamo(evento) {
+    evento.preventDefault();
+
+    if (guardando) return;
+
+    setMensaje("");
+    setGuardando(true);
+
+    try {
+      const supabase = crearClienteSupabase();
+
+      const {
+        data: { session },
+        error,
+      } = await supabase.auth.getSession();
+
+      if (error || !session) {
+        throw new Error("Debes iniciar sesión primero.");
+      }
+
+      const respuesta = await fetch("http://localhost:4003/api/prestamos", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${session.access_token}`,
+        },
+        body: JSON.stringify({
+          id_usuario: Number(usuario),
+          id_ejemplar: Number(ejemplar),
+          fecha_vencimiento: fechaVencimiento,
+        }),
+      });
+
+      const datos = await respuesta.json();
+
+      if (!respuesta.ok) {
+        throw new Error(datos.error || "No se pudo registrar el préstamo.");
+      }
+
+      setMensaje("Préstamo registrado correctamente.");
+
+      setUsuario("");
+      setEjemplar("");
+      setFechaVencimiento("");
+      setFechaSeleccionada(null);
+
+      if (alRegistrar) {
+        alRegistrar();
+      }
+
+      // Actualizar la lista de ejemplares disponibles.
+      const ejemplaresActualizados = await listarEjemplaresDisponibles();
+      setEjemplares(ejemplaresActualizados);
     } catch (error) {
       setMensaje("Error: " + error.message);
     } finally {

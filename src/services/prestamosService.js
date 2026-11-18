@@ -1,10 +1,10 @@
 import {
   insertarPrestamo,
-  obtenerPrestamosActivos,
   devolverPrestamo,
   obtenerMisPrestamos,
   obtenerHistorialDevoluciones,
 } from "@/repositories/prestamosRepository";
+import { crearClienteSupabase } from "@/lib/supabaseClient";
 
 
 export async function registrarNuevoPrestamo(prestamo) {
@@ -39,21 +39,41 @@ export async function registrarNuevoPrestamo(prestamo) {
   return await insertarPrestamo(datos);
 }
 
-export async function listarPrestamosActivos() {
-  const prestamos = await obtenerPrestamosActivos();
 
-  return prestamos.map((prestamo) => {
-    return {
-      id_prestamo: prestamo.id_prestamo,
-      usuario: prestamo.usuarios?.nombre || "Sin usuario",
-      ejemplar: prestamo.ejemplares?.codigo || "Sin código",
-      libro: prestamo.ejemplares?.libros?.titulo || "Sin título",
-      fecha_prestamo: prestamo.fecha_prestamo,
-      fecha_vencimiento: prestamo.fecha_vencimiento,
-      estado: "Activo",
-    };
-  });
+export async function listarPrestamosActivos() {
+  const supabase = crearClienteSupabase();
+
+  const {
+    data: { session },
+    error,
+  } = await supabase.auth.getSession();
+
+  if (error || !session) {
+    throw new Error("Debes iniciar sesión primero.");
+  }
+
+  const respuesta = await fetch(
+    "http://localhost:4003/api/prestamos/activos",
+    {
+      method: "GET",
+      headers: {
+        Authorization: `Bearer ${session.access_token}`,
+      },
+      cache: "no-store",
+    }
+  );
+
+  const datos = await respuesta.json();
+
+  if (!respuesta.ok) {
+    throw new Error(
+      datos.error || "No se pudieron consultar los préstamos activos."
+    );
+  }
+
+  return datos;
 }
+
 
 export async function registrarDevolucion(idPrestamo) {
   const id = Number(idPrestamo);
