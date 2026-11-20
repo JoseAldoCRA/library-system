@@ -1,6 +1,8 @@
 const {
   insertarPrestamo,
-  obtenerPrestamosActivos
+  obtenerPrestamosActivos,
+  devolverPrestamo,
+  obtenerHistorialDevoluciones
 } = require("../repositories/prestamosRepository");
 
 // Validar y registrar un nuevo préstamo
@@ -63,8 +65,38 @@ async function listarPrestamosActivos(token) {
     };
   });
 }
+// Validar y registrar una devolución
+async function registrarDevolucion(idPrestamo, token) {
+  const id = Number(idPrestamo);
+
+  if (!Number.isSafeInteger(id) || id <= 0) {
+    throw new Error("Debes seleccionar un préstamo válido.");
+  }
+
+  await devolverPrestamo(id, token);
+}
+
+// Consultar y preparar el historial de devoluciones
+async function listarHistorialDevoluciones(token) {
+  const prestamos = await obtenerHistorialDevoluciones(token);
+
+  return prestamos.map((prestamo) => {
+    return {
+      id_prestamo: prestamo.id_prestamo,
+      usuario: prestamo.usuarios?.nombre || "Sin usuario",
+      ejemplar: prestamo.ejemplares?.codigo || "Sin código",
+      libro: prestamo.ejemplares?.libros?.titulo || "Sin título",
+      fecha_prestamo: prestamo.fecha_prestamo,
+      fecha_vencimiento: prestamo.fecha_vencimiento,
+      fecha_devolucion: prestamo.fecha_devolucion,
+      estado: "Devuelto"
+    };
+  });
+}
 
 module.exports = {
   registrarNuevoPrestamo,
-  listarPrestamosActivos
+  listarPrestamosActivos,
+  registrarDevolucion,
+  listarHistorialDevoluciones
 };

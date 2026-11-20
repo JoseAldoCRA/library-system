@@ -51,8 +51,53 @@ async function obtenerPrestamosActivos(token) {
 
   return data;
 }
+// Registrar una devolución utilizando el token del bibliotecario
+async function devolverPrestamo(idPrestamo, token) {
+  const supabase = crearClienteAutenticado(token);
+
+  const { error } = await supabase.rpc("registrar_devolucion", {
+    p_id_prestamo: idPrestamo
+  });
+
+  if (error) {
+    throw new Error(error.message);
+  }
+}
+
+// Consultar el historial de préstamos devueltos
+async function obtenerHistorialDevoluciones(token) {
+  const supabase = crearClienteAutenticado(token);
+
+  const { data, error } = await supabase
+    .from("prestamos")
+    .select(`
+      id_prestamo,
+      fecha_prestamo,
+      fecha_vencimiento,
+      fecha_devolucion,
+      usuarios (
+        nombre
+      ),
+      ejemplares (
+        codigo,
+        libros (
+          titulo
+        )
+      )
+    `)
+    .not("fecha_devolucion", "is", null)
+    .order("fecha_devolucion", { ascending: false });
+
+  if (error) {
+    throw new Error(error.message);
+  }
+
+  return data;
+}
 
 module.exports = {
   insertarPrestamo,
-  obtenerPrestamosActivos
+  obtenerPrestamosActivos,
+  devolverPrestamo,
+  obtenerHistorialDevoluciones
 };
