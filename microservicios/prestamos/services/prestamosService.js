@@ -2,7 +2,8 @@ const {
   insertarPrestamo,
   obtenerPrestamosActivos,
   devolverPrestamo,
-  obtenerHistorialDevoluciones
+  obtenerHistorialDevoluciones,
+  obtenerMisPrestamos
 } = require("../repositories/prestamosRepository");
 
 // Validar y registrar un nuevo préstamo
@@ -94,9 +95,29 @@ async function listarHistorialDevoluciones(token) {
   });
 }
 
+ // Consultar los préstamos del estudiante o docente autenticado
+async function listarMisPrestamos(token, authUserId) {
+  const prestamos = await obtenerMisPrestamos(token, authUserId);
+
+  return prestamos.map((prestamo) => {
+    return {
+      id_prestamo: prestamo.id_prestamo,
+      ejemplar: prestamo.ejemplares?.codigo || "Sin código",
+      libro: prestamo.ejemplares?.libros?.titulo || "Sin título",
+      fecha_prestamo: prestamo.fecha_prestamo,
+      fecha_vencimiento: prestamo.fecha_vencimiento,
+      fecha_devolucion: prestamo.fecha_devolucion,
+      estado: prestamo.fecha_devolucion === null
+        ? "Activo"
+        : "Devuelto"
+    };
+  });
+}
+
 module.exports = {
   registrarNuevoPrestamo,
   listarPrestamosActivos,
   registrarDevolucion,
-  listarHistorialDevoluciones
+  listarHistorialDevoluciones,
+  listarMisPrestamos
 };

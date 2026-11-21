@@ -112,7 +112,7 @@ export async function registrarDevolucion(idPrestamo) {
   return datos;
 }
 
-export async function listarMisPrestamos() {
+/* export async function listarMisPrestamos() {
   const prestamos = await obtenerMisPrestamos();
 
   return prestamos.map((prestamo) => {
@@ -128,8 +128,41 @@ export async function listarMisPrestamos() {
         : "Devuelto",
     };
   });
-}
+} */
 
+export async function listarMisPrestamos() {
+  const supabase = crearClienteSupabase();
+
+  const {
+    data: { session },
+    error,
+  } = await supabase.auth.getSession();
+
+  if (error || !session) {
+    throw new Error("Debes iniciar sesión primero.");
+  }
+
+  const respuesta = await fetch(
+    "http://localhost:4003/api/prestamos/mios",
+    {
+      method: "GET",
+      headers: {
+        Authorization: `Bearer ${session.access_token}`,
+      },
+      cache: "no-store",
+    }
+  );
+
+  const datos = await respuesta.json();
+
+  if (!respuesta.ok) {
+    throw new Error(
+      datos.error || "No se pudieron consultar tus préstamos."
+    );
+  }
+
+  return datos;
+}
 
 /* export async function listarHistorialDevoluciones() {
   const prestamos = await obtenerHistorialDevoluciones();

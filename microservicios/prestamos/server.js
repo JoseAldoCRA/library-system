@@ -7,7 +7,8 @@ const {
   registrarNuevoPrestamo,
   listarPrestamosActivos,
   registrarDevolucion,
-  listarHistorialDevoluciones
+  listarHistorialDevoluciones,
+  listarMisPrestamos
 } = require("./services/prestamosService");
 
 const app = express();
@@ -166,6 +167,43 @@ app.get(
 
       return res.status(500).json({
         error: "No se pudo consultar el historial de devoluciones."
+      });
+    }
+  }
+);
+
+ // Consultar los préstamos del estudiante o docente autenticado
+app.get(
+  "/api/prestamos/mios",
+  verificarToken,
+  async (req, res) => {
+    try {
+      const prestamos = await listarMisPrestamos(
+        req.token,
+        req.usuarioAuth.id
+      );
+
+      return res.status(200).json(prestamos);
+    } catch (error) {
+      console.error(
+        "Error al consultar mis préstamos:",
+        error.message
+      );
+
+      if (error.message === "No tienes permiso para consultar préstamos.") {
+        return res.status(403).json({
+          error: error.message
+        });
+      }
+
+      if (error.message === "No se pudo consultar el perfil del usuario.") {
+        return res.status(404).json({
+          error: error.message
+        });
+      }
+
+      return res.status(500).json({
+        error: "No se pudieron consultar tus préstamos."
       });
     }
   }

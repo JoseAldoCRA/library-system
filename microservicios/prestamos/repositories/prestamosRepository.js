@@ -95,9 +95,57 @@ async function obtenerHistorialDevoluciones(token) {
   return data;
 }
 
+ // Consultar los préstamos del usuario autenticado
+async function obtenerMisPrestamos(token, authUserId) {
+  const supabase = crearClienteAutenticado(token);
+
+  // Consultar el perfil del usuario
+  const { data: perfil, error: errorPerfil } = await supabase
+    .from("usuarios")
+    .select("id_usuario, rol, estado")
+    .eq("auth_user_id", authUserId)
+    .single();
+
+  if (errorPerfil || !perfil) {
+    throw new Error("No se pudo consultar el perfil del usuario.");
+  }
+
+  if (
+    perfil.estado !== "activo" ||
+    !["estudiante", "docente"].includes(perfil.rol)
+  ) {
+    throw new Error("No tienes permiso para consultar préstamos.");
+  }
+
+  // Obtener únicamente sus préstamos
+  const { data, error } = await supabase
+    .from("prestamos")
+    .select(`
+      id_prestamo,
+      fecha_prestamo,
+      fecha_vencimiento,
+      fecha_devolucion,
+      ejemplares (
+        codigo,
+        libros (
+          titulo
+        )
+      )
+    `)
+    .eq("id_usuario", perfil.id_usuario)
+    .order("fecha_prestamo", { ascending: false });
+
+  if (error) {
+    throw new Error(error.message);
+  }
+
+  return data;
+}
+
 module.exports = {
   insertarPrestamo,
   obtenerPrestamosActivos,
   devolverPrestamo,
-  obtenerHistorialDevoluciones
+  obtenerHistorialDevoluciones,
+  obtenerMisPrestamos
 };
