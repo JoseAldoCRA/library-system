@@ -1,6 +1,8 @@
-import { obtenerTodosUsuarios, insertarUsuario } from "@/repositories/usuariosRepository";
+// import { obtenerTodosUsuarios, insertarUsuario } from "@/repositories/usuariosRepository";
+import { insertarUsuario } from "@/repositories/usuariosRepository";
+import { crearClienteSupabase } from "@/lib/supabaseClient";
 
-export async function listarUsuarios() {
+/* export async function listarUsuarios() {
   const usuarios = await obtenerTodosUsuarios();
 
   return usuarios.map((usuario) => {
@@ -16,6 +18,37 @@ export async function listarUsuarios() {
       tieneCuenta: Boolean(usuario.auth_user_id),
     };
   });
+} */
+
+export async function listarUsuarios() {
+  const supabase = crearClienteSupabase();
+
+  const {
+    data: { session },
+    error,
+  } = await supabase.auth.getSession();
+
+  if (error || !session) {
+    throw new Error("Debes iniciar sesión como bibliotecario.");
+  }
+
+  const respuesta = await fetch("http://localhost:4004/api/usuarios", {
+    method: "GET",
+    headers: {
+      Authorization: `Bearer ${session.access_token}`,
+    },
+    cache: "no-store",
+  });
+
+  const datos = await respuesta.json();
+
+  if (!respuesta.ok) {
+    throw new Error(
+      datos.error || "No se pudieron consultar los usuarios."
+    );
+  }
+
+  return datos;
 }
 
 export async function registrarNuevoUsuario(usuario) {
