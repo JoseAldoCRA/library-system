@@ -97,7 +97,7 @@ export default function FormularioRegistrarUsuario({ alRegistrar }) {
         throw new Error("Debes iniciar sesión como bibliotecario.");
       }
 
-      const respuesta = await fetch("/api/bibliotecario/usuarios", {
+      const respuesta = await fetch("http://localhost:4004/api/usuarios", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -198,7 +198,7 @@ export default function FormularioRegistrarUsuario({ alRegistrar }) {
                 }}
                 aria-expanded={menuRolesAbierto}
                 aria-controls="lista-roles-usuario"
-                aria-required="true"
+                //aria-required="true"
                 onClick={() => {
                   setMenuRolesAbierto(!menuRolesAbierto);
                   setBusquedaRol("");

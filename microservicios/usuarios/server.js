@@ -5,7 +5,10 @@ require("dotenv").config();
 
 const verificarToken = require("./middlewares/verificarToken");
 const verificarBibliotecario = require("./middlewares/verificarBibliotecario");
-const { listarUsuarios } = require("./services/usuariosService");
+const {
+  listarUsuarios,
+  registrarNuevoUsuario,
+} = require("./services/usuariosService");
 const app = express();
 
 const PUERTO = Number(process.env.PORT) || 4004;
@@ -53,6 +56,53 @@ app.get(
 
       return res.status(500).json({
         error: "No se pudo consultar la lista de usuarios.",
+      });
+    }
+  }
+);
+
+ // Registrar estudiantes y docentes
+app.post(
+  "/api/usuarios",
+  verificarToken,
+  verificarBibliotecario,
+  async (req, res) => {
+    try {
+      const resultado = await registrarNuevoUsuario(req.body);
+
+      return res.status(201).json(resultado);
+    } catch (error) {
+      console.error("Error al registrar usuario:", error.message);
+
+      if (
+        error.message === "Debes completar todos los campos." ||
+        error.message === "El nombre es demasiado largo." ||
+        error.message === "El correo electrónico no es válido." ||
+        error.message === "Solo puedes registrar estudiantes y docentes." ||
+        error.message === "La contraseña debe tener entre 8 y 72 caracteres."
+      ) {
+        return res.status(400).json({
+          error: error.message,
+        });
+      }
+
+      if (
+        error.message.includes("already been registered") ||
+        error.message.includes("already exists")
+      ) {
+        return res.status(409).json({
+          error: "Ya existe una cuenta con ese correo.",
+        });
+      }
+
+      if (error.message.includes("La cuenta se creó, pero")) {
+        return res.status(500).json({
+          error: error.message,
+        });
+      }
+
+      return res.status(500).json({
+        error: "No se pudo registrar el usuario.",
       });
     }
   }
