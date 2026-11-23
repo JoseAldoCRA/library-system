@@ -4,9 +4,8 @@ import { useEffect, useRef, useState } from "react";
 import {
   obtenerTodasSolicitudes,
   rechazarSolicitudPrestamo,
+  aprobarSolicitudPrestamo,
 } from "@/services/solicitudesService";
-
-import { aprobarSolicitudPrestamo } from "@/repositories/solicitudesRepository";
 import { crearClienteSupabase } from "@/lib/supabaseClient";
 
 import {

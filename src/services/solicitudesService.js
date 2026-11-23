@@ -193,3 +193,57 @@ export async function rechazarSolicitudPrestamo(idSolicitud) {
 
   return datos;
 }
+
+// Aprobar una solicitud de préstamo desde el microservicio
+export async function aprobarSolicitudPrestamo(
+  idSolicitud,
+  idEjemplar,
+  fechaVencimiento
+) {
+  const id = Number(idSolicitud);
+  const ejemplar = Number(idEjemplar);
+
+  if (!Number.isSafeInteger(id) || id <= 0) {
+    throw new Error("La solicitud seleccionada no es válida.");
+  }
+
+  if (!Number.isSafeInteger(ejemplar) || ejemplar <= 0) {
+    throw new Error("Debes seleccionar un ejemplar válido.");
+  }
+
+  const supabase = crearClienteSupabase();
+
+  const {
+    data: { session },
+    error,
+  } = await supabase.auth.getSession();
+
+  if (error || !session) {
+    throw new Error("Debes iniciar sesión como bibliotecario.");
+  }
+
+  const respuesta = await fetch(
+    `http://localhost:4003/api/prestamos/solicitudes/${id}/aprobar`,
+    {
+      method: "PATCH",
+      headers: {
+        Authorization: `Bearer ${session.access_token}`,
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        id_ejemplar: ejemplar,
+        fecha_vencimiento: fechaVencimiento,
+      }),
+    }
+  );
+
+  const datos = await respuesta.json();
+
+  if (!respuesta.ok) {
+    throw new Error(
+      datos.error || "No se pudo aprobar la solicitud."
+    );
+  }
+
+  return datos;
+}

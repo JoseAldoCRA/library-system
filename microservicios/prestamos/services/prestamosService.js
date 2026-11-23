@@ -8,7 +8,8 @@ const {
   obtenerMisSolicitudes,
   cancelarSolicitudPrestamo,
   obtenerTodasSolicitudes,
-  rechazarSolicitudPrestamo
+  rechazarSolicitudPrestamo,
+  aprobarSolicitudPrestamo
 } = require("../repositories/prestamosRepository");
 
 // Validar y registrar un nuevo préstamo
@@ -168,6 +169,41 @@ async function rechazarSolicitud(idSolicitud, token) {
   return await rechazarSolicitudPrestamo(id, token);
 }
 
+// Validar y aprobar una solicitud de préstamo
+async function aprobarSolicitud(datos, token) {
+  const idSolicitud = Number(datos?.id_solicitud);
+  const idEjemplar = Number(datos?.id_ejemplar);
+  const fechaVencimiento = datos?.fecha_vencimiento;
+
+  if (!Number.isSafeInteger(idSolicitud) || idSolicitud <= 0) {
+    const error = new Error("La solicitud seleccionada no es válida.");
+    error.status = 400;
+    throw error;
+  }
+
+  if (!Number.isSafeInteger(idEjemplar) || idEjemplar <= 0) {
+    const error = new Error("Debes seleccionar un ejemplar válido.");
+    error.status = 400;
+    throw error;
+  }
+
+  if (
+    typeof fechaVencimiento !== "string" ||
+    !/^\d{4}-\d{2}-\d{2}$/.test(fechaVencimiento)
+  ) {
+    const error = new Error("Debes seleccionar una fecha de vencimiento válida.");
+    error.status = 400;
+    throw error;
+  }
+
+  return await aprobarSolicitudPrestamo(
+    idSolicitud,
+    idEjemplar,
+    fechaVencimiento,
+    token
+  );
+}
+
 module.exports = {
   registrarNuevoPrestamo,
   listarPrestamosActivos,
@@ -178,5 +214,6 @@ module.exports = {
   listarMisSolicitudes,
   cancelarSolicitud,
   listarTodasSolicitudes,
-  rechazarSolicitud
+  rechazarSolicitud,
+  aprobarSolicitud
 };

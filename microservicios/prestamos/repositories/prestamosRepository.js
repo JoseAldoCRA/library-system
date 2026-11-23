@@ -266,6 +266,31 @@ async function rechazarSolicitudPrestamo(idSolicitud, token) {
   return data;
 }
 
+// Aprobar una solicitud de préstamo utilizando la RPC de Supabase
+async function aprobarSolicitudPrestamo(
+  idSolicitud,
+  idEjemplar,
+  fechaVencimiento,
+  token
+) {
+  const supabase = crearClienteAutenticado(token);
+
+  const { data, error } = await supabase.rpc(
+    "aprobar_solicitud_prestamo",
+    {
+      p_id_solicitud: idSolicitud,
+      p_id_ejemplar: idEjemplar,
+      p_fecha_vencimiento: fechaVencimiento,
+    }
+  );
+
+  if (error) {
+    throw new Error(error.message);
+  }
+
+  return data;
+}
+
 module.exports = {
   insertarPrestamo,
   obtenerPrestamosActivos,
@@ -276,5 +301,6 @@ module.exports = {
   obtenerMisSolicitudes,
   cancelarSolicitudPrestamo,
   obtenerTodasSolicitudes,
-  rechazarSolicitudPrestamo
+  rechazarSolicitudPrestamo,
+  aprobarSolicitudPrestamo
 };

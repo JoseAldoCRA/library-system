@@ -15,6 +15,7 @@ const {
   cancelarSolicitud,
   listarTodasSolicitudes,
   rechazarSolicitud,
+  aprobarSolicitud
 } = require("./services/prestamosService");
 
 const app = express();
@@ -355,6 +356,59 @@ app.patch(
       });
     }
   },
+);
+
+// Aprobar una solicitud de préstamo (Bibliotecario)
+app.patch(
+  "/api/prestamos/solicitudes/:id/aprobar",
+  verificarToken,
+  verificarBibliotecario,
+  async (req, res) => {
+    try {
+      const idPrestamo = await aprobarSolicitud(
+        {
+          id_solicitud: req.params.id,
+          id_ejemplar: req.body?.id_ejemplar,
+          fecha_vencimiento: req.body?.fecha_vencimiento,
+        },
+        req.token
+      );
+
+      return res.status(200).json({
+        mensaje: "Solicitud aprobada y préstamo registrado correctamente.",
+        id_prestamo: idPrestamo,
+      });
+    } catch (error) {
+      console.error("Error al aprobar solicitud:", error.message);
+
+      if (error.status === 400) {
+        return res.status(400).json({
+          error: error.message,
+        });
+      }
+
+      if (error.message === "No tienes permiso para aprobar solicitudes.") {
+        return res.status(403).json({
+          error: error.message,
+        });
+      }
+
+      if (
+        [
+          "La solicitud no existe.",
+          "La solicitud ya fue procesada o cancelada.",
+        ].includes(error.message)
+      ) {
+        return res.status(409).json({
+          error: error.message,
+        });
+      }
+
+      return res.status(500).json({
+        error: "No se pudo aprobar la solicitud.",
+      });
+    }
+  }
 );
 
 // Iniciar servidor
