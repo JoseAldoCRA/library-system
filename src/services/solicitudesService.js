@@ -153,3 +153,43 @@ export async function obtenerTodasSolicitudes() {
 
   return datos;
 }
+
+// Rechazar una solicitud de préstamo (Bibliotecario)
+export async function rechazarSolicitudPrestamo(idSolicitud) {
+  const id = Number(idSolicitud);
+
+  if (!Number.isSafeInteger(id) || id <= 0) {
+    throw new Error("La solicitud seleccionada no es válida.");
+  }
+
+  const supabase = crearClienteSupabase();
+
+  const {
+    data: { session },
+    error,
+  } = await supabase.auth.getSession();
+
+  if (error || !session) {
+    throw new Error("Debes iniciar sesión como bibliotecario.");
+  }
+
+  const respuesta = await fetch(
+    `http://localhost:4003/api/prestamos/solicitudes/${id}/rechazar`,
+    {
+      method: "PATCH",
+      headers: {
+        Authorization: `Bearer ${session.access_token}`,
+      },
+    }
+  );
+
+  const datos = await respuesta.json();
+
+  if (!respuesta.ok) {
+    throw new Error(
+      datos.error || "No se pudo rechazar la solicitud."
+    );
+  }
+
+  return datos;
+}

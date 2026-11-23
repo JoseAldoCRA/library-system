@@ -248,6 +248,24 @@ async function obtenerTodasSolicitudes(token) {
   return data || [];
 }
 
+// Rechazar una solicitud de préstamo
+async function rechazarSolicitudPrestamo(idSolicitud, token) {
+  const supabase = crearClienteAutenticado(token);
+
+  const { data, error } = await supabase.rpc(
+    "rechazar_solicitud_prestamo",
+    {
+      p_id_solicitud: idSolicitud
+    }
+  );
+
+  if (error) {
+    throw new Error(error.message);
+  }
+
+  return data;
+}
+
 module.exports = {
   insertarPrestamo,
   obtenerPrestamosActivos,
@@ -257,5 +275,6 @@ module.exports = {
   crearSolicitudPrestamo,
   obtenerMisSolicitudes,
   cancelarSolicitudPrestamo,
-  obtenerTodasSolicitudes
+  obtenerTodasSolicitudes,
+  rechazarSolicitudPrestamo
 };

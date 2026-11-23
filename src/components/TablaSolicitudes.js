@@ -1,12 +1,12 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import { obtenerTodasSolicitudes } from "@/services/solicitudesService";
-
 import {
+  obtenerTodasSolicitudes,
   rechazarSolicitudPrestamo,
-  aprobarSolicitudPrestamo,
-} from "@/repositories/solicitudesRepository";
+} from "@/services/solicitudesService";
+
+import { aprobarSolicitudPrestamo } from "@/repositories/solicitudesRepository";
 import { crearClienteSupabase } from "@/lib/supabaseClient";
 
 import {

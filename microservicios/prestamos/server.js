@@ -13,7 +13,8 @@ const {
   registrarSolicitudPrestamo,
   listarMisSolicitudes,
   cancelarSolicitud,
-  listarTodasSolicitudes
+  listarTodasSolicitudes,
+  rechazarSolicitud,
 } = require("./services/prestamosService");
 
 const app = express();
@@ -306,16 +307,54 @@ app.get(
 
       return res.status(200).json(solicitudes);
     } catch (error) {
-      console.error(
-        "Error al consultar todas las solicitudes:",
-        error.message
-      );
+      console.error("Error al consultar todas las solicitudes:", error.message);
 
       return res.status(500).json({
-        error: "No se pudieron consultar las solicitudes."
+        error: "No se pudieron consultar las solicitudes.",
       });
     }
-  }
+  },
+);
+
+// Rechazar una solicitud de préstamo (Bibliotecario)
+app.patch(
+  "/api/prestamos/solicitudes/:id/rechazar",
+  verificarToken,
+  verificarBibliotecario,
+  async (req, res) => {
+    try {
+      const resultado = await rechazarSolicitud(req.params.id, req.token);
+
+      return res.status(200).json({
+        mensaje: "Solicitud rechazada correctamente.",
+        resultado,
+      });
+    } catch (error) {
+      console.error("Error al rechazar solicitud:", error.message);
+
+      if (error.status === 400) {
+        return res.status(400).json({
+          error: error.message,
+        });
+      }
+
+      if (error.message === "La solicitud no existe o ya fue procesada.") {
+        return res.status(409).json({
+          error: "La solicitud no existe o ya fue procesada.",
+        });
+      }
+
+      if (error.message === "No tienes permiso para rechazar solicitudes.") {
+        return res.status(403).json({
+          error: error.message,
+        });
+      }
+
+      return res.status(500).json({
+        error: "No se pudo rechazar la solicitud.",
+      });
+    }
+  },
 );
 
 // Iniciar servidor
