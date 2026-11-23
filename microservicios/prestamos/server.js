@@ -11,6 +11,7 @@ const {
   listarHistorialDevoluciones,
   listarMisPrestamos,
   registrarSolicitudPrestamo,
+  listarMisSolicitudes
 } = require("./services/prestamosService");
 
 const app = express();
@@ -220,6 +221,38 @@ app.post(
       });
     }
   },
+);
+
+// Consultar las solicitudes del estudiante o docente autenticado
+app.get(
+  "/api/prestamos/solicitudes/mias",
+  verificarToken,
+  verificarSolicitante,
+  async (req, res) => {
+    try {
+      const solicitudes = await listarMisSolicitudes(
+        req.token,
+        req.usuarioAuth.id
+      );
+
+      return res.status(200).json(solicitudes);
+    } catch (error) {
+      console.error(
+        "Error al consultar mis solicitudes:",
+        error.message
+      );
+
+      if (error.message === "No se encontró el perfil del usuario.") {
+        return res.status(404).json({
+          error: error.message
+        });
+      }
+
+      return res.status(500).json({
+        error: "No se pudieron consultar tus solicitudes."
+      });
+    }
+  }
 );
 
 // Iniciar servidor

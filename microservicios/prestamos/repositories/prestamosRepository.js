@@ -159,6 +159,42 @@ async function crearSolicitudPrestamo(idLibro, token) {
   return data;
 }
 
+// Consultar las solicitudes del usuario autenticado
+async function obtenerMisSolicitudes(token, authUserId) {
+  const supabase = crearClienteAutenticado(token);
+
+  const { data: perfil, error: errorPerfil } = await supabase
+    .from("usuarios")
+    .select("id_usuario")
+    .eq("auth_user_id", authUserId)
+    .single();
+
+  if (errorPerfil || !perfil) {
+    throw new Error("No se encontró el perfil del usuario.");
+  }
+
+  const { data, error } = await supabase
+    .from("solicitudes_prestamo")
+    .select(`
+      id_solicitud,
+      fecha_solicitud,
+      estado,
+      libros (
+        titulo,
+        autor,
+        isbn
+      )
+    `)
+    .eq("id_usuario", perfil.id_usuario)
+    .order("fecha_solicitud", { ascending: false });
+
+  if (error) {
+    throw new Error(error.message);
+  }
+
+  return data || [];
+}
+
 module.exports = {
   insertarPrestamo,
   obtenerPrestamosActivos,
@@ -166,4 +202,5 @@ module.exports = {
   obtenerHistorialDevoluciones,
   obtenerMisPrestamos,
   crearSolicitudPrestamo,
+  obtenerMisSolicitudes
 };

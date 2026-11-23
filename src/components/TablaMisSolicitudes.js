@@ -1,11 +1,8 @@
 "use client";
 
 import { useEffect, useState } from "react";
-
-import {
-  obtenerMisSolicitudes,
-  cancelarSolicitudPrestamo,
-} from "@/repositories/solicitudesRepository";
+import { obtenerMisSolicitudes } from "@/services/solicitudesService";
+import { cancelarSolicitudPrestamo } from "@/repositories/solicitudesRepository";
 
 import {
   ClipboardList,

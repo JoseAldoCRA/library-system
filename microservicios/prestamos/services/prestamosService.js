@@ -4,7 +4,8 @@ const {
   devolverPrestamo,
   obtenerHistorialDevoluciones,
   obtenerMisPrestamos,
-  crearSolicitudPrestamo
+  crearSolicitudPrestamo,
+  obtenerMisSolicitudes
 } = require("../repositories/prestamosRepository");
 
 // Validar y registrar un nuevo préstamo
@@ -128,11 +129,17 @@ async function registrarSolicitudPrestamo(datos, token) {
   return await crearSolicitudPrestamo(idLibro, token);
 }
 
+// Consultar las solicitudes del estudiante o docente autenticado
+async function listarMisSolicitudes(token, authUserId) {
+  return await obtenerMisSolicitudes(token, authUserId);
+}
+
 module.exports = {
   registrarNuevoPrestamo,
   listarPrestamosActivos,
   registrarDevolucion,
   listarHistorialDevoluciones,
   listarMisPrestamos,
-  registrarSolicitudPrestamo
+  registrarSolicitudPrestamo,
+  listarMisSolicitudes
 };
