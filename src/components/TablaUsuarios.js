@@ -119,7 +119,7 @@ export default function TablaUsuarios({ actualizacion }) {
         throw new Error("Debes iniciar sesión como bibliotecario.");
       }
 
-      const respuesta = await fetch("/api/bibliotecario/usuarios", {
+      const respuesta = await fetch("http://localhost:4004/api/usuarios", {
         method: "PATCH",
         headers: {
           "Content-Type": "application/json",

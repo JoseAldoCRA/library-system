@@ -65,7 +65,97 @@ async function crearCuentaUsuario(usuario) {
   };
 }
 
+async function obtenerUsuarioPorId(idUsuario) {
+  const supabase = crearClienteSupabaseAdmin();
+
+  const { data, error } = await supabase
+    .from("usuarios")
+    .select("id_usuario, nombre, correo, rol, estado, auth_user_id")
+    .eq("id_usuario", idUsuario)
+    .maybeSingle();
+
+  if (error) {
+    throw new Error(error.message);
+  }
+
+  return data;  
+}
+
+async function comprobarCorreoExistente(correo, idUsuario) {
+  const supabase = crearClienteSupabaseAdmin();
+
+  const { data, error } = await supabase
+    .from("usuarios")
+    .select("id_usuario")
+    .eq("correo", correo)
+    .neq("id_usuario", idUsuario)
+    .maybeSingle();
+
+  if (error) {
+    throw new Error(error.message);
+  }
+
+  return Boolean(data);
+}
+
+async function obtenerCuentaAuth(idAuth) {
+  const supabase = crearClienteSupabaseAdmin();
+
+  const { data, error } = await supabase.auth.admin.getUserById(idAuth);
+
+  if (error || !data?.user) {
+    throw new Error("No se encontró la cuenta de autenticación.");
+  }
+
+  return data.user;
+}
+
+async function actualizarCuentaAuth(idAuth, cambios) {
+  const supabase = crearClienteSupabaseAdmin();
+
+  const { data, error } = await supabase.auth.admin.updateUserById(
+    idAuth,
+    cambios
+  );
+
+  if (error || !data?.user) {
+    throw new Error(
+      error?.message || "No se pudo actualizar la cuenta de autenticación."
+    );
+  }
+
+  return data.user;
+}
+async function actualizarUsuarioEnBD(idUsuario, cambios) {
+  const supabase = crearClienteSupabaseAdmin();
+
+  const { data, error } = await supabase
+    .from("usuarios")
+    .update({
+      nombre: cambios.nombre,
+      correo: cambios.correo,
+      rol: cambios.rol,
+      estado: cambios.estado,
+    })
+    .eq("id_usuario", idUsuario)
+    .in("rol", ["estudiante", "docente"])
+    .select("id_usuario, nombre, correo, rol, estado")
+    .single();
+
+  if (error) {
+    const nuevoError = new Error(error.message);
+    nuevoError.code = error.code;
+    throw nuevoError;
+  }
+
+  return data;
+}
 module.exports = {
   obtenerTodosUsuarios,
   crearCuentaUsuario,
+  obtenerUsuarioPorId,
+  comprobarCorreoExistente,
+  obtenerCuentaAuth,
+  actualizarCuentaAuth,
+  actualizarUsuarioEnBD,
 };

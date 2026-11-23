@@ -8,6 +8,7 @@ const verificarBibliotecario = require("./middlewares/verificarBibliotecario");
 const {
   listarUsuarios,
   registrarNuevoUsuario,
+  editarUsuario,
 } = require("./services/usuariosService");
 const app = express();
 
@@ -107,6 +108,64 @@ app.post(
     }
   }
 );
+
+ // Editar un usuario existente
+ app.patch(
+   "/api/usuarios",
+   verificarToken,
+   verificarBibliotecario,
+   async (req, res) => {
+     try {
+       const resultado = await editarUsuario(req.body);
+
+       return res.status(200).json(resultado);
+     } catch (error) {
+       console.error("Error al editar usuario:", error.message);
+
+       const mensajes = [
+         "El usuario seleccionado no es válido.",
+         "No se encontró el usuario.",
+         "No puedes editar cuentas de bibliotecarios.",
+         "Ingresa un nombre válido de máximo 100 caracteres.",
+         "El correo electrónico no es válido.",
+         "Solo puedes seleccionar estudiante o docente.",
+         "El estado debe ser activo o inactivo.",
+       ];
+
+       if (error.status === 409 ||
+           error.message === "El correo ya pertenece a otro usuario.") {
+         return res.status(409).json({
+           error: error.message,
+         });
+       }
+
+       if (error.status === 403 ||
+           error.message === "No puedes editar cuentas de bibliotecarios.") {
+         return res.status(403).json({
+           error: error.message,
+         });
+       }
+
+       if (error.status === 400 || mensajes.includes(error.message)) {
+         return res.status(400).json({
+           error: error.message,
+         });
+       }
+
+       if (error.message === "No se encontró el usuario.") {
+         return res.status(404).json({
+           error: error.message,
+         });
+       }
+
+       return res.status(500).json({
+         error: error.status === 500
+           ? error.message
+           : "No se pudo actualizar el usuario.",
+       });
+     }
+   }
+ );
 
 // Iniciar servidor
 app.listen(PUERTO, () => {
