@@ -30,6 +30,7 @@ import TablaPrestamos from "@/components/TablaPrestamos";
 import TablaSanciones from "@/components/TablaSanciones";
 import TablaUsuarios from "@/components/TablaUsuarios";
 import FormularioRegistrarUsuario from "@/components/FormularioRegistrarUsuario";
+import FormularioActivarUsuario from "@/components/FormularioActivarUsuario";
 import ReportesBiblioteca from "@/components/ReportesBiblioteca";
 import TablaSolicitudes from "@/components/TablaSolicitudes";
 
@@ -327,6 +328,7 @@ export default function PanelBibliotecario() {
             <FormularioRegistrarUsuario alRegistrar={actualizarDatos} />
 
             <TablaUsuarios actualizacion={actualizacionLibros} />
+            <FormularioActivarUsuario />
           </div>
         )}
 

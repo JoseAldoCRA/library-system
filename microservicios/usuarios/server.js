@@ -9,6 +9,7 @@ const {
   listarUsuarios,
   registrarNuevoUsuario,
   editarUsuario,
+  activarUsuario,
 } = require("./services/usuariosService");
 const app = express();
 
@@ -166,6 +167,37 @@ app.post(
      }
    }
  );
+// Activar una cuenta existente
+app.post(
+  "/api/usuarios/activar",
+  verificarToken,
+  verificarBibliotecario,
+  async (req, res) => {
+    try {
+      const resultado = await activarUsuario(req.body);
+
+      return res.status(200).json(resultado);
+    } catch (error) {
+      console.error("Error al activar usuario:", error.message);
+
+      if ([400, 403, 404, 409].includes(error.status)) {
+        return res.status(error.status).json({
+          error: error.message,
+        });
+      }
+
+      if (error.status === 500) {
+        return res.status(500).json({
+          error: error.message,
+        });
+      }
+
+      return res.status(500).json({
+        error: "No se pudo completar la activación.",
+      });
+    }
+  }
+);
 
 // Iniciar servidor
 app.listen(PUERTO, () => {

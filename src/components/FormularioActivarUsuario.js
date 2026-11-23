@@ -79,7 +79,7 @@ export default function FormularioActivarUsuario() {
         throw new Error("Debes iniciar sesión como bibliotecario.");
       }
 
-      const respuesta = await fetch("/api/bibliotecario/usuarios/activar", {
+      const respuesta = await fetch("http://localhost:4004/api/usuarios/activar", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

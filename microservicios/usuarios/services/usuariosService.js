@@ -1,3 +1,5 @@
+const { randomBytes, createHash } = require("node:crypto");
+
 const {
   obtenerTodosUsuarios,
   crearCuentaUsuario,
@@ -6,6 +8,10 @@ const {
   obtenerCuentaAuth,
   actualizarCuentaAuth,
   actualizarUsuarioEnBD,
+  crearAutorizacionActivacion,
+  eliminarAutorizacionActivacion,
+  crearAccesoUsuario,
+  obtenerVinculoUsuario,
 } = require("../repositories/usuariosRepository");
 
 async function listarUsuarios(token) {
@@ -308,6 +314,145 @@ async function editarUsuario(datos) {
     throw error;
   }
 }
+function validarActivacionUsuario(datos) {
+  const idUsuario = datos?.id_usuario;
+  const contrasena = datos?.contrasena;
+
+  if (!Number.isSafeInteger(idUsuario) || idUsuario <= 0) {
+    const error = new Error("Selecciona un usuario válido.");
+    error.status = 400;
+    throw error;
+  }
+
+  if (
+    typeof contrasena !== "string" ||
+    contrasena.length < 8 ||
+    contrasena.length > 72
+  ) {
+    const error = new Error(
+      "La contraseña debe tener entre 8 y 72 caracteres."
+    );
+    error.status = 400;
+    throw error;
+  }
+
+  return {
+    idUsuario,
+    contrasena,
+  };
+}
+async function activarUsuario(datos) {
+  const { idUsuario, contrasena } = validarActivacionUsuario(datos);
+
+  // Consultar el perfil existente
+  const usuario = await obtenerUsuarioPorId(idUsuario);
+
+  if (!usuario) {
+    const error = new Error("No se encontró el usuario.");
+    error.status = 404;
+    throw error;
+  }
+
+  if (
+    usuario.estado !== "activo" ||
+    !["estudiante", "docente"].includes(usuario.rol)
+  ) {
+    const error = new Error("Este usuario no puede activarse.");
+    error.status = 403;
+    throw error;
+  }
+
+  if (usuario.auth_user_id) {
+    const error = new Error("Este usuario ya tiene una cuenta de acceso.");
+    error.status = 409;
+    throw error;
+  }
+
+  // Generar una autorización temporal
+  const codigo = randomBytes(32).toString("hex");
+
+  const codigoHash = createHash("sha256")
+    .update(codigo)
+    .digest("hex");
+
+  const venceEn = new Date(
+    Date.now() + 10 * 60 * 1000
+  ).toISOString();
+
+  const autorizacion = await crearAutorizacionActivacion(
+    idUsuario,
+    codigoHash,
+    venceEn
+  );
+
+  // Crear la cuenta en Supabase Auth
+  let cuentaAuth;
+
+  try {
+    cuentaAuth = await crearAccesoUsuario(
+      usuario,
+      contrasena,
+      codigo
+    );
+  } catch (error) {
+    // Limpiar la autorización si no se pudo crear la cuenta
+    try {
+      await eliminarAutorizacionActivacion(
+        autorizacion.id_activacion
+      );
+    } catch (errorLimpieza) {
+      console.error(
+        "No se pudo limpiar la autorización:",
+        errorLimpieza.message
+      );
+    }
+
+    const errorCreacion = new Error(
+      "No se pudo crear el acceso del usuario."
+    );
+    errorCreacion.status = 400;
+    throw errorCreacion;
+  }
+
+  // Comprobar que el perfil original quedó vinculado
+  let perfil;
+
+  try {
+    perfil = await obtenerVinculoUsuario(idUsuario);
+  } catch (error) {
+    console.error("Error al verificar el vínculo:", error.message);
+  }
+
+  if (!perfil || perfil.auth_user_id !== cuentaAuth.id) {
+    const error = new Error(
+      "La activación requiere revisión. No vuelvas a intentarla todavía."
+    );
+    error.status = 500;
+    throw error;
+  }
+
+  // Eliminar el código temporal de los metadatos
+  try {
+    await actualizarCuentaAuth(cuentaAuth.id, {
+      user_metadata: {
+        nombre: usuario.nombre,
+        rol: usuario.rol,
+        codigo_activacion: null,
+      },
+    });
+  } catch (error) {
+    console.error(
+      "No se pudo limpiar el código temporal:",
+      error.message
+    );
+  }
+
+  return {
+    mensaje: "Cuenta activada correctamente.",
+    id_usuario: perfil.id_usuario,
+  };
+}
+
 module.exports = {
   listarUsuarios,
   validarRegistroUsuario,
@@ -316,4 +461,6 @@ module.exports = {
   validarDatosEdicion,
   prepararCambiosAuth,
   editarUsuario,
+  validarActivacionUsuario,
+  activarUsuario,
 };

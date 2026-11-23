@@ -150,6 +150,82 @@ async function actualizarUsuarioEnBD(idUsuario, cambios) {
 
   return data;
 }
+// Guardar una autorizacion temporal para activar una cuenta
+async function crearAutorizacionActivacion(idUsuario, codigoHash, venceEn) {
+  const supabase = crearClienteSupabaseAdmin();
+
+  const { data, error } = await supabase
+    .from("activaciones_usuario")
+    .insert({
+      id_usuario: idUsuario,
+      codigo_hash: codigoHash,
+      vence_en: venceEn,
+    })
+    .select("id_activacion")
+    .single();
+
+  if (error || !data) {
+    throw new Error("No se pudo autorizar la activacion.");
+  }
+
+  return data;
+}
+
+// Eliminar una autorizacion temporal
+async function eliminarAutorizacionActivacion(idActivacion) {
+  const supabase = crearClienteSupabaseAdmin();
+
+  const { error } = await supabase
+    .from("activaciones_usuario")
+    .delete()
+    .eq("id_activacion", idActivacion);
+
+  if (error) {
+    throw new Error(error.message);
+  }
+}
+
+// Crear el acceso de Auth para un perfil existente
+async function crearAccesoUsuario(usuario, contrasena, codigo) {
+  const supabase = crearClienteSupabaseAdmin();
+
+  const { data, error } = await supabase.auth.admin.createUser({
+    email: usuario.correo,
+    password: contrasena,
+    email_confirm: true,
+    user_metadata: {
+      nombre: usuario.nombre,
+      rol: usuario.rol,
+      codigo_activacion: codigo,
+    },
+  });
+
+  if (error || !data?.user) {
+    throw new Error(
+      error?.message || "No se pudo crear el acceso del usuario."
+    );
+  }
+
+  return data.user;
+}
+
+// Consultar el perfil para verificar su vinculacion
+async function obtenerVinculoUsuario(idUsuario) {
+  const supabase = crearClienteSupabaseAdmin();
+
+  const { data, error } = await supabase
+    .from("usuarios")
+    .select("id_usuario, auth_user_id")
+    .eq("id_usuario", idUsuario)
+    .single();
+
+  if (error || !data) {
+    throw new Error("No se pudo verificar el vinculo del usuario.");
+  }
+
+  return data;
+}
+
 module.exports = {
   obtenerTodosUsuarios,
   crearCuentaUsuario,
@@ -158,4 +234,8 @@ module.exports = {
   obtenerCuentaAuth,
   actualizarCuentaAuth,
   actualizarUsuarioEnBD,
+  crearAutorizacionActivacion,
+  eliminarAutorizacionActivacion,
+  crearAccesoUsuario,
+  obtenerVinculoUsuario,
 };
