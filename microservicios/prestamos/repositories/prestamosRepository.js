@@ -141,11 +141,29 @@ async function obtenerMisPrestamos(token, authUserId) {
 
   return data;
 }
+// Crear una solicitud de préstamo con la sesión del usuario
+async function crearSolicitudPrestamo(idLibro, token) {
+  const supabase = crearClienteAutenticado(token);
+
+  const { data, error } = await supabase.rpc(
+    "crear_solicitud_prestamo",
+    {
+      p_id_libro: idLibro,
+    }
+  );
+
+  if (error) {
+    throw new Error(error.message);
+  }
+
+  return data;
+}
 
 module.exports = {
   insertarPrestamo,
   obtenerPrestamosActivos,
   devolverPrestamo,
   obtenerHistorialDevoluciones,
-  obtenerMisPrestamos
+  obtenerMisPrestamos,
+  crearSolicitudPrestamo,
 };

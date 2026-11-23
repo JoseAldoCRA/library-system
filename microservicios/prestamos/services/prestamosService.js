@@ -3,7 +3,8 @@ const {
   obtenerPrestamosActivos,
   devolverPrestamo,
   obtenerHistorialDevoluciones,
-  obtenerMisPrestamos
+  obtenerMisPrestamos,
+  crearSolicitudPrestamo
 } = require("../repositories/prestamosRepository");
 
 // Validar y registrar un nuevo préstamo
@@ -114,10 +115,24 @@ async function listarMisPrestamos(token, authUserId) {
   });
 }
 
+// Validar y crear una solicitud de préstamo
+async function registrarSolicitudPrestamo(datos, token) {
+  const idLibro = datos?.id_libro;
+
+  if (!Number.isSafeInteger(idLibro) || idLibro <= 0) {
+    const error = new Error("Debes seleccionar un libro válido.");
+    error.status = 400;
+    throw error;
+  }
+
+  return await crearSolicitudPrestamo(idLibro, token);
+}
+
 module.exports = {
   registrarNuevoPrestamo,
   listarPrestamosActivos,
   registrarDevolucion,
   listarHistorialDevoluciones,
-  listarMisPrestamos
+  listarMisPrestamos,
+  registrarSolicitudPrestamo
 };

@@ -9,7 +9,7 @@ import TablaMisPrestamos from "@/components/TablaMisPrestamos";
 import TablaMisSolicitudes from "@/components/TablaMisSolicitudes";
 import TablaMisSanciones from "@/components/TablaMisSanciones";
 import { obtenerLibroPorId } from "@/repositories/librosRepository";
-import { crearSolicitudPrestamo } from "@/repositories/solicitudesRepository";
+import { crearSolicitudPrestamo } from "@/services/solicitudesService";
 
 import {
   LibraryBig,
