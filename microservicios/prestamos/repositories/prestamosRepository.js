@@ -213,6 +213,41 @@ async function cancelarSolicitudPrestamo(idSolicitud, token) {
   return data;
 }
 
+// Consultar todas las solicitudes de préstamo
+async function obtenerTodasSolicitudes(token) {
+  const supabase = crearClienteAutenticado(token);
+
+  const { data, error } = await supabase
+    .from("solicitudes_prestamo")
+    .select(`
+      id_solicitud,
+      id_usuario,
+      id_libro,
+      fecha_solicitud,
+      estado,
+      usuarios (
+        nombre,
+        rol
+      ),
+      libros (
+        titulo,
+        autor,
+        ejemplares (
+          id_ejemplar,
+          codigo,
+          estado
+        )
+      )
+    `)
+    .order("fecha_solicitud", { ascending: false });
+
+  if (error) {
+    throw new Error(error.message);
+  }
+
+  return data || [];
+}
+
 module.exports = {
   insertarPrestamo,
   obtenerPrestamosActivos,
@@ -221,5 +256,6 @@ module.exports = {
   obtenerMisPrestamos,
   crearSolicitudPrestamo,
   obtenerMisSolicitudes,
-  cancelarSolicitudPrestamo
+  cancelarSolicitudPrestamo,
+  obtenerTodasSolicitudes
 };

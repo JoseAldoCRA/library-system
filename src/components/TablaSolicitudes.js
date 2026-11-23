@@ -1,8 +1,9 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
+import { obtenerTodasSolicitudes } from "@/services/solicitudesService";
+
 import {
-  obtenerTodasSolicitudes,
   rechazarSolicitudPrestamo,
   aprobarSolicitudPrestamo,
 } from "@/repositories/solicitudesRepository";

@@ -6,7 +6,8 @@ const {
   obtenerMisPrestamos,
   crearSolicitudPrestamo,
   obtenerMisSolicitudes,
-  cancelarSolicitudPrestamo
+  cancelarSolicitudPrestamo,
+  obtenerTodasSolicitudes
 } = require("../repositories/prestamosRepository");
 
 // Validar y registrar un nuevo préstamo
@@ -148,6 +149,11 @@ async function cancelarSolicitud(idSolicitud, token) {
   return await cancelarSolicitudPrestamo(id, token);
 }
 
+// Consultar todas las solicitudes para el bibliotecario
+async function listarTodasSolicitudes(token) {
+  return await obtenerTodasSolicitudes(token);
+}
+
 module.exports = {
   registrarNuevoPrestamo,
   listarPrestamosActivos,
@@ -156,5 +162,6 @@ module.exports = {
   listarMisPrestamos,
   registrarSolicitudPrestamo,
   listarMisSolicitudes,
-  cancelarSolicitud
+  cancelarSolicitud,
+  listarTodasSolicitudes
 };

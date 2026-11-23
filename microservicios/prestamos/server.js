@@ -13,6 +13,7 @@ const {
   registrarSolicitudPrestamo,
   listarMisSolicitudes,
   cancelarSolicitud,
+  listarTodasSolicitudes
 } = require("./services/prestamosService");
 
 const app = express();
@@ -292,6 +293,29 @@ app.patch(
       });
     }
   },
+);
+
+// Consultar todas las solicitudes de préstamo (Bibliotecario)
+app.get(
+  "/api/prestamos/solicitudes",
+  verificarToken,
+  verificarBibliotecario,
+  async (req, res) => {
+    try {
+      const solicitudes = await listarTodasSolicitudes(req.token);
+
+      return res.status(200).json(solicitudes);
+    } catch (error) {
+      console.error(
+        "Error al consultar todas las solicitudes:",
+        error.message
+      );
+
+      return res.status(500).json({
+        error: "No se pudieron consultar las solicitudes."
+      });
+    }
+  }
 );
 
 // Iniciar servidor

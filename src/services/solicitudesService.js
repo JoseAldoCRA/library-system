@@ -118,3 +118,38 @@ export async function cancelarSolicitudPrestamo(idSolicitud) {
 
   return datos;
 }
+
+// Consultar todas las solicitudes de préstamo (Bibliotecario)
+export async function obtenerTodasSolicitudes() {
+  const supabase = crearClienteSupabase();
+
+  const {
+    data: { session },
+    error,
+  } = await supabase.auth.getSession();
+
+  if (error || !session) {
+    throw new Error("Debes iniciar sesión para consultar las solicitudes.");
+  }
+
+  const respuesta = await fetch(
+    "http://localhost:4003/api/prestamos/solicitudes",
+    {
+      method: "GET",
+      headers: {
+        Authorization: `Bearer ${session.access_token}`,
+      },
+      cache: "no-store",
+    },
+  );
+
+  const datos = await respuesta.json();
+
+  if (!respuesta.ok) {
+    throw new Error(
+      datos.error || "No se pudieron consultar las solicitudes.",
+    );
+  }
+
+  return datos;
+}
