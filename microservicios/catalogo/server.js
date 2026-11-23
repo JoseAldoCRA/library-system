@@ -19,6 +19,10 @@ const {
 const verificarToken = require("./middlewares/verificarToken");
 const verificarBibliotecario = require("./middlewares/verificarBibliotecario");
 
+const {
+  generarReporteInventario,
+} = require("./services/reportesService");
+
 const app = express();
 const PORT = process.env.PORT || 4002;
 
@@ -347,6 +351,29 @@ app.patch(
 
       return res.status(500).json({
         error: "No se pudo cambiar el estado del ejemplar."
+      });
+    }
+  }
+);
+
+ // Consultar estadísticas de inventario (Bibliotecario)
+app.get(
+  "/api/catalogo/reportes",
+  verificarToken,
+  verificarBibliotecario,
+  async (req, res) => {
+    try {
+      const reporte = await generarReporteInventario(req.token);
+
+      return res.status(200).json(reporte);
+    } catch (error) {
+      console.error(
+        "Error al consultar reportes de inventario:",
+        error.message
+      );
+
+      return res.status(500).json({
+        error: "No se pudieron consultar los reportes de inventario.",
       });
     }
   }

@@ -24,6 +24,9 @@ const {
   registrarNuevoPago,
 } = require("./services/sancionesService");
 
+const {
+  generarReportePrestamos,
+} = require("./services/reportesService");
 
 const app = express();
 const PORT = process.env.PORT || 4003;
@@ -482,6 +485,26 @@ app.patch(
 
       return res.status(500).json({
         error: "No se pudo registrar el pago de la sanción.",
+      });
+    }
+  }
+);
+
+ // Consultar reportes de préstamos y sanciones (Bibliotecario)
+app.get(
+  "/api/prestamos/reportes",
+  verificarToken,
+  verificarBibliotecario,
+  async (req, res) => {
+    try {
+      const reporte = await generarReportePrestamos(req.token);
+
+      return res.status(200).json(reporte);
+    } catch (error) {
+      console.error("Error al consultar reportes:", error.message);
+
+      return res.status(500).json({
+        error: "No se pudieron consultar los reportes.",
       });
     }
   }

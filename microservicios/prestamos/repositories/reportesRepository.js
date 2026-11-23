@@ -1,9 +1,9 @@
 
-import { crearClienteSupabase } from "@/lib/supabaseClient";
+const crearClienteAutenticado = require("../supabaseAutenticado");
 
-// Obtener todos los registros por grupos
-async function consultarRegistros(tabla, columnas, campoOrden) {
-  const supabase = crearClienteSupabase();
+// Consultar registros en grupos de 500
+async function consultarRegistros(tabla, columnas, campoOrden, token) {
+  const supabase = crearClienteAutenticado(token);
 
   let resultados = [];
   let inicio = 0;
@@ -32,29 +32,27 @@ async function consultarRegistros(tabla, columnas, campoOrden) {
   return resultados;
 }
 
-// Obtener los prestamos para los reportes
-export async function obtenerPrestamosReporte() {
+// Obtener los préstamos para los reportes
+async function obtenerPrestamosReporte(token) {
   return await consultarRegistros(
     "prestamos",
     "id_prestamo, fecha_vencimiento, fecha_devolucion",
-    "id_prestamo"
+    "id_prestamo",
+    token
   );
 }
 
 // Obtener las sanciones para los reportes
-export async function obtenerSancionesReporte() {
+async function obtenerSancionesReporte(token) {
   return await consultarRegistros(
     "sanciones",
     "id_sancion, estado_pago",
-    "id_sancion"
+    "id_sancion",
+    token
   );
 }
 
-// Obtener los ejemplares para los reportes
-export async function obtenerEjemplaresReporte() {
-  return await consultarRegistros(
-    "ejemplares",
-    "id_ejemplar, estado",
-    "id_ejemplar"
-  );
-}
+module.exports = {
+  obtenerPrestamosReporte,
+  obtenerSancionesReporte,
+};
