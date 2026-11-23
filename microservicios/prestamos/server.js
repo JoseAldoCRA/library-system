@@ -11,7 +11,8 @@ const {
   listarHistorialDevoluciones,
   listarMisPrestamos,
   registrarSolicitudPrestamo,
-  listarMisSolicitudes
+  listarMisSolicitudes,
+  cancelarSolicitud,
 } = require("./services/prestamosService");
 
 const app = express();
@@ -232,27 +233,65 @@ app.get(
     try {
       const solicitudes = await listarMisSolicitudes(
         req.token,
-        req.usuarioAuth.id
+        req.usuarioAuth.id,
       );
 
       return res.status(200).json(solicitudes);
     } catch (error) {
-      console.error(
-        "Error al consultar mis solicitudes:",
-        error.message
-      );
+      console.error("Error al consultar mis solicitudes:", error.message);
 
       if (error.message === "No se encontró el perfil del usuario.") {
         return res.status(404).json({
-          error: error.message
+          error: error.message,
         });
       }
 
       return res.status(500).json({
-        error: "No se pudieron consultar tus solicitudes."
+        error: "No se pudieron consultar tus solicitudes.",
       });
     }
-  }
+  },
+);
+
+// Cancelar una solicitud de préstamo
+app.patch(
+  "/api/prestamos/solicitudes/:id/cancelar",
+  verificarToken,
+  verificarSolicitante,
+  async (req, res) => {
+    try {
+      const resultado = await cancelarSolicitud(req.params.id, req.token);
+
+      return res.status(200).json({
+        mensaje: "Solicitud cancelada correctamente.",
+        resultado,
+      });
+    } catch (error) {
+      console.error("Error al cancelar solicitud:", error.message);
+
+      if (error.status === 400) {
+        return res.status(400).json({
+          error: error.message,
+        });
+      }
+
+      if (error.message === "La solicitud no existe o ya no está pendiente.") {
+        return res.status(404).json({
+          error: "La solicitud no existe o no se puede cancelar.",
+        });
+      }
+
+      if (error.message === "No tienes permiso para cancelar solicitudes.") {
+        return res.status(403).json({
+          error: error.message,
+        });
+      }
+
+      return res.status(500).json({
+        error: "No se pudo cancelar la solicitud.",
+      });
+    }
+  },
 );
 
 // Iniciar servidor

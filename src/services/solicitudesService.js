@@ -78,3 +78,43 @@ export async function obtenerMisSolicitudes() {
 
   return datos;
 }
+
+// Cancelar una solicitud de préstamo del usuario autenticado
+export async function cancelarSolicitudPrestamo(idSolicitud) {
+  const id = Number(idSolicitud);
+
+  if (!Number.isSafeInteger(id) || id <= 0) {
+    throw new Error("La solicitud seleccionada no es válida.");
+  }
+
+  const supabase = crearClienteSupabase();
+
+  const {
+    data: { session },
+    error,
+  } = await supabase.auth.getSession();
+
+  if (error || !session) {
+    throw new Error("Debes iniciar sesión para cancelar una solicitud.");
+  }
+
+  const respuesta = await fetch(
+    `http://localhost:4003/api/prestamos/solicitudes/${id}/cancelar`,
+    {
+      method: "PATCH",
+      headers: {
+        Authorization: `Bearer ${session.access_token}`,
+      },
+    },
+  );
+
+  const datos = await respuesta.json();
+
+  if (!respuesta.ok) {
+    throw new Error(
+      datos.error || "No se pudo cancelar la solicitud.",
+    );
+  }
+
+  return datos;
+}

@@ -195,6 +195,24 @@ async function obtenerMisSolicitudes(token, authUserId) {
   return data || [];
 }
 
+// Cancelar una solicitud de préstamo del usuario autenticado
+async function cancelarSolicitudPrestamo(idSolicitud, token) {
+  const supabase = crearClienteAutenticado(token);
+
+  const { data, error } = await supabase.rpc(
+    "cancelar_solicitud_prestamo",
+    {
+      p_id_solicitud: idSolicitud
+    }
+  );
+
+  if (error) {
+    throw new Error(error.message);
+  }
+
+  return data;
+}
+
 module.exports = {
   insertarPrestamo,
   obtenerPrestamosActivos,
@@ -202,5 +220,6 @@ module.exports = {
   obtenerHistorialDevoluciones,
   obtenerMisPrestamos,
   crearSolicitudPrestamo,
-  obtenerMisSolicitudes
+  obtenerMisSolicitudes,
+  cancelarSolicitudPrestamo
 };

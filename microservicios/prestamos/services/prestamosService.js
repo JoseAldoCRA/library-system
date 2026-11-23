@@ -5,7 +5,8 @@ const {
   obtenerHistorialDevoluciones,
   obtenerMisPrestamos,
   crearSolicitudPrestamo,
-  obtenerMisSolicitudes
+  obtenerMisSolicitudes,
+  cancelarSolicitudPrestamo
 } = require("../repositories/prestamosRepository");
 
 // Validar y registrar un nuevo préstamo
@@ -134,6 +135,19 @@ async function listarMisSolicitudes(token, authUserId) {
   return await obtenerMisSolicitudes(token, authUserId);
 }
 
+// Validar y cancelar una solicitud de préstamo
+async function cancelarSolicitud(idSolicitud, token) {
+  const id = Number(idSolicitud);
+
+  if (!Number.isSafeInteger(id) || id <= 0) {
+    const error = new Error("La solicitud seleccionada no es válida.");
+    error.status = 400;
+    throw error;
+  }
+
+  return await cancelarSolicitudPrestamo(id, token);
+}
+
 module.exports = {
   registrarNuevoPrestamo,
   listarPrestamosActivos,
@@ -141,5 +155,6 @@ module.exports = {
   listarHistorialDevoluciones,
   listarMisPrestamos,
   registrarSolicitudPrestamo,
-  listarMisSolicitudes
+  listarMisSolicitudes,
+  cancelarSolicitud
 };
