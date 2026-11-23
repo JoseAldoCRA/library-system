@@ -8,12 +8,29 @@ const {
   contarEjemplaresLibro,
   eliminarLibro,
   insertarEjemplar,
-  actualizarEstadoEjemplar
+  actualizarEstadoEjemplar,
+  obtenerLibroPorId
 } = require("../repositories/catalogoRepository");
 
 // Consultar las categorías de la biblioteca
 async function listarCategorias() {
   return await obtenerCategorias();
+}
+
+// Consultar los libros completos para el catálogo público
+async function listarLibrosPublicos() {
+  return await obtenerLibros();
+}
+
+// Consultar un libro por su identificador
+async function consultarLibroPorId(idLibro) {
+  const id = Number(idLibro);
+
+  if (!Number.isSafeInteger(id) || id <= 0) {
+    throw new Error("El libro seleccionado no es válido.");
+  }
+
+  return await obtenerLibroPorId(id);
 }
 
 // Consultar los libros y calcular sus ejemplares
@@ -242,5 +259,7 @@ module.exports = {
   editarLibro,
   eliminarLibroSeguro,
   registrarNuevoEjemplar,
-  cambiarEstadoEjemplar
+  cambiarEstadoEjemplar,
+  listarLibrosPublicos,
+  consultarLibroPorId,
 };

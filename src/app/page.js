@@ -23,9 +23,9 @@ import {
 } from "lucide-react";
 
 import {
-  obtenerLibros,
-  obtenerCategorias,
-} from "@/repositories/librosRepository";
+  listarLibrosPublicos,
+  listarCategorias,
+} from "@/services/librosService";
 
 import { obtenerUsuarioActual } from "@/services/authService";
 import styles from "./catalogo.module.css";
@@ -58,8 +58,8 @@ export default function Home() {
     async function cargarCatalogo() {
       try {
         const [datosLibros, datosCategorias] = await Promise.all([
-          obtenerLibros(),
-          obtenerCategorias(),
+          listarLibrosPublicos(),
+          listarCategorias(),
         ]);
 
         setLibros(datosLibros || []);

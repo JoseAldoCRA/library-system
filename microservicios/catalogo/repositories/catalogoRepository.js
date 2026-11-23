@@ -41,6 +41,30 @@ async function obtenerLibros() {
   return data;
 }
 
+// Obtener un libro por su identificador
+async function obtenerLibroPorId(idLibro) {
+  const { data, error } = await supabase
+    .from("libros")
+    .select(`
+      id_libro,
+      isbn,
+      titulo,
+      autor,
+      resumen,
+      id_categoria,
+      categorias ( nombre ),
+      ejemplares ( id_ejemplar, estado )
+    `)
+    .eq("id_libro", idLibro)
+    .maybeSingle();
+
+  if (error) {
+    throw new Error(error.message);
+  }
+
+  return data;
+}
+
 // Obtener todos los ejemplares registrados
 async function obtenerEjemplares() {
   const { data, error } = await supabase
@@ -208,5 +232,6 @@ module.exports = {
   contarEjemplaresLibro,
   eliminarLibro,
   insertarEjemplar,
-  actualizarEstadoEjemplar
+  actualizarEstadoEjemplar,
+  obtenerLibroPorId
 };

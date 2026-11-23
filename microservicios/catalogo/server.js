@@ -11,7 +11,9 @@ const {
   editarLibro,
   eliminarLibroSeguro,
   registrarNuevoEjemplar,
-  cambiarEstadoEjemplar
+  cambiarEstadoEjemplar,
+  listarLibrosPublicos,
+  consultarLibroPorId,
 } = require("./services/catalogoService");
 
 const verificarToken = require("./middlewares/verificarToken");
@@ -63,6 +65,51 @@ app.get("/api/catalogo/libros", async (req, res) => {
 
     res.status(500).json({
       error: "No se pudieron obtener los libros.",
+    });
+  }
+});
+
+// Consultar los libros completos para el catálogo público
+app.get("/api/catalogo/libros/publico", async (req, res) => {
+  try {
+    const libros = await listarLibrosPublicos();
+
+    return res.status(200).json(libros);
+  } catch (error) {
+    console.error(
+      "Error al consultar el catálogo público:",
+      error.message
+    );
+
+    return res.status(500).json({
+      error: "No se pudo consultar el catálogo público."
+    });
+  }
+});
+
+// Consultar un libro por su identificador
+app.get("/api/catalogo/libros/:id", async (req, res) => {
+  try {
+    const libro = await consultarLibroPorId(req.params.id);
+
+    if (!libro) {
+      return res.status(404).json({
+        error: "No se encontró el libro solicitado.",
+      });
+    }
+
+    return res.status(200).json(libro);
+  } catch (error) {
+    console.error("Error al consultar libro:", error.message);
+
+    if (error.message === "El libro seleccionado no es válido.") {
+      return res.status(400).json({
+        error: error.message,
+      });
+    }
+
+    return res.status(500).json({
+      error: "No se pudo consultar el libro.",
     });
   }
 });

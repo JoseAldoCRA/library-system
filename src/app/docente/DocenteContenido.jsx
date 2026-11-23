@@ -8,7 +8,7 @@ import TablaMisPrestamos from "@/components/TablaMisPrestamos";
 import TablaMisSanciones from "@/components/TablaMisSanciones";
 import TablaMisSolicitudes from "@/components/TablaMisSolicitudes";
 
-import { obtenerLibroPorId } from "@/repositories/librosRepository";
+import { consultarLibroPorId } from "@/services/librosService";
 import { crearSolicitudPrestamo } from "@/services/solicitudesService";
 
 import {
@@ -113,7 +113,7 @@ export default function PanelDocente() {
           throw new Error("El libro seleccionado no es válido.");
         }
 
-        const libro = await obtenerLibroPorId(id);
+        const libro = await consultarLibroPorId(id);
 
         if (!libro) {
           throw new Error("No se encontró el libro seleccionado.");
