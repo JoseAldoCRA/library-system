@@ -1,12 +1,13 @@
-import { crearClienteSupabase } from "@/lib/supabaseClient";
 
-export async function obtenerSanciones() {
-  const supabase = crearClienteSupabase();
+const crearClienteAutenticado = require("../supabaseAutenticado");
+
+// Consultar todas las sanciones (bibliotecario)
+async function obtenerSanciones(token) {
+  const supabase = crearClienteAutenticado(token);
 
   const { data, error } = await supabase
     .from("sanciones")
-    .select(
-      `
+    .select(`
       id_sancion,
       id_prestamo,
       dias_retraso,
@@ -25,8 +26,7 @@ export async function obtenerSanciones() {
           )
         )
       )
-    `,
-    )
+    `)
     .order("id_sancion", { ascending: false });
 
   if (error) {
@@ -36,40 +36,13 @@ export async function obtenerSanciones() {
   return data;
 }
 
-export async function obtenerMisSanciones() {
-  const supabase = crearClienteSupabase();
+// Consultar las sanciones del estudiante o docente autenticado
+async function obtenerMisSanciones(token, idUsuario) {
+  const supabase = crearClienteAutenticado(token);
 
-  // Comprobar quién inició sesión
-  const {
-    data: { user },
-    error: errorSesion,
-  } = await supabase.auth.getUser();
-
-  if (errorSesion || !user) {
-    throw new Error("Debes iniciar sesión.");
-  }
-
-  // Consultar el perfil del usuario
-  const { data: perfil, error: errorPerfil } = await supabase
-    .from("usuarios")
-    .select("id_usuario, rol, estado")
-    .eq("auth_user_id", user.id)
-    .single();
-
-  if (
-    errorPerfil ||
-    !perfil ||
-    perfil.estado !== "activo" ||
-    !["estudiante", "docente"].includes(perfil.rol)
-  ) {
-    throw new Error("No tienes permiso para consultar sanciones.");
-  }
-
-  // Consultar únicamente sus sanciones
   const { data, error } = await supabase
     .from("sanciones")
-    .select(
-      `
+    .select(`
       id_sancion,
       id_prestamo,
       dias_retraso,
@@ -86,9 +59,8 @@ export async function obtenerMisSanciones() {
           )
         )
       )
-    `,
-    )
-    .eq("prestamos.id_usuario", perfil.id_usuario)
+    `)
+    .eq("prestamos.id_usuario", idUsuario)
     .order("id_sancion", { ascending: false });
 
   if (error) {
@@ -98,8 +70,9 @@ export async function obtenerMisSanciones() {
   return data;
 }
 
-export async function registrarPagoSancion(idSancion) {
-  const supabase = crearClienteSupabase();
+// Registrar el pago de una sanción (bibliotecario)
+async function registrarPagoSancion(idSancion, token) {
+  const supabase = crearClienteAutenticado(token);
 
   const { error } = await supabase.rpc("registrar_pago_sancion", {
     p_id_sancion: idSancion,
@@ -109,3 +82,9 @@ export async function registrarPagoSancion(idSancion) {
     throw new Error(error.message);
   }
 }
+
+module.exports = {
+  obtenerSanciones,
+  obtenerMisSanciones,
+  registrarPagoSancion,
+};

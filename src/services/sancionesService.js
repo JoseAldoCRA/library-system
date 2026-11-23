@@ -1,49 +1,97 @@
-import { obtenerSanciones, obtenerMisSanciones, registrarPagoSancion, } from "@/repositories/sancionesRepository";
+import { crearClienteSupabase } from "@/lib/supabaseClient";
 
-export async function listarSanciones() {
-  const sanciones = await obtenerSanciones();
+// Obtener el token de la sesión actual
+async function obtenerToken() {
+  const supabase = crearClienteSupabase();
 
-  return sanciones.map((sancion) => {
-    return {
-      id_sancion: sancion.id_sancion,
-      id_prestamo: sancion.id_prestamo,
+  const {
+    data: { session },
+    error,
+  } = await supabase.auth.getSession();
 
-      usuario: sancion.prestamos?.usuarios?.nombre || "Sin usuario",
-      ejemplar: sancion.prestamos?.ejemplares?.codigo || "Sin código",
-      libro: sancion.prestamos?.ejemplares?.libros?.titulo || "Sin título",
-      fecha_vencimiento: sancion.prestamos?.fecha_vencimiento,
-      fecha_devolucion: sancion.prestamos?.fecha_devolucion,
-      dias_retraso: sancion.dias_retraso,
-      monto: Number(sancion.monto),
-      estado_pago: sancion.estado_pago,
-    };
-  });
+  if (error || !session) {
+    throw new Error("Debes iniciar sesión primero.");
+  }
+
+  return session.access_token;
 }
+
+// Consultar todas las sanciones (Bibliotecario)
+export async function listarSanciones() {
+  const token = await obtenerToken();
+
+  const respuesta = await fetch(
+    "http://localhost:4003/api/prestamos/sanciones",
+    {
+      method: "GET",
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+      cache: "no-store",
+    }
+  );
+
+  const datos = await respuesta.json();
+
+  if (!respuesta.ok) {
+    throw new Error(datos.error || "No se pudieron consultar las sanciones.");
+  }
+
+  return datos;
+}
+
 
 export async function registrarNuevoPago(idSancion) {
   const id = Number(idSancion);
 
-  if (!Number.isInteger(id) || id <= 0) {
+  if (!Number.isSafeInteger(id) || id <= 0) {
     throw new Error("Debes seleccionar una sanción válida.");
   }
 
-  await registrarPagoSancion(id);
+  const token = await obtenerToken();
+
+  const respuesta = await fetch(
+    `http://localhost:4003/api/prestamos/sanciones/${id}/pagar`,
+    {
+      method: "PATCH",
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    }
+  );
+
+  const datos = await respuesta.json();
+
+  if (!respuesta.ok) {
+    throw new Error(
+      datos.error || "No se pudo registrar el pago de la sanción."
+    );
+  }
+
+  return datos;
 }
 
-export async function listarMisSanciones() {
-  const sanciones = await obtenerMisSanciones();
 
-  return sanciones.map((sancion) => {
-    return {
-      id_sancion: sancion.id_sancion,
-      id_prestamo: sancion.id_prestamo,
-      libro: sancion.prestamos?.ejemplares?.libros?.titulo || "Sin título",
-      ejemplar: sancion.prestamos?.ejemplares?.codigo || "Sin código",
-      fecha_vencimiento: sancion.prestamos?.fecha_vencimiento,
-      fecha_devolucion: sancion.prestamos?.fecha_devolucion,
-      dias_retraso: sancion.dias_retraso,
-      monto: Number(sancion.monto),
-      estado_pago: sancion.estado_pago,
-    };
-  });
+// Consultar las sanciones del Estudiante o Docente
+export async function listarMisSanciones() {
+  const token = await obtenerToken();
+
+  const respuesta = await fetch(
+    "http://localhost:4003/api/prestamos/sanciones/mias",
+    {
+      method: "GET",
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+      cache: "no-store",
+    }
+  );
+
+  const datos = await respuesta.json();
+
+  if (!respuesta.ok) {
+    throw new Error(datos.error || "No se pudieron consultar tus sanciones.");
+  }
+
+  return datos;
 }

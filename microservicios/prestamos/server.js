@@ -18,6 +18,13 @@ const {
   aprobarSolicitud
 } = require("./services/prestamosService");
 
+const {
+  listarSanciones,
+  listarMisSanciones,
+  registrarNuevoPago,
+} = require("./services/sancionesService");
+
+
 const app = express();
 const PORT = process.env.PORT || 4003;
 
@@ -406,6 +413,75 @@ app.patch(
 
       return res.status(500).json({
         error: "No se pudo aprobar la solicitud.",
+      });
+    }
+  }
+);
+
+
+ // Consultar todas las sanciones (Bibliotecario)
+app.get(
+  "/api/prestamos/sanciones",
+  verificarToken,
+  verificarBibliotecario,
+  async (req, res) => {
+    try {
+      const sanciones = await listarSanciones(req.token);
+      return res.status(200).json(sanciones);
+    } catch (error) {
+      console.error("Error al consultar sanciones:", error.message);
+      return res.status(500).json({
+        error: "No se pudieron consultar las sanciones.",
+      });
+    }
+  }
+);
+
+// Consultar mis sanciones (Estudiante o Docente)
+app.get(
+  "/api/prestamos/sanciones/mias",
+  verificarToken,
+  verificarSolicitante,
+  async (req, res) => {
+    try {
+      const sanciones = await listarMisSanciones(
+        req.token,
+        req.perfilSolicitante.id_usuario
+      );
+
+      return res.status(200).json(sanciones);
+    } catch (error) {
+      console.error("Error al consultar mis sanciones:", error.message);
+      return res.status(500).json({
+        error: "No se pudieron consultar tus sanciones.",
+      });
+    }
+  }
+);
+
+// Registrar el pago de una sanción (Bibliotecario)
+app.patch(
+  "/api/prestamos/sanciones/:id/pagar",
+  verificarToken,
+  verificarBibliotecario,
+  async (req, res) => {
+    try {
+      await registrarNuevoPago(req.params.id, req.token);
+
+      return res.status(200).json({
+        mensaje: "Pago de sanción registrado correctamente.",
+      });
+    } catch (error) {
+      console.error("Error al registrar pago:", error.message);
+
+      if (error.status === 400) {
+        return res.status(400).json({
+          error: error.message,
+        });
+      }
+
+      return res.status(500).json({
+        error: "No se pudo registrar el pago de la sanción.",
       });
     }
   }
