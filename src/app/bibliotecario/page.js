@@ -3,6 +3,7 @@
 import { useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import { crearClienteSupabase } from "@/lib/supabaseClient";
+import { obtenerUsuarioActual } from "@/services/authService";
 import TablaDevoluciones from "@/components/TablaDevoluciones";
 
 import {
@@ -48,30 +49,9 @@ export default function PanelBibliotecario() {
 
   useEffect(() => {
     async function verificarUsuario() {
-      const supabase = crearClienteSupabase();
+      const perfil = await obtenerUsuarioActual();
 
-      const {
-        data: { user },
-        error,
-      } = await supabase.auth.getUser();
-
-      if (error || !user) {
-        router.replace("/");
-        return;
-      }
-
-      const { data: perfil, error: errorPerfil } = await supabase
-        .from("usuarios")
-        .select("nombre, rol, estado")
-        .eq("auth_user_id", user.id)
-        .single();
-
-      if (
-        errorPerfil ||
-        !perfil ||
-        perfil.rol !== "bibliotecario" ||
-        perfil.estado !== "activo"
-      ) {
+      if (!perfil || perfil.rol !== "bibliotecario") {
         router.replace("/");
         return;
       }

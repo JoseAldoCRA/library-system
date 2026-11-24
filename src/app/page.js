@@ -220,14 +220,10 @@ export default function Home() {
       return;
     }
 
-    // Consultar el perfil del usuario
-    const { data: perfil, error: errorPerfil } = await supabase
-      .from("usuarios")
-      .select("rol, estado")
-      .eq("auth_user_id", user.id)
-      .single();
+    // Consultar el perfil mediante el microservicio de usuarios
+    const perfil = await obtenerUsuarioActual();
 
-    if (errorPerfil || !perfil || perfil.estado !== "activo") {
+    if (!perfil) {
       alert("Tu cuenta no está activa o no se pudo verificar.");
       return;
     }

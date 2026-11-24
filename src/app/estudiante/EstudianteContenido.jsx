@@ -1,9 +1,9 @@
-
 "use client";
 
 import { useEffect, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { crearClienteSupabase } from "@/lib/supabaseClient";
+import { obtenerUsuarioActual } from "@/services/authService";
 
 import TablaMisPrestamos from "@/components/TablaMisPrestamos";
 import TablaMisSolicitudes from "@/components/TablaMisSolicitudes";
@@ -20,7 +20,7 @@ import {
   LogOut,
   GraduationCap,
   ArrowUpRight,
-  ClipboardList
+  ClipboardList,
 } from "lucide-react";
 
 import styles from "./estudiante.module.css";
@@ -42,41 +42,24 @@ export default function PanelEstudiante() {
 
   useEffect(() => {
     async function verificarUsuario() {
-      const supabase = crearClienteSupabase();
+      try {
+        const perfil = await obtenerUsuarioActual();
 
-      const {
-        data: { user },
-        error,
-      } = await supabase.auth.getUser();
+        if (!perfil || perfil.rol !== "estudiante") {
+          router.replace("/");
+          return;
+        }
 
-      if (error || !user) {
+        setNombre(perfil.nombre);
+        setCargando(false);
+      } catch (error) {
+        console.error("Error al verificar estudiante:", error);
         router.replace("/");
-        return;
       }
-
-      const { data: perfil, error: errorPerfil } = await supabase
-        .from("usuarios")
-        .select("nombre, rol, estado")
-        .eq("auth_user_id", user.id)
-        .single();
-
-      if (
-        errorPerfil ||
-        !perfil ||
-        perfil.rol !== "estudiante" ||
-        perfil.estado !== "activo"
-      ) {
-        router.replace("/");
-        return;
-      }
-
-      setNombre(perfil.nombre);
-      setCargando(false);
     }
 
     verificarUsuario();
   }, [router]);
-
 
   useEffect(() => {
     if (cargando || !idLibroSeleccionado) return;
@@ -122,16 +105,14 @@ export default function PanelEstudiante() {
     };
   }, [idLibroSeleccionado, cargando]);
 
-
   async function confirmarSolicitud() {
     if (!libroSolicitud || enviandoSolicitud || solicitudConfirmada) {
       return;
     }
 
     const disponibles =
-      libroSolicitud.ejemplares?.filter(
-        (item) => item.estado === "disponible"
-      ).length ?? 0;
+      libroSolicitud.ejemplares?.filter((item) => item.estado === "disponible")
+        .length ?? 0;
 
     if (disponibles === 0) {
       setMensajeSolicitud("Este libro no tiene ejemplares disponibles.");
@@ -146,11 +127,11 @@ export default function PanelEstudiante() {
 
       setSolicitudConfirmada(true);
       setMensajeSolicitud(
-        "Tu solicitud se registró correctamente. Está pendiente de revisión por el bibliotecario."
+        "Tu solicitud se registró correctamente. Está pendiente de revisión por el bibliotecario.",
       );
     } catch (error) {
       setMensajeSolicitud(
-        error.message || "No se pudo registrar la solicitud."
+        error.message || "No se pudo registrar la solicitud.",
       );
     } finally {
       setEnviandoSolicitud(false);
@@ -160,8 +141,6 @@ export default function PanelEstudiante() {
   function cancelarSolicitud() {
     router.push("/");
   }
-
-
 
   async function cerrarSesion() {
     const supabase = crearClienteSupabase();
@@ -187,20 +166,14 @@ export default function PanelEstudiante() {
   }
 
   if (cargando) {
-    return (
-      <main className={styles.cargando}>
-        Verificando sesión...
-      </main>
-    );
+    return <main className={styles.cargando}>Verificando sesión...</main>;
   }
 
   return (
     <div className={styles.panel} translate="no">
-
       {/* MENÚ LATERAL */}
 
       <aside className={styles.sidebar}>
-
         <div className={styles.marca}>
           <LibraryBig size={26} />
 
@@ -210,9 +183,7 @@ export default function PanelEstudiante() {
           </div>
         </div>
 
-        <p className={styles.etiquetaMenu}>
-          MENÚ PRINCIPAL
-        </p>
+        <p className={styles.etiquetaMenu}>MENÚ PRINCIPAL</p>
 
         <nav className={styles.menu}>
           {opciones.map((opcion) => {
@@ -222,10 +193,9 @@ export default function PanelEstudiante() {
               <button
                 key={opcion.id}
                 type="button"
-                className={`${styles.opcion} ${seccion === opcion.id
-                  ? styles.opcionActiva
-                  : ""
-                  }`}
+                className={`${styles.opcion} ${
+                  seccion === opcion.id ? styles.opcionActiva : ""
+                }`}
                 onClick={() => setSeccion(opcion.id)}
               >
                 <Icono size={18} />
@@ -259,7 +229,6 @@ export default function PanelEstudiante() {
       {/* CONTENIDO */}
 
       <main className={styles.contenido}>
-
         <header className={styles.encabezado}>
           <div>
             <span>PANEL DEL ESTUDIANTE</span>
@@ -273,21 +242,16 @@ export default function PanelEstudiante() {
           </div>
         </header>
 
-
         {/* SOLICITUD DE PRÉSTAMO */}
 
         {seccion === "solicitud" && (
           <div className={styles.seccion}>
             <div className={styles.bienvenida}>
               <h2>Solicitud de préstamo</h2>
-              <p>
-                Revisa los datos del libro antes de solicitarlo.
-              </p>
+              <p>Revisa los datos del libro antes de solicitarlo.</p>
             </div>
 
-            {cargandoLibro && (
-              <p>Cargando información del libro...</p>
-            )}
+            {cargandoLibro && <p>Cargando información del libro...</p>}
 
             {errorLibro && (
               <p role="alert" style={{ color: "#B42318" }}>
@@ -319,12 +283,18 @@ export default function PanelEstudiante() {
                 <p>
                   <strong>Ejemplares disponibles:</strong>{" "}
                   {libroSolicitud.ejemplares?.filter(
-                    (item) => item.estado === "disponible"
+                    (item) => item.estado === "disponible",
                   ).length ?? 0}
                 </p>
 
-
-                <div style={{ display: "flex", gap: "12px", marginTop: "20px", flexWrap: "wrap" }}>
+                <div
+                  style={{
+                    display: "flex",
+                    gap: "12px",
+                    marginTop: "20px",
+                    flexWrap: "wrap",
+                  }}
+                >
                   <button
                     type="button"
                     onClick={cancelarSolicitud}
@@ -349,7 +319,7 @@ export default function PanelEstudiante() {
                       enviandoSolicitud ||
                       solicitudConfirmada ||
                       (libroSolicitud.ejemplares?.filter(
-                        (item) => item.estado === "disponible"
+                        (item) => item.estado === "disponible",
                       ).length ?? 0) === 0
                     }
                     className={styles.botonConfirmarSolicitud}
@@ -376,14 +346,13 @@ export default function PanelEstudiante() {
 
                 {!solicitudConfirmada &&
                   (libroSolicitud.ejemplares?.filter(
-                    (item) => item.estado === "disponible"
+                    (item) => item.estado === "disponible",
                   ).length ?? 0) === 0 && (
                     <p className={styles.avisoSolicitud}>
-                      Este libro no tiene ejemplares disponibles.
-                      Por el momento no puedes solicitarlo.
+                      Este libro no tiene ejemplares disponibles. Por el momento
+                      no puedes solicitarlo.
                     </p>
                   )}
-
               </div>
             )}
           </div>
@@ -393,17 +362,15 @@ export default function PanelEstudiante() {
 
         {seccion === "inicio" && (
           <div className={styles.seccion}>
-
             <div className={styles.bienvenida}>
               <h2>Mi biblioteca</h2>
               <p>
-                Consulta tus préstamos, fechas de vencimiento
-                y sanciones desde un solo lugar.
+                Consulta tus préstamos, fechas de vencimiento y sanciones desde
+                un solo lugar.
               </p>
             </div>
 
             <div className={styles.tarjetas}>
-
               <button
                 type="button"
                 className={styles.tarjeta}
@@ -415,9 +382,7 @@ export default function PanelEstudiante() {
 
                 <h3>Mis solicitudes</h3>
 
-                <p>
-                  Revisa el estado de tus solicitudes.
-                </p>
+                <p>Revisa el estado de tus solicitudes.</p>
 
                 <ArrowUpRight size={17} />
               </button>
@@ -432,9 +397,7 @@ export default function PanelEstudiante() {
                 </div>
 
                 <h3>Mis préstamos</h3>
-                <p>
-                  Consulta libros y vencimientos.
-                </p>
+                <p>Consulta libros y vencimientos.</p>
                 <ArrowUpRight size={17} />
               </button>
 
@@ -448,12 +411,9 @@ export default function PanelEstudiante() {
                 </div>
 
                 <h3>Mis sanciones</h3>
-                <p>
-                  Consulta multas y restricciones.
-                </p>
+                <p>Consulta multas y restricciones.</p>
                 <ArrowUpRight size={17} />
               </button>
-
             </div>
           </div>
         )}
@@ -464,9 +424,7 @@ export default function PanelEstudiante() {
           <div className={styles.seccion}>
             <div className={styles.bienvenida}>
               <h2>Mis solicitudes</h2>
-              <p>
-                Consulta el estado de los libros que has solicitado.
-              </p>
+              <p>Consulta el estado de los libros que has solicitado.</p>
             </div>
 
             <TablaMisSolicitudes />
@@ -477,10 +435,8 @@ export default function PanelEstudiante() {
 
         {seccion === "prestamos" && (
           <div className={styles.seccion}>
-
             <div className={styles.aviso}>
-              Como estudiante puedes tener un máximo
-              de 3 préstamos activos.
+              Como estudiante puedes tener un máximo de 3 préstamos activos.
             </div>
 
             <TablaMisPrestamos />
@@ -494,7 +450,6 @@ export default function PanelEstudiante() {
             <TablaMisSanciones />
           </div>
         )}
-
       </main>
     </div>
   );

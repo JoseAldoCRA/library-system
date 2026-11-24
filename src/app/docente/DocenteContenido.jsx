@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { crearClienteSupabase } from "@/lib/supabaseClient";
+import { obtenerUsuarioActual } from "@/services/authService";
 
 import TablaMisPrestamos from "@/components/TablaMisPrestamos";
 import TablaMisSanciones from "@/components/TablaMisSanciones";
@@ -42,36 +43,14 @@ export default function PanelDocente() {
   const [solicitudConfirmada, setSolicitudConfirmada] = useState(false);
   const [mensajeSolicitud, setMensajeSolicitud] = useState("");
 
-
   useEffect(() => {
     let activo = true;
 
     async function verificarUsuario() {
       try {
-        const supabase = crearClienteSupabase();
+        const perfil = await obtenerUsuarioActual();
 
-        const {
-          data: { user },
-          error,
-        } = await supabase.auth.getUser();
-
-        if (error || !user) {
-          router.replace("/");
-          return;
-        }
-
-        const { data: perfil, error: errorPerfil } = await supabase
-          .from("usuarios")
-          .select("nombre, rol, estado")
-          .eq("auth_user_id", user.id)
-          .single();
-
-        if (
-          errorPerfil ||
-          !perfil ||
-          perfil.rol !== "docente" ||
-          perfil.estado !== "activo"
-        ) {
+        if (!perfil || perfil.rol !== "docente") {
           router.replace("/");
           return;
         }
@@ -92,7 +71,6 @@ export default function PanelDocente() {
       activo = false;
     };
   }, [router]);
-
 
   useEffect(() => {
     if (cargando || !idLibroSeleccionado) return;
@@ -145,23 +123,16 @@ export default function PanelDocente() {
   // CONFIRMAR SOLICITUD
 
   async function confirmarSolicitud() {
-    if (
-      !libroSolicitud ||
-      enviandoSolicitud ||
-      solicitudConfirmada
-    ) {
+    if (!libroSolicitud || enviandoSolicitud || solicitudConfirmada) {
       return;
     }
 
     const disponibles =
-      libroSolicitud.ejemplares?.filter(
-        (item) => item.estado === "disponible"
-      ).length ?? 0;
+      libroSolicitud.ejemplares?.filter((item) => item.estado === "disponible")
+        .length ?? 0;
 
     if (disponibles === 0) {
-      setMensajeSolicitud(
-        "Este libro no tiene ejemplares disponibles."
-      );
+      setMensajeSolicitud("Este libro no tiene ejemplares disponibles.");
       return;
     }
 
@@ -174,11 +145,11 @@ export default function PanelDocente() {
       setSolicitudConfirmada(true);
       setMensajeSolicitud(
         "Tu solicitud se registró correctamente. " +
-        "Está pendiente de revisión por el bibliotecario."
+          "Está pendiente de revisión por el bibliotecario.",
       );
     } catch (error) {
       setMensajeSolicitud(
-        error.message || "No se pudo registrar la solicitud."
+        error.message || "No se pudo registrar la solicitud.",
       );
     } finally {
       setEnviandoSolicitud(false);
@@ -225,21 +196,15 @@ export default function PanelDocente() {
   }
 
   if (cargando) {
-    return (
-      <main className={styles.cargando}>
-        Verificando sesión...
-      </main>
-    );
+    return <main className={styles.cargando}>Verificando sesión...</main>;
   }
 
   const ejemplaresDisponibles =
-    libroSolicitud?.ejemplares?.filter(
-      (item) => item.estado === "disponible"
-    ).length ?? 0;
+    libroSolicitud?.ejemplares?.filter((item) => item.estado === "disponible")
+      .length ?? 0;
 
   return (
     <div className={styles.panel} translate="no">
-
       {/* MENÚ LATERAL */}
 
       <aside className={styles.sidebar}>
@@ -252,9 +217,7 @@ export default function PanelDocente() {
           </div>
         </div>
 
-        <p className={styles.etiquetaMenu}>
-          MENÚ PRINCIPAL
-        </p>
+        <p className={styles.etiquetaMenu}>MENÚ PRINCIPAL</p>
 
         <nav className={styles.menu}>
           {opciones.map((opcion) => {
@@ -265,9 +228,7 @@ export default function PanelDocente() {
                 key={opcion.id}
                 type="button"
                 className={`${styles.opcion} ${
-                  seccion === opcion.id
-                    ? styles.opcionActiva
-                    : ""
+                  seccion === opcion.id ? styles.opcionActiva : ""
                 }`}
                 onClick={() => setSeccion(opcion.id)}
               >
@@ -322,9 +283,8 @@ export default function PanelDocente() {
             <div className={styles.bienvenida}>
               <h2>Mi biblioteca</h2>
               <p>
-                Consulta tus solicitudes, préstamos,
-                fechas de vencimiento y sanciones
-                desde un solo lugar.
+                Consulta tus solicitudes, préstamos, fechas de vencimiento y
+                sanciones desde un solo lugar.
               </p>
             </div>
 
@@ -340,8 +300,7 @@ export default function PanelDocente() {
 
                 <h3>Mis solicitudes</h3>
                 <p>
-                  Consulta tus solicitudes y cancela
-                  las que siguen pendientes.
+                  Consulta tus solicitudes y cancela las que siguen pendientes.
                 </p>
 
                 <ArrowUpRight size={17} />
@@ -357,10 +316,7 @@ export default function PanelDocente() {
                 </div>
 
                 <h3>Mis préstamos</h3>
-                <p>
-                  Consulta tus libros prestados
-                  y fechas de devolución.
-                </p>
+                <p>Consulta tus libros prestados y fechas de devolución.</p>
 
                 <ArrowUpRight size={17} />
               </button>
@@ -376,8 +332,8 @@ export default function PanelDocente() {
 
                 <h3>Mis sanciones</h3>
                 <p>
-                  Consulta las multas y sanciones
-                  relacionadas con tus préstamos.
+                  Consulta las multas y sanciones relacionadas con tus
+                  préstamos.
                 </p>
 
                 <ArrowUpRight size={17} />
@@ -393,14 +349,11 @@ export default function PanelDocente() {
             <div className={styles.bienvenida}>
               <h2>Solicitud de préstamo</h2>
               <p>
-                Revisa la información del libro
-                antes de enviar tu solicitud.
+                Revisa la información del libro antes de enviar tu solicitud.
               </p>
             </div>
 
-            {cargandoLibro && (
-              <p>Cargando información del libro...</p>
-            )}
+            {cargandoLibro && <p>Cargando información del libro...</p>}
 
             {errorLibro && (
               <p role="alert" style={{ color: "#B42318" }}>
@@ -417,19 +370,16 @@ export default function PanelDocente() {
                 <h2>{libroSolicitud.titulo}</h2>
 
                 <p>
-                  <strong>Autor:</strong>{" "}
-                  {libroSolicitud.autor}
+                  <strong>Autor:</strong> {libroSolicitud.autor}
                 </p>
 
                 <p>
-                  <strong>ISBN:</strong>{" "}
-                  {libroSolicitud.isbn}
+                  <strong>ISBN:</strong> {libroSolicitud.isbn}
                 </p>
 
                 <p>
                   <strong>Categoría:</strong>{" "}
-                  {libroSolicitud.categorias?.nombre ||
-                    "Sin categoría"}
+                  {libroSolicitud.categorias?.nombre || "Sin categoría"}
                 </p>
 
                 <p>
@@ -459,9 +409,7 @@ export default function PanelDocente() {
                       cursor: "pointer",
                     }}
                   >
-                    {solicitudConfirmada
-                      ? "Volver al catálogo"
-                      : "Cancelar"}
+                    {solicitudConfirmada ? "Volver al catálogo" : "Cancelar"}
                   </button>
 
                   <button
@@ -477,8 +425,8 @@ export default function PanelDocente() {
                     {enviandoSolicitud
                       ? "Enviando solicitud..."
                       : solicitudConfirmada
-                      ? "Solicitud enviada"
-                      : "Confirmar solicitud"}
+                        ? "Solicitud enviada"
+                        : "Confirmar solicitud"}
                   </button>
                 </div>
 
@@ -487,22 +435,19 @@ export default function PanelDocente() {
                     role="status"
                     className={styles.avisoSolicitud}
                     style={{
-                      color: solicitudConfirmada
-                        ? "#244D3D"
-                        : "#B42318",
+                      color: solicitudConfirmada ? "#244D3D" : "#B42318",
                     }}
                   >
                     {mensajeSolicitud}
                   </p>
                 )}
 
-                {!solicitudConfirmada &&
-                  ejemplaresDisponibles === 0 && (
-                    <p className={styles.avisoSolicitud}>
-                      Este libro no tiene ejemplares disponibles.
-                      Por el momento no puedes solicitarlo.
-                    </p>
-                  )}
+                {!solicitudConfirmada && ejemplaresDisponibles === 0 && (
+                  <p className={styles.avisoSolicitud}>
+                    Este libro no tiene ejemplares disponibles. Por el momento
+                    no puedes solicitarlo.
+                  </p>
+                )}
               </div>
             )}
           </div>
@@ -514,10 +459,7 @@ export default function PanelDocente() {
           <div className={styles.seccion}>
             <div className={styles.bienvenida}>
               <h2>Mis solicitudes</h2>
-              <p>
-                Consulta el estado de los libros
-                que has solicitado.
-              </p>
+              <p>Consulta el estado de los libros que has solicitado.</p>
             </div>
 
             <TablaMisSolicitudes />
@@ -529,10 +471,9 @@ export default function PanelDocente() {
         {seccion === "prestamos" && (
           <div className={styles.seccion}>
             <div className={styles.aviso}>
-              Como docente puedes tener un máximo de
-              5 préstamos activos.
-              Para devolver un libro, entrégalo físicamente
-              al bibliotecario para que registre la devolución.
+              Como docente puedes tener un máximo de 5 préstamos activos. Para
+              devolver un libro, entrégalo físicamente al bibliotecario para que
+              registre la devolución.
             </div>
 
             <TablaMisPrestamos />
