@@ -6,6 +6,7 @@ require("dotenv").config();
 const verificarToken = require("./middlewares/verificarToken");
 const verificarBibliotecario = require("./middlewares/verificarBibliotecario");
 const {
+  listarUsuariosPrestamo,
   listarUsuarios,
   registrarNuevoUsuario,
   editarUsuario,
@@ -40,6 +41,29 @@ app.get(
       mensaje: "Acceso autorizado para bibliotecario.",
       usuario: req.perfilBibliotecario,
     });
+  }
+);
+
+ // Consultar estudiantes y docentes activos para préstamos
+app.get(
+  "/api/usuarios/para-prestamos",
+  verificarToken,
+  verificarBibliotecario,
+  async (req, res) => {
+    try {
+      const usuarios = await listarUsuariosPrestamo(req.token);
+
+      return res.status(200).json(usuarios);
+    } catch (error) {
+      console.error(
+        "Error al consultar usuarios para préstamos:",
+        error.message
+      );
+
+      return res.status(500).json({
+        error: "No se pudieron consultar los usuarios para préstamos.",
+      });
+    }
   }
 );
 

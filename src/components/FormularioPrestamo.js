@@ -2,9 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { crearClienteSupabase } from "@/lib/supabaseClient";
-// import { registrarNuevoPrestamo } from "@/services/prestamosService";
-import { obtenerUsuariosPrestamo } from "@/repositories/usuariosRepository";
-// import { obtenerEjemplaresDisponibles } from "@/repositories/ejemplaresRepository";
+import { listarUsuariosPrestamo } from "@/services/usuariosService";
 import { listarEjemplaresDisponibles } from "@/services/ejemplaresService";
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
@@ -34,8 +32,7 @@ export default function FormularioPrestamo({ alRegistrar, actualizacion }) {
       setCargando(true);
 
       try {
-        const datosUsuarios = await obtenerUsuariosPrestamo();
-        // const datosEjemplares = await obtenerEjemplaresDisponibles();
+        const datosUsuarios = await listarUsuariosPrestamo();
         const datosEjemplares = await listarEjemplaresDisponibles();
 
         if (activo) {

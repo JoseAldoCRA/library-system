@@ -1,6 +1,7 @@
 const { randomBytes, createHash } = require("node:crypto");
 
 const {
+  obtenerUsuariosPrestamo,
   obtenerTodosUsuarios,
   crearCuentaUsuario,
   obtenerUsuarioPorId,
@@ -13,6 +14,11 @@ const {
   crearAccesoUsuario,
   obtenerVinculoUsuario,
 } = require("../repositories/usuariosRepository");
+
+ // Consultar estudiantes y docentes activos para préstamos
+async function listarUsuariosPrestamo(token) {
+  return await obtenerUsuariosPrestamo(token);
+}
 
 async function listarUsuarios(token) {
   const usuarios = await obtenerTodosUsuarios(token);
@@ -454,6 +460,7 @@ async function activarUsuario(datos) {
 }
 
 module.exports = {
+  listarUsuariosPrestamo,
   listarUsuarios,
   validarRegistroUsuario,
   registrarNuevoUsuario,

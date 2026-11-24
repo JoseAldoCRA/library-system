@@ -2,6 +2,24 @@
 const crearClienteAutenticado = require("../supabaseAutenticado");
 const crearClienteSupabaseAdmin = require("../supabaseAdmin");
 
+ // Obtener estudiantes y docentes activos para préstamos
+async function obtenerUsuariosPrestamo(token) {
+  const supabase = crearClienteAutenticado(token);
+
+  const { data, error } = await supabase
+    .from("usuarios")
+    .select("id_usuario, nombre, rol")
+    .eq("estado", "activo")
+    .in("rol", ["estudiante", "docente"])
+    .order("nombre", { ascending: true });
+
+  if (error) {
+    throw new Error(error.message);
+  }
+
+  return data;
+}
+
 async function obtenerTodosUsuarios(token) {
   const supabase = crearClienteAutenticado(token);
 
@@ -227,6 +245,7 @@ async function obtenerVinculoUsuario(idUsuario) {
 }
 
 module.exports = {
+  obtenerUsuariosPrestamo,
   obtenerTodosUsuarios,
   crearCuentaUsuario,
   obtenerUsuarioPorId,
