@@ -1,6 +1,7 @@
 const { randomBytes, createHash } = require("node:crypto");
 
 const {
+  obtenerPerfilAutenticado,
   obtenerUsuariosPrestamo,
   obtenerTodosUsuarios,
   crearCuentaUsuario,
@@ -14,6 +15,17 @@ const {
   crearAccesoUsuario,
   obtenerVinculoUsuario,
 } = require("../repositories/usuariosRepository");
+
+// Consultar el perfil del usuario autenticado
+async function consultarPerfilAutenticado(token, idAuth) {
+  const perfil = await obtenerPerfilAutenticado(token, idAuth);
+
+  if (!perfil || perfil.estado !== "activo") {
+    return null;
+  }
+
+  return perfil;
+}
 
  // Consultar estudiantes y docentes activos para préstamos
 async function listarUsuariosPrestamo(token) {
@@ -460,6 +472,7 @@ async function activarUsuario(datos) {
 }
 
 module.exports = {
+  consultarPerfilAutenticado,
   listarUsuariosPrestamo,
   listarUsuarios,
   validarRegistroUsuario,

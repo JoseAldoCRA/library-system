@@ -6,6 +6,7 @@ require("dotenv").config();
 const verificarToken = require("./middlewares/verificarToken");
 const verificarBibliotecario = require("./middlewares/verificarBibliotecario");
 const {
+  consultarPerfilAutenticado,
   listarUsuariosPrestamo,
   listarUsuarios,
   registrarNuevoUsuario,
@@ -30,6 +31,37 @@ app.get("/api/usuarios/salud", (req, res) => {
     mensaje: "Microservicio de Usuarios funcionando correctamente.",
   });
 });
+
+// Consultar el perfil del usuario autenticado
+app.get(
+  "/api/usuarios/perfil",
+  verificarToken,
+  async (req, res) => {
+    try {
+      const perfil = await consultarPerfilAutenticado(
+        req.token,
+        req.usuarioAuth.id
+      );
+
+      if (!perfil) {
+        return res.status(403).json({
+          error: "Tu usuario no tiene un perfil activo.",
+        });
+      }
+
+      return res.status(200).json(perfil);
+    } catch (error) {
+      console.error(
+        "Error al consultar el perfil:",
+        error.message
+      );
+
+      return res.status(500).json({
+        error: "No se pudo consultar el perfil del usuario.",
+      });
+    }
+  }
+);
 
  // Comprobar los permisos del bibliotecario
 app.get(

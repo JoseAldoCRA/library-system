@@ -1,39 +1,59 @@
-import { crearClienteSupabase } from '@/lib/supabaseClient';
+import { crearClienteSupabase } from "@/lib/supabaseClient";
 
 export async function iniciarSesion(correo, contrasena) {
-    const supabase = crearClienteSupabase();
+  const supabase = crearClienteSupabase();
 
-    const { data, error } = await supabase.auth.signInWithPassword({
-        email: correo,
-        password: contrasena
+  const { data, error } = await supabase.auth.signInWithPassword({
+    email: correo,
+    password: contrasena,
+  });
+
+  if (error) {
+    return {
+      exito: false,
+      mensaje: "Correo o contraseña incorrectos",
+    };
+  }
+
+  let respuesta;
+
+  try {
+    respuesta = await fetch("http://localhost:4004/api/usuarios/perfil", {
+      method: "GET",
+      headers: {
+        Authorization: `Bearer ${data.session.access_token}`,
+      },
+      cache: "no-store",
     });
+  } catch (error) {
+    console.error("Error al conectar con el microservicio:", error.message);
 
-    if (error) {
-        return {
-            exito: false,
-            mensaje: 'Correo o contraseña incorrectos'
-        };
-    }
-
-    const { data: perfil, error: errorPerfil } = await supabase
-        .from('usuarios')
-        .select('id_usuario, nombre, correo, rol, estado')
-        .eq('auth_user_id', data.user.id)
-        .single();
-
-    if (errorPerfil || !perfil || perfil.estado !== 'activo') {
-        await supabase.auth.signOut();
-
-        return {
-            exito: false,
-            mensaje: 'Tu usuario no tiene un perfil activo'
-        };
-    }
+    await supabase.auth.signOut();
 
     return {
-        exito: true,
-        usuario: perfil
+      exito: false,
+      mensaje: "No se pudo conectar con el servicio de usuarios.",
     };
+  }
+
+  if (!respuesta.ok) {
+    await supabase.auth.signOut();
+
+    return {
+      exito: false,
+      mensaje:
+        respuesta.status === 403
+          ? "Tu usuario no tiene un perfil activo"
+          : "No se pudo verificar el perfil del usuario.",
+    };
+  }
+
+  const perfil = await respuesta.json();
+
+  return {
+    exito: true,
+    usuario: perfil,
+  };
 }
 
 export async function registrarCuenta(nombre, correo, contrasena, rol) {
@@ -63,25 +83,36 @@ export async function registrarCuenta(nombre, correo, contrasena, rol) {
   };
 }
 
-
 export async function obtenerUsuarioActual() {
   const supabase = crearClienteSupabase();
 
-  const { data, error } = await supabase.auth.getUser();
+  const {
+    data: { session },
+    error,
+  } = await supabase.auth.getSession();
 
-  if (error || !data.user) {
+  if (error || !session) {
     return null;
   }
 
-  const { data: perfil, error: errorPerfil } = await supabase
-    .from("usuarios")
-    .select("id_usuario, nombre, correo, rol, estado")
-    .eq("auth_user_id", data.user.id)
-    .single();
+  try {
+    const respuesta = await fetch("http://localhost:4004/api/usuarios/perfil", {
+      method: "GET",
+      headers: {
+        Authorization: `Bearer ${session.access_token}`,
+      },
+      cache: "no-store",
+    });
 
-  if (errorPerfil || !perfil || perfil.estado !== "activo") {
+    if (!respuesta.ok) {
+      return null;
+    }
+
+    const perfil = await respuesta.json();
+
+    return perfil;
+  } catch (error) {
+    console.error("Error al consultar el perfil:", error.message);
     return null;
   }
-
-  return perfil;
 }
